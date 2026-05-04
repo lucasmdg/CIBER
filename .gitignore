@@ -1,0 +1,28 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+.venv/
+env/
+venv/
+ENV/
+
+# Archivos de datos de los proyectos (Sensibles)
+*.json
+*.key
+*.txt
+!README.md
+!requirements.txt
+
+# Logs
+*.log
+keylog.txt
+
+# Base de datos del Vault
+vault.json
+test_vault.json
+baseline.json
+
+# IDEs
+.vscode/
+.idea/
