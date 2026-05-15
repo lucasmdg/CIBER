@@ -1,17 +1,8 @@
-# 08 Ransomware Simulator Controlled
-
-**Nivel:** Nivel Avanzado
-
-## Descripción
-Breve descripción del proyecto 08 Ransomware Simulator Controlled.
-
-## Objetivo
-El objetivo de este proyecto es...
-
-## Tecnologías sugeridas
-- Python
-- Librerías relevantes (scapy, requests, etc.)
-
-## Ideas de implementación
-1. Paso 1...
-2. Paso 2...
+# Simulador de Ransomware (Entorno Controlado)
+## Descripcion
+Simulacion educativa del ciclo completo de un ransomware: cifrado AES-256-GCM de archivos, generacion de nota de rescate, y recuperacion. Opera exclusivamente en un directorio temporal seguro.
+## Requisitos
+- Python 3.x
+- cryptography (`pip install cryptography`)
+## AVISO
+SOLO PARA USO EDUCATIVO. No cifra archivos reales.

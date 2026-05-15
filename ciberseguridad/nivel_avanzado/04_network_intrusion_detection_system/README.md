@@ -1,17 +1,13 @@
-# 04 Network Intrusion Detection System
+# NIDS - Sistema de Deteccion de Intrusiones de Red
 
-**Nivel:** Nivel Avanzado
+## Descripcion
+Version avanzada de un IDS que analiza flujos de red completos, incluye base de datos de amenazas (Threat Intelligence), deteccion de exfiltracion de datos y generacion de reportes.
 
-## Descripción
-Breve descripción del proyecto 04 Network Intrusion Detection System.
+## Caracteristicas
+- Analisis de flujos de red (no solo paquetes individuales)
+- Threat Intelligence con lista negra de IPs y firmas de ataques
+- Deteccion de escaneo de puertos, DDoS y exfiltracion
+- Reportes JSON detallados
 
-## Objetivo
-El objetivo de este proyecto es...
-
-## Tecnologías sugeridas
-- Python
-- Librerías relevantes (scapy, requests, etc.)
-
-## Ideas de implementación
-1. Paso 1...
-2. Paso 2...
+## Requisitos
+- Python 3.x (sin dependencias externas)

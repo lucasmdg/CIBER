@@ -1,17 +1,5 @@
-# 09 Threat Hunting Lab
-
-**Nivel:** Nivel Avanzado
-
-## Descripción
-Breve descripción del proyecto 09 Threat Hunting Lab.
-
-## Objetivo
-El objetivo de este proyecto es...
-
-## Tecnologías sugeridas
-- Python
-- Librerías relevantes (scapy, requests, etc.)
-
-## Ideas de implementación
-1. Paso 1...
-2. Paso 2...
+# Laboratorio de Threat Hunting
+## Descripcion
+Plataforma de caza de amenazas proactiva con correlacion de eventos, deteccion de fuerza bruta, movimiento lateral, exfiltracion de datos y matching de IOCs.
+## Requisitos
+- Python 3.x (sin dependencias externas)

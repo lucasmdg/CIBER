@@ -1,17 +1,15 @@
-# 02 Mini Metasploit Like Tool
+# Mini Exploit Framework (estilo Metasploit)
 
-**Nivel:** Nivel Avanzado
+## Descripcion
+Este proyecto implementa un framework de explotacion modular inspirado en Metasploit. Tiene una arquitectura de modulos (exploits) que se pueden cargar, configurar y ejecutar desde una consola interactiva.
 
-## Descripción
-Breve descripción del proyecto 02 Mini Metasploit Like Tool.
+## Arquitectura
+- **Exploit (clase base)**: Define la interfaz que todos los modulos deben seguir.
+- **Modulos concretos**: FTPAnonExploit, HTTPHeaderExploit, SMBEnumExploit.
+- **ExploitFramework**: El gestor central que organiza modulos, opciones e historial.
+- **Consola interactiva**: Interfaz de texto al estilo `msf >`.
 
-## Objetivo
-El objetivo de este proyecto es...
-
-## Tecnologías sugeridas
-- Python
-- Librerías relevantes (scapy, requests, etc.)
-
-## Ideas de implementación
-1. Paso 1...
-2. Paso 2...
+## Uso
+```bash
+python src/exploit_framework.py
+```

@@ -1,0 +1,4 @@
+scapy==2.5.0
+requests==2.31.0
+pytest==8.0.0
+cryptography==42.0.5

@@ -1,17 +1,15 @@
-# 03 Advanced Password Manager
+# Gestor de Contrasenas Avanzado
 
-**Nivel:** Nivel Avanzado
+## Descripcion
+Gestor de contrasenas con cifrado AES-256-GCM y derivacion de clave PBKDF2 (600.000 iteraciones). Incluye generador de contrasenas seguras, auditoria de fortaleza, categorias y busqueda.
 
-## Descripción
-Breve descripción del proyecto 03 Advanced Password Manager.
+## Caracteristicas
+- Cifrado AES-256-GCM (autenticado)
+- Derivacion PBKDF2 con SHA-256
+- Generador criptografico de contrasenas
+- Auditoria automatica de contrasenas debiles
+- Categorias y busqueda
 
-## Objetivo
-El objetivo de este proyecto es...
-
-## Tecnologías sugeridas
-- Python
-- Librerías relevantes (scapy, requests, etc.)
-
-## Ideas de implementación
-1. Paso 1...
-2. Paso 2...
+## Requisitos
+- Python 3.x
+- cryptography (`pip install cryptography`)

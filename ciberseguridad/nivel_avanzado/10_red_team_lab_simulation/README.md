@@ -1,17 +1,5 @@
-# 10 Red Team Lab Simulation
-
-**Nivel:** Nivel Avanzado
-
-## Descripción
-Breve descripción del proyecto 10 Red Team Lab Simulation.
-
-## Objetivo
-El objetivo de este proyecto es...
-
-## Tecnologías sugeridas
-- Python
-- Librerías relevantes (scapy, requests, etc.)
-
-## Ideas de implementación
-1. Paso 1...
-2. Paso 2...
+# Simulacion de Laboratorio Red Team
+## Descripcion
+Simulacion completa de un ejercicio de Red Team con las 6 fases: Reconocimiento, Escaneo, Explotacion, Post-Explotacion, Exfiltracion y Reporte. Simula pivoting, escalada de privilegios y movimiento lateral.
+## Requisitos
+- Python 3.x (sin dependencias externas)

@@ -1,17 +1,29 @@
-# 09 Ssh Bruteforce Tool
+# Herramienta de Fuerza Bruta SSH
 
-**Nivel:** Nivel Intermedio
+## Descripcion
+SSH (Secure Shell) es el protocolo mas utilizado para conectarse a servidores remotos de forma segura. Esta herramienta demuestra como un atacante puede intentar adivinar contrasenas probando miles de combinaciones de un diccionario.
 
-## Descripción
-Breve descripción del proyecto 09 Ssh Bruteforce Tool.
+La idea es sencilla pero poderosa: si tu contrasena es "admin123", el atacante solo necesita un diccionario que contenga esa palabra. Por eso, usar contrasenas fuertes o autenticacion por clave publica es tan critico.
 
-## Objetivo
-El objetivo de este proyecto es...
+## Como funciona
+1. Se conecta al servidor SSH objetivo.
+2. Lee un archivo de diccionario (una lista de posibles contrasenas).
+3. Prueba cada contrasena una por una (o varias a la vez usando hilos).
+4. Si alguna funciona, la muestra en pantalla y para.
 
-## Tecnologías sugeridas
-- Python
-- Librerías relevantes (scapy, requests, etc.)
+## Tecnicas utilizadas
+- **Multithreading**: Varios hilos prueban contrasenas en paralelo para ir mas rapido.
+- **Paramiko**: Libreria de Python para conexiones SSH.
+- **Cola (Queue)**: Estructura de datos para repartir el trabajo entre los hilos.
 
-## Ideas de implementación
-1. Paso 1...
-2. Paso 2...
+## Requisitos
+- Python 3.x
+- paramiko (`pip install paramiko`)
+
+## Uso
+```bash
+python src/ssh_brute.py
+```
+
+## Aviso Legal
+Esta herramienta es EXCLUSIVAMENTE para uso educativo y pruebas en laboratorios controlados. Atacar servidores SSH sin autorizacion es un delito grave.
