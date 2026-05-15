@@ -177,9 +177,19 @@ body {
 .hero-bg {
     position: absolute;
     inset: 0;
-    background: url('img/hero_bg.png') center/cover no-repeat;
-    opacity: 0.35;
+    background: url('img/statues_bg.png') center/cover no-repeat;
+    opacity: 0.55;
     z-index: 0;
+    filter: contrast(1.2) brightness(0.9);
+}
+
+.hero-bg::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(45deg, rgba(0, 212, 255, 0.1) 0%, rgba(136, 68, 255, 0.1) 100%);
+    mix-blend-mode: overlay;
+    z-index: 1;
 }
 
 .hero-bg::after {
@@ -226,6 +236,7 @@ body {
     letter-spacing: -2px;
     margin-bottom: 1.5rem;
     animation: fadeInUp 1s ease-out 0.2s both;
+    text-shadow: 0 0 20px rgba(0, 212, 255, 0.2);
 }
 
 .hero h1 .gradient-text {
@@ -233,6 +244,7 @@ body {
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     background-clip: text;
+    filter: drop-shadow(0 0 10px rgba(0, 212, 255, 0.4));
 }
 
 .hero-subtitle {
