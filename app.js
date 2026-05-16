@@ -1,3 +1,6 @@
+// ===== GSAP SETUP =====
+gsap.registerPlugin(ScrollTrigger);
+
 // ===== PARTICULAS DE FONDO (Olas fluidas b/n) =====
 (function() {
     const canvas = document.getElementById('particles-canvas');
