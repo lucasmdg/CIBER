@@ -9,36 +9,35 @@
 </head>
 <body>
 
-    <!-- PARTICULAS DE FONDO -->
-    <canvas id="particles-canvas"></canvas>
+    <!-- THREE.JS IMPORT MAP -->
+    <script type="importmap">
+      {
+        "imports": {
+          "three": "https://unpkg.com/three@0.160.0/build/three.module.js",
+          "three/addons/": "https://unpkg.com/three@0.160.0/examples/jsm/"
+        }
+      }
+    </script>
+    
+    <!-- GSAP -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.4/gsap.min.js"></script>
 
-    <!-- NAVBAR -->
-    <nav class="navbar" id="navbar">
-        <div class="nav-logo">LM<span>.sec</span></div>
-        <ul class="nav-links">
-            <li><a href="#hero">Inicio</a></li>
-            <li><a href="#projects">Proyectos</a></li>
-            <li><a href="#about">Sobre Mi</a></li>
-        </ul>
-        <div class="nav-status">
-            <span class="dot"></span>
-            <span>SISTEMAS OPERATIVOS</span>
-        </div>
-    </nav>
+    <!-- 3D BACKGROUND CANVAS -->
+    <canvas id="three-canvas"></canvas>
+
+    
 
     <!-- HERO -->
+    <canvas id="particles-canvas" style="position:absolute; top:0; left:0; width:100%; height:100vh; z-index:0; pointer-events:none;"></canvas>
     <section class="hero" id="hero">
         <div class="hero-bg"></div>
         <div class="hero-content">
             <div class="hero-badge">
                 <span class="icon">&#9650;</span>
-                <span>CYBERSECURITY ENGINEER</span>
+                <span>MIS PROYECTOS</span>
             </div>
             <h1>Lucas <span class="gradient-text">Mendez</span></h1>
-            <p class="hero-subtitle">
-                Construyendo herramientas de seguridad ofensiva y defensiva.
-                Desde escaneadores de puertos hasta simuladores de Red Team.
-            </p>
+            <p class="hero-subtitle">1º de Telecomunicaciones Ciclo Superior</p>
             <div class="hero-stats">
                 <div class="stat-item">
                     <span class="stat-number" data-target="30">0</span>
@@ -78,6 +77,8 @@
         <div class="projects-grid" id="projects-grid">
             <!-- BASICOS -->
             <div class="project-card level-basico fade-in" data-level="basico">
+                <div class="project-cover-container"><img src="img/hero_bg.png" class="project-cover" alt="Project Cover"></div>
+                
                 <div class="project-header">
                     <div class="project-icon">_&gt;</div>
                     <span class="project-level">Basico</span>
@@ -85,9 +86,16 @@
                 <h3 class="project-title">Password Locker</h3>
                 <p class="project-desc">Almacen de contrasenas cifrado con Fernet. Permite guardar y recuperar credenciales de forma segura.</p>
                 <div class="project-tags"><span class="tag">cryptography</span><span class="tag">fernet</span><span class="tag">CLI</span></div>
+                <div class="project-links">
+                    <a href="https://github.com/lucasmdg/CIBER/tree/main/ciberseguridad/nivel_basico/01_password_locker" target="_blank" class="btn-elegant btn-github">GitHub</a>
+                    <a href="https://linkedin.com/in/lucasmdg" target="_blank" class="btn-elegant btn-linkedin">LinkedIn</a>
+                </div>
+                
             </div>
 
             <div class="project-card level-basico fade-in" data-level="basico">
+                <div class="project-cover-container"><img src="img/section_bg.png" class="project-cover" alt="Project Cover"></div>
+                
                 <div class="project-header">
                     <div class="project-icon">_&gt;</div>
                     <span class="project-level">Basico</span>
@@ -95,9 +103,16 @@
                 <h3 class="project-title">Port Scanner</h3>
                 <p class="project-desc">Escaner de puertos TCP que identifica servicios abiertos en un host objetivo usando sockets raw.</p>
                 <div class="project-tags"><span class="tag">socket</span><span class="tag">TCP</span><span class="tag">networking</span></div>
+                <div class="project-links">
+                    <a href="https://github.com/lucasmdg/CIBER/tree/main/ciberseguridad/nivel_basico/02_port_scanner" target="_blank" class="btn-elegant btn-github">GitHub</a>
+                    <a href="https://linkedin.com/in/lucasmdg" target="_blank" class="btn-elegant btn-linkedin">LinkedIn</a>
+                </div>
+                
             </div>
 
             <div class="project-card level-basico fade-in" data-level="basico">
+                <div class="project-cover-container"><img src="img/statue.png" class="project-cover" alt="Project Cover"></div>
+                
                 <div class="project-header">
                     <div class="project-icon">_&gt;</div>
                     <span class="project-level">Basico</span>
@@ -105,9 +120,16 @@
                 <h3 class="project-title">Hash Cracker</h3>
                 <p class="project-desc">Cracker de hashes MD5 y SHA-256 por diccionario. Demuestra por que las contrasenas debiles son peligrosas.</p>
                 <div class="project-tags"><span class="tag">hashlib</span><span class="tag">MD5</span><span class="tag">SHA-256</span></div>
+                <div class="project-links">
+                    <a href="https://github.com/lucasmdg/CIBER/tree/main/ciberseguridad/nivel_basico/03_hash_cracker_simple" target="_blank" class="btn-elegant btn-github">GitHub</a>
+                    <a href="https://linkedin.com/in/lucasmdg" target="_blank" class="btn-elegant btn-linkedin">LinkedIn</a>
+                </div>
+                
             </div>
 
             <div class="project-card level-basico fade-in" data-level="basico">
+                <div class="project-cover-container"><img src="img/statues_bg.png" class="project-cover" alt="Project Cover"></div>
+                
                 <div class="project-header">
                     <div class="project-icon">_&gt;</div>
                     <span class="project-level">Basico</span>
@@ -115,9 +137,16 @@
                 <h3 class="project-title">Log Analyzer</h3>
                 <p class="project-desc">Analizador de archivos de log que detecta patrones sospechosos como intentos de login fallidos.</p>
                 <div class="project-tags"><span class="tag">regex</span><span class="tag">parsing</span><span class="tag">logs</span></div>
+                <div class="project-links">
+                    <a href="https://github.com/lucasmdg/CIBER/tree/main/ciberseguridad/nivel_basico/04_log_analyzer" target="_blank" class="btn-elegant btn-github">GitHub</a>
+                    <a href="https://linkedin.com/in/lucasmdg" target="_blank" class="btn-elegant btn-linkedin">LinkedIn</a>
+                </div>
+                
             </div>
 
             <div class="project-card level-basico fade-in" data-level="basico">
+                <div class="project-cover-container"><img src="img/hero_bg.png" class="project-cover" alt="Project Cover"></div>
+                
                 <div class="project-header">
                     <div class="project-icon">_&gt;</div>
                     <span class="project-level">Basico</span>
@@ -125,9 +154,16 @@
                 <h3 class="project-title">File Integrity Checker</h3>
                 <p class="project-desc">Verifica la integridad de archivos comparando hashes SHA-256 contra una linea base conocida.</p>
                 <div class="project-tags"><span class="tag">hashing</span><span class="tag">integridad</span><span class="tag">forense</span></div>
+                <div class="project-links">
+                    <a href="https://github.com/lucasmdg/CIBER/tree/main/ciberseguridad/nivel_basico/05_file_integrity_checker" target="_blank" class="btn-elegant btn-github">GitHub</a>
+                    <a href="https://linkedin.com/in/lucasmdg" target="_blank" class="btn-elegant btn-linkedin">LinkedIn</a>
+                </div>
+                
             </div>
 
             <div class="project-card level-basico fade-in" data-level="basico">
+                <div class="project-cover-container"><img src="img/section_bg.png" class="project-cover" alt="Project Cover"></div>
+                
                 <div class="project-header">
                     <div class="project-icon">_&gt;</div>
                     <span class="project-level">Basico</span>
@@ -135,9 +171,16 @@
                 <h3 class="project-title">Keylogger Demo</h3>
                 <p class="project-desc">Demostracion educativa de captura de teclas. Muestra como funcionan los keyloggers por dentro.</p>
                 <div class="project-tags"><span class="tag">pynput</span><span class="tag">educativo</span><span class="tag">demo</span></div>
+                <div class="project-links">
+                    <a href="https://github.com/lucasmdg/CIBER/tree/main/ciberseguridad/nivel_basico/06_basic_keylogger_demo" target="_blank" class="btn-elegant btn-github">GitHub</a>
+                    <a href="https://linkedin.com/in/lucasmdg" target="_blank" class="btn-elegant btn-linkedin">LinkedIn</a>
+                </div>
+                
             </div>
 
             <div class="project-card level-basico fade-in" data-level="basico">
+                <div class="project-cover-container"><img src="img/statue.png" class="project-cover" alt="Project Cover"></div>
+                
                 <div class="project-header">
                     <div class="project-icon">_&gt;</div>
                     <span class="project-level">Basico</span>
@@ -145,9 +188,16 @@
                 <h3 class="project-title">Caesar Cipher Tool</h3>
                 <p class="project-desc">Implementacion del cifrado Cesar con cifrado, descifrado y fuerza bruta para romperlo.</p>
                 <div class="project-tags"><span class="tag">criptografia</span><span class="tag">clasica</span><span class="tag">cesar</span></div>
+                <div class="project-links">
+                    <a href="https://github.com/lucasmdg/CIBER/tree/main/ciberseguridad/nivel_basico/07_caesar_cipher_tool" target="_blank" class="btn-elegant btn-github">GitHub</a>
+                    <a href="https://linkedin.com/in/lucasmdg" target="_blank" class="btn-elegant btn-linkedin">LinkedIn</a>
+                </div>
+                
             </div>
 
             <div class="project-card level-basico fade-in" data-level="basico">
+                <div class="project-cover-container"><img src="img/statues_bg.png" class="project-cover" alt="Project Cover"></div>
+                
                 <div class="project-header">
                     <div class="project-icon">_&gt;</div>
                     <span class="project-level">Basico</span>
@@ -155,9 +205,16 @@
                 <h3 class="project-title">Base64 Encoder/Decoder</h3>
                 <p class="project-desc">Herramienta para codificar y decodificar datos en Base64, formato usado en tokens JWT, emails y mas.</p>
                 <div class="project-tags"><span class="tag">base64</span><span class="tag">encoding</span><span class="tag">CLI</span></div>
+                <div class="project-links">
+                    <a href="https://github.com/lucasmdg/CIBER/tree/main/ciberseguridad/nivel_basico/08_base64_encoder_decoder" target="_blank" class="btn-elegant btn-github">GitHub</a>
+                    <a href="https://linkedin.com/in/lucasmdg" target="_blank" class="btn-elegant btn-linkedin">LinkedIn</a>
+                </div>
+                
             </div>
 
             <div class="project-card level-basico fade-in" data-level="basico">
+                <div class="project-cover-container"><img src="img/hero_bg.png" class="project-cover" alt="Project Cover"></div>
+                
                 <div class="project-header">
                     <div class="project-icon">_&gt;</div>
                     <span class="project-level">Basico</span>
@@ -165,9 +222,16 @@
                 <h3 class="project-title">Vulnerability Scanner</h3>
                 <p class="project-desc">Escaner basico de cabeceras HTTP de seguridad. Detecta configuraciones inseguras en servidores web.</p>
                 <div class="project-tags"><span class="tag">HTTP</span><span class="tag">headers</span><span class="tag">requests</span></div>
+                <div class="project-links">
+                    <a href="https://github.com/lucasmdg/CIBER/tree/main/ciberseguridad/nivel_basico/09_simple_vulnerability_scanner" target="_blank" class="btn-elegant btn-github">GitHub</a>
+                    <a href="https://linkedin.com/in/lucasmdg" target="_blank" class="btn-elegant btn-linkedin">LinkedIn</a>
+                </div>
+                
             </div>
 
             <div class="project-card level-basico fade-in" data-level="basico">
+                <div class="project-cover-container"><img src="img/section_bg.png" class="project-cover" alt="Project Cover"></div>
+                
                 <div class="project-header">
                     <div class="project-icon">_&gt;</div>
                     <span class="project-level">Basico</span>
@@ -175,10 +239,17 @@
                 <h3 class="project-title">Network Sniffer</h3>
                 <p class="project-desc">Capturador de paquetes de red basico con Scapy. Muestra trafico en tiempo real a nivel de capa 3.</p>
                 <div class="project-tags"><span class="tag">scapy</span><span class="tag">sniffing</span><span class="tag">packets</span></div>
+                <div class="project-links">
+                    <a href="https://github.com/lucasmdg/CIBER/tree/main/ciberseguridad/nivel_basico/10_network_sniffer_basico" target="_blank" class="btn-elegant btn-github">GitHub</a>
+                    <a href="https://linkedin.com/in/lucasmdg" target="_blank" class="btn-elegant btn-linkedin">LinkedIn</a>
+                </div>
+                
             </div>
 
             <!-- INTERMEDIOS -->
             <div class="project-card level-intermedio fade-in" data-level="intermedio">
+                <div class="project-cover-container"><img src="img/statue.png" class="project-cover" alt="Project Cover"></div>
+                
                 <div class="project-header">
                     <div class="project-icon">_&gt;</div>
                     <span class="project-level">Intermedio</span>
@@ -186,9 +257,16 @@
                 <h3 class="project-title">Password Locker v2</h3>
                 <p class="project-desc">Version mejorada con AES-256, PBKDF2, categorias y fechas de creacion para cada entrada.</p>
                 <div class="project-tags"><span class="tag">AES</span><span class="tag">PBKDF2</span><span class="tag">vault</span></div>
+                <div class="project-links">
+                    <a href="https://github.com/lucasmdg/CIBER/tree/main/ciberseguridad/nivel_intermedio/01_advanced_password_locker" target="_blank" class="btn-elegant btn-github">GitHub</a>
+                    <a href="https://linkedin.com/in/lucasmdg" target="_blank" class="btn-elegant btn-linkedin">LinkedIn</a>
+                </div>
+                
             </div>
 
             <div class="project-card level-intermedio fade-in" data-level="intermedio">
+                <div class="project-cover-container"><img src="img/statues_bg.png" class="project-cover" alt="Project Cover"></div>
+                
                 <div class="project-header">
                     <div class="project-icon">_&gt;</div>
                     <span class="project-level">Intermedio</span>
@@ -196,9 +274,16 @@
                 <h3 class="project-title">Multithreaded Port Scanner</h3>
                 <p class="project-desc">Escaner de puertos con 100 hilos simultaneos. Escanea 65.535 puertos en segundos.</p>
                 <div class="project-tags"><span class="tag">threading</span><span class="tag">queue</span><span class="tag">concurrencia</span></div>
+                <div class="project-links">
+                    <a href="https://github.com/lucasmdg/CIBER/tree/main/ciberseguridad/nivel_intermedio/02_multithreaded_scanner" target="_blank" class="btn-elegant btn-github">GitHub</a>
+                    <a href="https://linkedin.com/in/lucasmdg" target="_blank" class="btn-elegant btn-linkedin">LinkedIn</a>
+                </div>
+                
             </div>
 
             <div class="project-card level-intermedio fade-in" data-level="intermedio">
+                <div class="project-cover-container"><img src="img/hero_bg.png" class="project-cover" alt="Project Cover"></div>
+                
                 <div class="project-header">
                     <div class="project-icon">_&gt;</div>
                     <span class="project-level">Intermedio</span>
@@ -206,9 +291,16 @@
                 <h3 class="project-title">Directory Bruteforcer</h3>
                 <p class="project-desc">Descubrimiento de rutas ocultas en servidores web mediante fuerza bruta con diccionario.</p>
                 <div class="project-tags"><span class="tag">requests</span><span class="tag">threading</span><span class="tag">wordlist</span></div>
+                <div class="project-links">
+                    <a href="https://github.com/lucasmdg/CIBER/tree/main/ciberseguridad/nivel_intermedio/03_directory_bruteforcer" target="_blank" class="btn-elegant btn-github">GitHub</a>
+                    <a href="https://linkedin.com/in/lucasmdg" target="_blank" class="btn-elegant btn-linkedin">LinkedIn</a>
+                </div>
+                
             </div>
 
             <div class="project-card level-intermedio fade-in" data-level="intermedio">
+                <div class="project-cover-container"><img src="img/section_bg.png" class="project-cover" alt="Project Cover"></div>
+                
                 <div class="project-header">
                     <div class="project-icon">_&gt;</div>
                     <span class="project-level">Intermedio</span>
@@ -216,9 +308,16 @@
                 <h3 class="project-title">Web Login Bruteforce</h3>
                 <p class="project-desc">Crackeador de formularios de login web. Prueba combinaciones usuario/contrasena automaticamente.</p>
                 <div class="project-tags"><span class="tag">requests</span><span class="tag">POST</span><span class="tag">brute-force</span></div>
+                <div class="project-links">
+                    <a href="https://github.com/lucasmdg/CIBER/tree/main/ciberseguridad/nivel_intermedio/04_login_bruteforcer" target="_blank" class="btn-elegant btn-github">GitHub</a>
+                    <a href="https://linkedin.com/in/lucasmdg" target="_blank" class="btn-elegant btn-linkedin">LinkedIn</a>
+                </div>
+                
             </div>
 
             <div class="project-card level-intermedio fade-in" data-level="intermedio">
+                <div class="project-cover-container"><img src="img/statue.png" class="project-cover" alt="Project Cover"></div>
+                
                 <div class="project-header">
                     <div class="project-icon">_&gt;</div>
                     <span class="project-level">Intermedio</span>
@@ -226,9 +325,16 @@
                 <h3 class="project-title">Packet Sniffer Avanzado</h3>
                 <p class="project-desc">Sniffer con filtrado por protocolo, deteccion de credenciales en texto plano y analisis de payloads.</p>
                 <div class="project-tags"><span class="tag">scapy</span><span class="tag">deep-inspection</span><span class="tag">filtros</span></div>
+                <div class="project-links">
+                    <a href="https://github.com/lucasmdg/CIBER/tree/main/ciberseguridad/nivel_intermedio/05_advanced_sniffer" target="_blank" class="btn-elegant btn-github">GitHub</a>
+                    <a href="https://linkedin.com/in/lucasmdg" target="_blank" class="btn-elegant btn-linkedin">LinkedIn</a>
+                </div>
+                
             </div>
 
             <div class="project-card level-intermedio fade-in" data-level="intermedio">
+                <div class="project-cover-container"><img src="img/statues_bg.png" class="project-cover" alt="Project Cover"></div>
+                
                 <div class="project-header">
                     <div class="project-icon">_&gt;</div>
                     <span class="project-level">Intermedio</span>
@@ -236,9 +342,16 @@
                 <h3 class="project-title">ARP Spoofer Detector</h3>
                 <p class="project-desc">Monitoriza el trafico ARP en tiempo real y detecta ataques de ARP Poisoning comparando MACs.</p>
                 <div class="project-tags"><span class="tag">scapy</span><span class="tag">ARP</span><span class="tag">MITM</span></div>
+                <div class="project-links">
+                    <a href="https://github.com/lucasmdg/CIBER/tree/main/ciberseguridad/nivel_intermedio/06_arp_spoofer_detector" target="_blank" class="btn-elegant btn-github">GitHub</a>
+                    <a href="https://linkedin.com/in/lucasmdg" target="_blank" class="btn-elegant btn-linkedin">LinkedIn</a>
+                </div>
+                
             </div>
 
             <div class="project-card level-intermedio fade-in" data-level="intermedio">
+                <div class="project-cover-container"><img src="img/hero_bg.png" class="project-cover" alt="Project Cover"></div>
+                
                 <div class="project-header">
                     <div class="project-icon">_&gt;</div>
                     <span class="project-level">Intermedio</span>
@@ -246,9 +359,16 @@
                 <h3 class="project-title">Basic IDS System</h3>
                 <p class="project-desc">Sistema de Deteccion de Intrusiones que identifica port scans, SYN floods e ICMP floods en la red.</p>
                 <div class="project-tags"><span class="tag">IDS</span><span class="tag">scapy</span><span class="tag">deteccion</span></div>
+                <div class="project-links">
+                    <a href="https://github.com/lucasmdg/CIBER/tree/main/ciberseguridad/nivel_intermedio/07_basic_ids_system" target="_blank" class="btn-elegant btn-github">GitHub</a>
+                    <a href="https://linkedin.com/in/lucasmdg" target="_blank" class="btn-elegant btn-linkedin">LinkedIn</a>
+                </div>
+                
             </div>
 
             <div class="project-card level-intermedio fade-in" data-level="intermedio">
+                <div class="project-cover-container"><img src="img/section_bg.png" class="project-cover" alt="Project Cover"></div>
+                
                 <div class="project-header">
                     <div class="project-icon">_&gt;</div>
                     <span class="project-level">Intermedio</span>
@@ -256,9 +376,16 @@
                 <h3 class="project-title">Web Vulnerability Scanner</h3>
                 <p class="project-desc">Escaner automatico de vulnerabilidades web: cabeceras, XSS reflejado y SQL Injection basado en errores.</p>
                 <div class="project-tags"><span class="tag">XSS</span><span class="tag">SQLi</span><span class="tag">headers</span></div>
+                <div class="project-links">
+                    <a href="https://github.com/lucasmdg/CIBER/tree/main/ciberseguridad/nivel_intermedio/08_web_scanner" target="_blank" class="btn-elegant btn-github">GitHub</a>
+                    <a href="https://linkedin.com/in/lucasmdg" target="_blank" class="btn-elegant btn-linkedin">LinkedIn</a>
+                </div>
+                
             </div>
 
             <div class="project-card level-intermedio fade-in" data-level="intermedio">
+                <div class="project-cover-container"><img src="img/statue.png" class="project-cover" alt="Project Cover"></div>
+                
                 <div class="project-header">
                     <div class="project-icon">_&gt;</div>
                     <span class="project-level">Intermedio</span>
@@ -266,9 +393,16 @@
                 <h3 class="project-title">SSH Bruteforce Tool</h3>
                 <p class="project-desc">Herramienta multihilo de fuerza bruta SSH con Paramiko. Prueba contrasenas de un diccionario contra servidores SSH.</p>
                 <div class="project-tags"><span class="tag">paramiko</span><span class="tag">SSH</span><span class="tag">threading</span></div>
+                <div class="project-links">
+                    <a href="https://github.com/lucasmdg/CIBER/tree/main/ciberseguridad/nivel_intermedio/09_ssh_bruteforcer" target="_blank" class="btn-elegant btn-github">GitHub</a>
+                    <a href="https://linkedin.com/in/lucasmdg" target="_blank" class="btn-elegant btn-linkedin">LinkedIn</a>
+                </div>
+                
             </div>
 
             <div class="project-card level-intermedio fade-in" data-level="intermedio">
+                <div class="project-cover-container"><img src="img/statues_bg.png" class="project-cover" alt="Project Cover"></div>
+                
                 <div class="project-header">
                     <div class="project-icon">_&gt;</div>
                     <span class="project-level">Intermedio</span>
@@ -276,10 +410,17 @@
                 <h3 class="project-title">Log Monitoring System</h3>
                 <p class="project-desc">Sistema de monitorizacion de logs en tiempo real con reglas de deteccion, umbrales y ventanas temporales.</p>
                 <div class="project-tags"><span class="tag">regex</span><span class="tag">SIEM</span><span class="tag">alertas</span></div>
+                <div class="project-links">
+                    <a href="https://github.com/lucasmdg/CIBER/tree/main/ciberseguridad/nivel_intermedio/10_log_monitor" target="_blank" class="btn-elegant btn-github">GitHub</a>
+                    <a href="https://linkedin.com/in/lucasmdg" target="_blank" class="btn-elegant btn-linkedin">LinkedIn</a>
+                </div>
+                
             </div>
 
             <!-- AVANZADOS -->
             <div class="project-card level-avanzado fade-in" data-level="avanzado">
+                <div class="project-cover-container"><img src="img/hero_bg.png" class="project-cover" alt="Project Cover"></div>
+                
                 <div class="project-header">
                     <div class="project-icon">_&gt;</div>
                     <span class="project-level">Avanzado</span>
@@ -287,9 +428,16 @@
                 <h3 class="project-title">Custom C2 Simulator</h3>
                 <p class="project-desc">Simulador de servidor de Comando y Control con registro de agentes, encolado de tareas y exfiltracion.</p>
                 <div class="project-tags"><span class="tag">C2</span><span class="tag">agentes</span><span class="tag">polling</span></div>
+                <div class="project-links">
+                    <a href="https://github.com/lucasmdg/CIBER/tree/main/ciberseguridad/nivel_avanzado/01_c2_simulator" target="_blank" class="btn-elegant btn-github">GitHub</a>
+                    <a href="https://linkedin.com/in/lucasmdg" target="_blank" class="btn-elegant btn-linkedin">LinkedIn</a>
+                </div>
+                
             </div>
 
             <div class="project-card level-avanzado fade-in" data-level="avanzado">
+                <div class="project-cover-container"><img src="img/section_bg.png" class="project-cover" alt="Project Cover"></div>
+                
                 <div class="project-header">
                     <div class="project-icon">_&gt;</div>
                     <span class="project-level">Avanzado</span>
@@ -297,9 +445,16 @@
                 <h3 class="project-title">Mini Metasploit Framework</h3>
                 <p class="project-desc">Framework de explotacion modular con consola interactiva, modulos de exploit configurables e historial.</p>
                 <div class="project-tags"><span class="tag">exploits</span><span class="tag">modular</span><span class="tag">consola</span></div>
+                <div class="project-links">
+                    <a href="https://github.com/lucasmdg/CIBER/tree/main/ciberseguridad/nivel_avanzado/02_mini_metasploit" target="_blank" class="btn-elegant btn-github">GitHub</a>
+                    <a href="https://linkedin.com/in/lucasmdg" target="_blank" class="btn-elegant btn-linkedin">LinkedIn</a>
+                </div>
+                
             </div>
 
             <div class="project-card level-avanzado fade-in" data-level="avanzado">
+                <div class="project-cover-container"><img src="img/statue.png" class="project-cover" alt="Project Cover"></div>
+                
                 <div class="project-header">
                     <div class="project-icon">_&gt;</div>
                     <span class="project-level">Avanzado</span>
@@ -307,9 +462,16 @@
                 <h3 class="project-title">Advanced Password Manager</h3>
                 <p class="project-desc">Gestor con AES-256-GCM, PBKDF2 600K iteraciones, generador criptografico y auditoria de fortaleza.</p>
                 <div class="project-tags"><span class="tag">AES-256-GCM</span><span class="tag">PBKDF2</span><span class="tag">audit</span></div>
+                <div class="project-links">
+                    <a href="https://github.com/lucasmdg/CIBER/tree/main/ciberseguridad/nivel_avanzado/03_advanced_password_manager" target="_blank" class="btn-elegant btn-github">GitHub</a>
+                    <a href="https://linkedin.com/in/lucasmdg" target="_blank" class="btn-elegant btn-linkedin">LinkedIn</a>
+                </div>
+                
             </div>
 
             <div class="project-card level-avanzado fade-in" data-level="avanzado">
+                <div class="project-cover-container"><img src="img/statues_bg.png" class="project-cover" alt="Project Cover"></div>
+                
                 <div class="project-header">
                     <div class="project-icon">_&gt;</div>
                     <span class="project-level">Avanzado</span>
@@ -317,9 +479,16 @@
                 <h3 class="project-title">Network IDS (NIDS)</h3>
                 <p class="project-desc">IDS de red con analisis de flujos, Threat Intelligence, deteccion de exfiltracion y reportes JSON.</p>
                 <div class="project-tags"><span class="tag">NIDS</span><span class="tag">flows</span><span class="tag">threat-intel</span></div>
+                <div class="project-links">
+                    <a href="https://github.com/lucasmdg/CIBER/tree/main/ciberseguridad/nivel_avanzado/04_nids_system" target="_blank" class="btn-elegant btn-github">GitHub</a>
+                    <a href="https://linkedin.com/in/lucasmdg" target="_blank" class="btn-elegant btn-linkedin">LinkedIn</a>
+                </div>
+                
             </div>
 
             <div class="project-card level-avanzado fade-in" data-level="avanzado">
+                <div class="project-cover-container"><img src="img/hero_bg.png" class="project-cover" alt="Project Cover"></div>
+                
                 <div class="project-header">
                     <div class="project-icon">_&gt;</div>
                     <span class="project-level">Avanzado</span>
@@ -327,9 +496,16 @@
                 <h3 class="project-title">Web Pentesting Framework</h3>
                 <p class="project-desc">Framework de pentesting web automatizado: reconocimiento, fingerprinting, escaneo SSL y reportes.</p>
                 <div class="project-tags"><span class="tag">pentest</span><span class="tag">recon</span><span class="tag">reporting</span></div>
+                <div class="project-links">
+                    <a href="https://github.com/lucasmdg/CIBER/tree/main/ciberseguridad/nivel_avanzado/05_pentest_framework" target="_blank" class="btn-elegant btn-github">GitHub</a>
+                    <a href="https://linkedin.com/in/lucasmdg" target="_blank" class="btn-elegant btn-linkedin">LinkedIn</a>
+                </div>
+                
             </div>
 
             <div class="project-card level-avanzado fade-in" data-level="avanzado">
+                <div class="project-cover-container"><img src="img/section_bg.png" class="project-cover" alt="Project Cover"></div>
+                
                 <div class="project-header">
                     <div class="project-icon">_&gt;</div>
                     <span class="project-level">Avanzado</span>
@@ -337,9 +513,16 @@
                 <h3 class="project-title">Privilege Escalation Lab</h3>
                 <p class="project-desc">Laboratorio que audita SUID, permisos, cron jobs, kernel exploits y PATH hijacking en un sistema.</p>
                 <div class="project-tags"><span class="tag">privesc</span><span class="tag">SUID</span><span class="tag">kernel</span></div>
+                <div class="project-links">
+                    <a href="https://github.com/lucasmdg/CIBER/tree/main/ciberseguridad/nivel_avanzado/06_privesc_lab" target="_blank" class="btn-elegant btn-github">GitHub</a>
+                    <a href="https://linkedin.com/in/lucasmdg" target="_blank" class="btn-elegant btn-linkedin">LinkedIn</a>
+                </div>
+                
             </div>
 
             <div class="project-card level-avanzado fade-in" data-level="avanzado">
+                <div class="project-cover-container"><img src="img/statue.png" class="project-cover" alt="Project Cover"></div>
+                
                 <div class="project-header">
                     <div class="project-icon">_&gt;</div>
                     <span class="project-level">Avanzado</span>
@@ -347,9 +530,16 @@
                 <h3 class="project-title">Malware Analysis Lab</h3>
                 <p class="project-desc">Analisis estatico: hashes, entropia de Shannon, extraccion de strings y deteccion automatica de IOCs.</p>
                 <div class="project-tags"><span class="tag">malware</span><span class="tag">entropia</span><span class="tag">IOCs</span></div>
+                <div class="project-links">
+                    <a href="https://github.com/lucasmdg/CIBER/tree/main/ciberseguridad/nivel_avanzado/07_malware_analysis_lab" target="_blank" class="btn-elegant btn-github">GitHub</a>
+                    <a href="https://linkedin.com/in/lucasmdg" target="_blank" class="btn-elegant btn-linkedin">LinkedIn</a>
+                </div>
+                
             </div>
 
             <div class="project-card level-avanzado fade-in" data-level="avanzado">
+                <div class="project-cover-container"><img src="img/statues_bg.png" class="project-cover" alt="Project Cover"></div>
+                
                 <div class="project-header">
                     <div class="project-icon">_&gt;</div>
                     <span class="project-level">Avanzado</span>
@@ -357,9 +547,16 @@
                 <h3 class="project-title">Ransomware Simulator</h3>
                 <p class="project-desc">Simulador educativo del ciclo completo: cifrado AES-256, nota de rescate y recuperacion en entorno seguro.</p>
                 <div class="project-tags"><span class="tag">ransomware</span><span class="tag">AES-256</span><span class="tag">educativo</span></div>
+                <div class="project-links">
+                    <a href="https://github.com/lucasmdg/CIBER/tree/main/ciberseguridad/nivel_avanzado/08_ransomware_sim" target="_blank" class="btn-elegant btn-github">GitHub</a>
+                    <a href="https://linkedin.com/in/lucasmdg" target="_blank" class="btn-elegant btn-linkedin">LinkedIn</a>
+                </div>
+                
             </div>
 
             <div class="project-card level-avanzado fade-in" data-level="avanzado">
+                <div class="project-cover-container"><img src="img/hero_bg.png" class="project-cover" alt="Project Cover"></div>
+                
                 <div class="project-header">
                     <div class="project-icon">_&gt;</div>
                     <span class="project-level">Avanzado</span>
@@ -367,9 +564,16 @@
                 <h3 class="project-title">Threat Hunting Lab</h3>
                 <p class="project-desc">Caza proactiva de amenazas: fuerza bruta, movimiento lateral, exfiltracion y matching de IOCs.</p>
                 <div class="project-tags"><span class="tag">hunting</span><span class="tag">correlacion</span><span class="tag">IOCs</span></div>
+                <div class="project-links">
+                    <a href="https://github.com/lucasmdg/CIBER/tree/main/ciberseguridad/nivel_avanzado/09_threat_hunting" target="_blank" class="btn-elegant btn-github">GitHub</a>
+                    <a href="https://linkedin.com/in/lucasmdg" target="_blank" class="btn-elegant btn-linkedin">LinkedIn</a>
+                </div>
+                
             </div>
 
             <div class="project-card level-avanzado fade-in" data-level="avanzado">
+                <div class="project-cover-container"><img src="img/section_bg.png" class="project-cover" alt="Project Cover"></div>
+                
                 <div class="project-header">
                     <div class="project-icon">_&gt;</div>
                     <span class="project-level">Avanzado</span>
@@ -377,10 +581,17 @@
                 <h3 class="project-title">Red Team Lab Simulation</h3>
                 <p class="project-desc">Ejercicio completo de Red Team: recon, escaneo, explotacion, pivoting, exfiltracion y reporte final.</p>
                 <div class="project-tags"><span class="tag">red-team</span><span class="tag">pivoting</span><span class="tag">6-fases</span></div>
+                <div class="project-links">
+                    <a href="https://github.com/lucasmdg/CIBER/tree/main/ciberseguridad/nivel_avanzado/10_red_team_simulation" target="_blank" class="btn-elegant btn-github">GitHub</a>
+                    <a href="https://linkedin.com/in/lucasmdg" target="_blank" class="btn-elegant btn-linkedin">LinkedIn</a>
+                </div>
+                
             </div>
 
             <!-- FUTUROS -->
             <div class="project-card level-futuro fade-in" data-level="futuro">
+                <div class="project-cover-container"><img src="img/statue.png" class="project-cover" alt="Project Cover"></div>
+                
                 <div class="project-header">
                     <div class="project-icon">_&gt;</div>
                     <span class="project-level">Futuro</span>
@@ -388,9 +599,16 @@
                 <h3 class="project-title">Simulador APT</h3>
                 <p class="project-desc">Agente de Amenaza Persistente Avanzada con evasion de sandbox, persistencia y comunicacion C2 cifrada.</p>
                 <div class="project-tags"><span class="tag">APT</span><span class="tag">evasion</span><span class="tag">persistencia</span></div>
+                <div class="project-links">
+                    <a href="https://github.com/lucasmdg/CIBER" target="_blank" class="btn-elegant btn-github">GitHub</a>
+                    <a href="https://linkedin.com/in/lucasmdg" target="_blank" class="btn-elegant btn-linkedin">LinkedIn</a>
+                </div>
+                
             </div>
 
             <div class="project-card level-futuro fade-in" data-level="futuro">
+                <div class="project-cover-container"><img src="img/statues_bg.png" class="project-cover" alt="Project Cover"></div>
+                
                 <div class="project-header">
                     <div class="project-icon">_&gt;</div>
                     <span class="project-level">Futuro</span>
@@ -398,9 +616,16 @@
                 <h3 class="project-title">Analizador Malware con IA</h3>
                 <p class="project-desc">Clasificador de malware usando Machine Learning para detectar archivos maliciosos por comportamiento.</p>
                 <div class="project-tags"><span class="tag">ML</span><span class="tag">sklearn</span><span class="tag">clasificacion</span></div>
+                <div class="project-links">
+                    <a href="https://github.com/lucasmdg/CIBER" target="_blank" class="btn-elegant btn-github">GitHub</a>
+                    <a href="https://linkedin.com/in/lucasmdg" target="_blank" class="btn-elegant btn-linkedin">LinkedIn</a>
+                </div>
+                
             </div>
 
             <div class="project-card level-futuro fade-in" data-level="futuro">
+                <div class="project-cover-container"><img src="img/hero_bg.png" class="project-cover" alt="Project Cover"></div>
+                
                 <div class="project-header">
                     <div class="project-icon">_&gt;</div>
                     <span class="project-level">Futuro</span>
@@ -408,6 +633,11 @@
                 <h3 class="project-title">Red Team Framework</h3>
                 <p class="project-desc">Framework completo de Red Team con gestion de sesiones remotas, modulos de post-explotacion y automatizacion.</p>
                 <div class="project-tags"><span class="tag">framework</span><span class="tag">C2</span><span class="tag">post-exploit</span></div>
+                <div class="project-links">
+                    <a href="https://github.com/lucasmdg/CIBER" target="_blank" class="btn-elegant btn-github">GitHub</a>
+                    <a href="https://linkedin.com/in/lucasmdg" target="_blank" class="btn-elegant btn-linkedin">LinkedIn</a>
+                </div>
+                
             </div>
         </div>
     </section>
@@ -456,5 +686,6 @@
     </footer>
 
     <script src="app.js"></script>
+    <script type="module" src="3d-portfolio.js"></script>
 </body>
 </html>
