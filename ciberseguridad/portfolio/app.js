@@ -77,7 +77,8 @@ gsap.registerPlugin(ScrollTrigger);
 })();
 
 // ===== GSAP ENTRY ANIMATIONS =====
-document.addEventListener('DOMContentLoaded', () => {
+function initAnimations() {
+    // Animate Hero Content
     gsap.from('.hero-content > *', {
         y: 50,
         opacity: 0,
@@ -86,18 +87,22 @@ document.addEventListener('DOMContentLoaded', () => {
         ease: 'power4.out'
     });
 
+    // Animate Project Cards instantly and stagger them beautifully on load, ensuring they NEVER disappear
     gsap.from('.project-card', {
-        scrollTrigger: {
-            trigger: '.projects-grid',
-            start: 'top 80%'
-        },
-        y: 100,
+        y: 40,
         opacity: 0,
-        duration: 1,
-        stagger: 0.1,
+        scale: 0.97,
+        duration: 1.2,
+        stagger: 0.04,
         ease: 'power3.out'
     });
-});
+}
+
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initAnimations);
+} else {
+    initAnimations();
+}
 
 // ===== SCROLL ANIMATIONS (Intersection Observer) =====
 const fadeElements = document.querySelectorAll('.fade-in');
@@ -183,6 +188,9 @@ filterBtns.forEach(btn => {
                 card.style.display = 'none';
             }
         });
+
+        // Recalcular posiciones de ScrollTrigger después de ocultar/mostrar elementos
+        ScrollTrigger.refresh();
     });
 });
 
@@ -224,34 +232,7 @@ document.querySelectorAll('a[href^="#"]').forEach(anchor => {
     });
 });
 
-// ===== FORCE GSAP ON LOAD =====
-window.addEventListener('load', () => {
-    gsap.to('.hero-content > *', {
-        y: 0,
-        opacity: 1,
-        duration: 1,
-        stagger: 0.1,
-        ease: 'back.out(1.7)'
-    });
-
-    // Premium Scroll Reveal for Projects
-    gsap.utils.toArray('.project-card').forEach((card, i) => {
-        gsap.from(card, {
-            scrollTrigger: {
-                trigger: card,
-                start: "top 90%",
-                toggleActions: "play none none none"
-            },
-            y: 50,
-            opacity: 0,
-            scale: 0.9,
-            rotationX: -10,
-            duration: 1,
-            delay: i % 3 * 0.1,
-            ease: "power4.out"
-        });
-    });
-});
+// The scroll reveal is now handled instantly on DOM ready to avoid race conditions and disappearing cards
 
 // ===== PROJECT CLICK GLOW =====
 document.querySelectorAll('.project-card').forEach(card => {
@@ -265,4 +246,17 @@ document.querySelectorAll('.project-card').forEach(card => {
         gsap.fromTo(card, { scale: 0.98 }, { scale: 1, duration: 0.5, ease: "elastic.out(1, 0.3)" });
     });
 });
+
+// ===== NAVBAR SCROLL EFFECT =====
+const navbar = document.querySelector('.navbar');
+if (navbar) {
+    window.addEventListener('scroll', () => {
+        if (window.scrollY > 50) {
+            navbar.classList.add('scrolled');
+        } else {
+            navbar.classList.remove('scrolled');
+        }
+    });
+}
+
 
