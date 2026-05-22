@@ -6,18 +6,17 @@ import * as THREE from "three";
 
 const TOTAL = 3500;
 const LAYERS = [
-  { count: 1200, speed: 0.25, zRange: [-5, -2.5], size: [0.15, 0.35], alpha: 0.4 },
-  { count: 1500, speed: 0.5, zRange: [-2, 2], size: [0.25, 0.55], alpha: 0.7 },
-  { count: 800, speed: 0.8, zRange: [2.5, 5.5], size: [0.4, 0.9], alpha: 0.9 },
+  { count: 1400, speed: 0.12, zRange: [-6, -3], size: [0.08, 0.2], alpha: 0.12 },
+  { count: 1300, speed: 0.25, zRange: [-2.5, 2.5], size: [0.12, 0.3], alpha: 0.25 },
+  { count: 800, speed: 0.4, zRange: [3, 6], size: [0.2, 0.45], alpha: 0.4 },
 ];
 const CHARS = "01ABEF";
 
 const palette = [
   new THREE.Color("#3b82f6"),
-  new THREE.Color("#06b6d4"),
-  new THREE.Color("#14b8a6"),
   new THREE.Color("#60a5fa"),
-  new THREE.Color("#e2e8f0"),
+  new THREE.Color("#93c5fd"),
+  new THREE.Color("#22d3ee"),
 ];
 
 function createCharTexture() {
@@ -28,11 +27,11 @@ function createCharTexture() {
   CHARS.split("").forEach((ch, i) => {
     ctx.clearRect(i * 64, 0, 64, 80);
     ctx.fillStyle = "#3b82f6";
-    ctx.font = "bold 56px 'JetBrains Mono', monospace";
+    ctx.font = "bold 48px 'JetBrains Mono', monospace";
     ctx.textAlign = "center";
     ctx.textBaseline = "middle";
-    ctx.shadowColor = "rgba(59,130,246,0.5)";
-    ctx.shadowBlur = 14;
+    ctx.shadowColor = "rgba(59,130,246,0.2)";
+    ctx.shadowBlur = 6;
     ctx.fillText(ch, i * 64 + 32, 42);
   });
   const tex = new THREE.CanvasTexture(c);
@@ -100,6 +99,11 @@ uniform vec3 uLayerSpeeds;
 varying float vType;
 varying vec3 vColor;
 varying float vAlpha;
+varying float vGlow;
+
+float glowCurve(float x) {
+  return exp(-x * 8.0);
+}
 
 void main() {
   vType = aType;
@@ -108,44 +112,47 @@ void main() {
   float layerSpeed = uLayerSpeeds[int(aLayer)];
   float t = uTime * layerSpeed;
 
-  float n = snoise(vec3(pos.x * 0.25 + t * 0.15, pos.y * 0.25 + t * 0.1, pos.z * 0.15 + aPhase));
-  pos.x += n * 0.5 * layerSpeed;
-  pos.y += n * 0.4 * layerSpeed;
-  pos.z += n * 0.3 * layerSpeed;
+  float n = snoise(vec3(pos.x * 0.2 + t * 0.1, pos.y * 0.2 + t * 0.08, pos.z * 0.12 + aPhase));
+  pos.x += n * 0.35 * layerSpeed;
+  pos.y += n * 0.3 * layerSpeed;
+  pos.z += n * 0.2 * layerSpeed;
 
-  float wave = sin(pos.x * 0.5 + t * 0.4 + aPhase) * 0.2;
-  wave += cos(pos.y * 0.4 + t * 0.3 + aPhase * 1.3) * 0.15;
+  float wave = sin(pos.x * 0.4 + t * 0.3 + aPhase) * 0.12;
+  wave += cos(pos.y * 0.35 + t * 0.2 + aPhase * 1.3) * 0.1;
   pos.x += wave * layerSpeed;
-  pos.y += wave * 0.8;
+  pos.y += wave * 0.6;
 
-  float dist = distance(pos.xy, uMouse * 3.5);
-  float repel = 0.2 / (dist + 0.4);
-  vec2 repelDir = normalize(pos.xy - uMouse * 3.5);
-  pos.x += repelDir.x * repel * 0.35;
-  pos.y += repelDir.y * repel * 0.35;
+  float dist = distance(pos.xy, uMouse * 4.0);
+  float repel = 0.35 / (dist * dist + 0.5);
+  vec2 repelDir = normalize(pos.xy - uMouse * 4.0);
+  pos.x += repelDir.x * repel;
+  pos.y += repelDir.y * repel;
+
+  vGlow = glowCurve(dist) * 0.5;
 
   float sw = uScroll;
-  float morphX = sw * 0.25 * sin(pos.y * 0.6 + aPhase + uTime * 0.1);
-  float morphY = sw * 0.2 * cos(pos.x * 0.5 + aPhase * 1.5 + uTime * 0.08);
+  float morphX = sw * 0.15 * sin(pos.y * 0.5 + aPhase + uTime * 0.08);
+  float morphY = sw * 0.12 * cos(pos.x * 0.4 + aPhase * 1.5 + uTime * 0.06);
   pos.x += morphX;
   pos.y += morphY;
 
-  float emerge = 1.0 + 0.15 * sin(uTime * 0.2 + aPhase) * layerSpeed;
+  float emerge = 1.0 + 0.1 * sin(uTime * 0.15 + aPhase) * layerSpeed;
   pos.z *= emerge;
 
-  float breathe = 1.0 + 0.04 * sin(uTime * 0.3 + aPhase * 0.5);
+  float breathe = 1.0 + 0.03 * sin(uTime * 0.2 + aPhase * 0.5);
   pos *= breathe;
 
   vec4 mv = modelViewMatrix * vec4(pos, 1.0);
   float zDepth = -mv.z / 10.0;
-  float sizeBase = aSize * (280.0 / -mv.z);
-  float sizePulse = 1.0 + 0.3 * sin(uTime * 0.5 + aPhase * 2.0);
-  float depthScale = 1.0 + zDepth * 0.5;
+  float sizeBase = aSize * (300.0 / -mv.z);
+  float sizePulse = 1.0 + 0.15 * sin(uTime * 0.4 + aPhase * 2.0);
+  float depthScale = 1.0 + zDepth * 0.3;
   gl_PointSize = sizeBase * sizePulse * depthScale;
 
-  float layerAlpha = aLayer == 0.0 ? 0.4 : (aLayer == 1.0 ? 0.7 : 0.9);
-  float fadeEdge = 1.0 - abs(pos.y) / 6.0;
+  float layerAlpha = aLayer == 0.0 ? 0.12 : (aLayer == 1.0 ? 0.25 : 0.4);
+  float fadeEdge = 1.0 - abs(pos.y) / 6.5;
   vAlpha = layerAlpha * max(0.0, fadeEdge);
+  vAlpha += vGlow * 0.3;
 
   gl_Position = projectionMatrix * mv;
 }
@@ -157,6 +164,7 @@ uniform float uColumns;
 varying float vType;
 varying vec3 vColor;
 varying float vAlpha;
+varying float vGlow;
 
 void main() {
   float d = length(gl_PointCoord - 0.5);
@@ -168,12 +176,13 @@ void main() {
     vec4 tex = texture2D(uTexture, uv);
     float alpha = tex.a * (1.0 - d * 1.5) * vAlpha;
     if (alpha < 0.02) discard;
-    gl_FragColor = vec4(mix(vColor, tex.rgb, 0.5), alpha);
+    vec3 mixed = mix(vColor, tex.rgb, 0.4);
+    gl_FragColor = vec4(mixed + vGlow * 0.3, alpha);
   } else {
-    float glow = 1.0 - smoothstep(0.0, 0.5, d);
-    glow = glow * glow * (1.0 + 2.0 * (1.0 - d * 2.0));
-    float alpha = glow * vAlpha * 0.9;
-    gl_FragColor = vec4(vColor * (1.0 + glow * 1.5), alpha);
+    float soft = 1.0 - smoothstep(0.0, 0.5, d);
+    float alpha = soft * vAlpha * 0.85;
+    vec3 col = vColor + vGlow * 0.4;
+    gl_FragColor = vec4(col, alpha);
   }
 }
 `;
@@ -190,11 +199,11 @@ function generateParticles() {
   for (let l = 0; l < LAYERS.length; l++) {
     const cfg = LAYERS[l];
     for (let i = 0; i < cfg.count && idx < TOTAL; i++) {
-      const radius = 1.5 + Math.random() * 4.5;
+      const radius = 2 + Math.random() * 5;
       const theta = Math.random() * Math.PI * 2;
       const phi = Math.acos(2 * Math.random() - 1);
       pos[idx * 3] = Math.sin(phi) * Math.cos(theta) * radius;
-      pos[idx * 3 + 1] = Math.sin(phi) * Math.sin(theta) * radius * 0.55;
+      pos[idx * 3 + 1] = Math.sin(phi) * Math.sin(theta) * radius * 0.5;
       pos[idx * 3 + 2] = cfg.zRange[0] + Math.random() * (cfg.zRange[1] - cfg.zRange[0]);
 
       sizes[idx] = cfg.size[0] + Math.random() * (cfg.size[1] - cfg.size[0]);
@@ -204,18 +213,18 @@ function generateParticles() {
       colors[idx * 3 + 2] = c.b;
       phases[idx] = Math.random() * Math.PI * 2;
       layers[idx] = l;
-      types[idx] = Math.random() < 0.2 ? 1 + Math.floor(Math.random() * CHARS.length) : 0;
+      types[idx] = Math.random() < 0.15 ? 1 + Math.floor(Math.random() * CHARS.length) : 0;
       idx++;
     }
   }
 
   while (idx < TOTAL) {
     const theta = Math.random() * Math.PI * 2;
-    const r = 2 + Math.random() * 4;
+    const r = 2.5 + Math.random() * 4.5;
     pos[idx * 3] = Math.cos(theta) * r;
-    pos[idx * 3 + 1] = Math.sin(theta) * r * 0.55;
+    pos[idx * 3 + 1] = Math.sin(theta) * r * 0.5;
     pos[idx * 3 + 2] = (Math.random() - 0.5) * 8;
-    sizes[idx] = 0.2 + Math.random() * 0.5;
+    sizes[idx] = 0.12 + Math.random() * 0.3;
     const c = palette[Math.floor(Math.random() * palette.length)];
     colors[idx * 3] = c.r;
     colors[idx * 3 + 1] = c.g;
@@ -250,10 +259,10 @@ function ParticleField() {
 
   useFrame((_, delta) => {
     if (matRef.current) {
-      matRef.current.uniforms.uTime.value += delta * 0.3;
-      matRef.current.uniforms.uScroll.value += (scrollRef.current - matRef.current.uniforms.uScroll.value) * 0.04;
-      mouseRef.current.x += (pointer.x - mouseRef.current.x) * 0.05;
-      mouseRef.current.y += (pointer.y - mouseRef.current.y) * 0.05;
+      matRef.current.uniforms.uTime.value += delta * 0.2;
+      matRef.current.uniforms.uScroll.value += (scrollRef.current - matRef.current.uniforms.uScroll.value) * 0.03;
+      mouseRef.current.x += (pointer.x - mouseRef.current.x) * 0.06;
+      mouseRef.current.y += (pointer.y - mouseRef.current.y) * 0.06;
       matRef.current.uniforms.uMouse.value.x = mouseRef.current.x;
       matRef.current.uniforms.uMouse.value.y = mouseRef.current.y;
     }
@@ -292,7 +301,7 @@ function ParticleField() {
 export default function CyberAsset() {
   return (
     <Canvas
-      camera={{ position: [0, 0, 8], fov: 55 }}
+      camera={{ position: [0, 0, 9], fov: 50 }}
       gl={{ antialias: false, alpha: true }}
       style={{ position: "fixed", top: 0, left: 0, width: "100%", height: "100%", pointerEvents: "none", zIndex: 0 }}
       dpr={[1, 1.5]}

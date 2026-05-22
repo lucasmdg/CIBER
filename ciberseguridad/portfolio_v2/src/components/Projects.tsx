@@ -61,7 +61,7 @@ function ProjectCard({ project: p, index }: { project: typeof projectsData[0]; i
           onMouseMove={handleMouseMove}
           onMouseEnter={() => setHover(true)}
           onMouseLeave={() => { setHover(false); setMouse({ x: 50, y: 50 }); }}
-          className="glass-panel rounded-xl p-5 relative overflow-hidden transition-all duration-300 group-hover:border-accent/20 group-hover:shadow-lg group-hover:shadow-accent/5"
+          className="glass-panel card-hover rounded-xl p-5 relative overflow-hidden"
         >
           {hover && (
             <div

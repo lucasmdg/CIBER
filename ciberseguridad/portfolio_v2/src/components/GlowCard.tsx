@@ -30,7 +30,7 @@ export default function GlowCard({ children, className = "", as = "div", href }:
       onMouseMove={handleMouseMove}
       onMouseEnter={() => setHover(true)}
       onMouseLeave={() => { setHover(false); setMouse({ x: 50, y: 50 }); }}
-      className={`glass-panel rounded-2xl overflow-hidden relative transition-shadow duration-300 ${
+      className={`glass-panel card-hover rounded-2xl overflow-hidden relative ${
         hover ? "shadow-xl shadow-accent/5" : ""
       } ${className}`}
       initial={{ opacity: 0, y: 20 }}
