@@ -24,13 +24,14 @@ jobs:
         with:
           node-version: 20
 
+      - name: Debug directory
+        run: pwd && ls -la ciberseguridad/portfolio_v2/package.json
+
       - name: Install dependencies
-        run: npm install
-        working-directory: ciberseguridad/portfolio_v2
+        run: cd ciberseguridad/portfolio_v2 && npm install
 
       - name: Build
-        run: npm run build
-        working-directory: ciberseguridad/portfolio_v2
+        run: cd ciberseguridad/portfolio_v2 && npm run build
 
       - name: Deploy
         uses: JamesIves/github-pages-deploy-action@v4
