@@ -32,9 +32,15 @@ jobs:
         run: npm run build
         working-directory: ciberseguridad/portfolio_v2
 
-      - name: Deploy to GitHub Pages
-        uses: JamesIves/github-pages-deploy-action@v4
-        with:
-          folder: ciberseguridad/portfolio_v2/out
-          branch: gh-pages
-          clean: true
+      - name: Add .nojekyll
+        run: touch ciberseguridad/portfolio_v2/out/.nojekyll
+
+      - name: Deploy to gh-pages
+        run: |
+          cd ciberseguridad/portfolio_v2/out
+          git init
+          git config user.name "lucasmdg"
+          git config user.email "lucasmendez1492@outlook.com"
+          git add -A
+          git commit -m "deploy: ${{ github.sha }}"
+          git push --force https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/lucasmdg/CIBER.git HEAD:gh-pages
