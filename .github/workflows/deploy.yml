@@ -22,16 +22,14 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: 20
+          node-version: 22
 
-      - name: Debug directory
-        run: pwd && ls -la ciberseguridad/portfolio_v2/package.json
-
-      - name: Install dependencies
-        run: cd ciberseguridad/portfolio_v2 && npm install
-
-      - name: Build
-        run: cd ciberseguridad/portfolio_v2 && npm run build
+      - name: Build & Export
+        shell: bash
+        run: |
+          cd ciberseguridad/portfolio_v2
+          npm install 2>&1
+          npm run build 2>&1
 
       - name: Deploy
         uses: JamesIves/github-pages-deploy-action@v4
