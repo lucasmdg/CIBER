@@ -24,15 +24,20 @@ jobs:
         with:
           node-version: 22
 
-      - name: Build & Export
-        shell: bash
-        run: |
-          cd ciberseguridad/portfolio_v2
-          npm install 2>&1
-          npm run build 2>&1
+      - name: Verify project structure
+        run: ls -la ciberseguridad/portfolio_v2/package.json ciberseguridad/portfolio_v2/package-lock.json
 
-      - name: Deploy
+      - name: Install dependencies
+        run: npm install
+        working-directory: ciberseguridad/portfolio_v2
+
+      - name: Build static export
+        run: npm run build
+        working-directory: ciberseguridad/portfolio_v2
+
+      - name: Deploy to GitHub Pages
         uses: JamesIves/github-pages-deploy-action@v4
         with:
           folder: ciberseguridad/portfolio_v2/out
           branch: gh-pages
+          clean: true
