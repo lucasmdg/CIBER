@@ -24,9 +24,6 @@ jobs:
         with:
           node-version: 22
 
-      - name: Verify project structure
-        run: ls -la ciberseguridad/portfolio_v2/package.json ciberseguridad/portfolio_v2/package-lock.json
-
       - name: Install dependencies
         run: npm install
         working-directory: ciberseguridad/portfolio_v2
