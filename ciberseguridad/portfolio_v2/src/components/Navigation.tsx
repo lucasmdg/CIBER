@@ -3,29 +3,32 @@
 import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Menu, X } from "lucide-react";
+import { LinkedinIcon } from "@/lib/icons";
 
 const sections = [
   { id: "hero", label: "Inicio" },
-  { id: "about", label: "Sobre mí" },
-  { id: "skills", label: "Skills" },
-  { id: "goals", label: "Objetivos" },
+  { id: "telecom", label: "Infraestructura" },
+  { id: "projects", label: "Proyectos" },
+  { id: "roadmap", label: "Roadmap" },
   { id: "contact", label: "Contacto" },
 ];
 
 export default function Navigation() {
-  const [scrolled, setScrolled] = useState(false);
   const [active, setActive] = useState("hero");
-  const [mobileOpen, setMobileOpen] = useState(false);
+  const [scrolled, setScrolled] = useState(false);
+  const [menuOpen, setMenuOpen] = useState(false);
 
   useEffect(() => {
     const handleScroll = () => {
-      setScrolled(window.scrollY > 40);
-
-      const y = window.scrollY + 120;
-      for (let i = sections.length - 1; i >= 0; i--) {
-        const el = document.getElementById(sections[i].id);
-        if (el && el.offsetTop <= y) {
-          setActive(sections[i].id);
+      setScrolled(window.scrollY > 60);
+      const offsets = sections.map((s) => {
+        const el = document.getElementById(s.id);
+        return { id: s.id, top: el?.offsetTop ?? 0 };
+      });
+      const scrollY = window.scrollY + 200;
+      for (let i = offsets.length - 1; i >= 0; i--) {
+        if (scrollY >= offsets[i].top) {
+          setActive(offsets[i].id);
           break;
         }
       }
@@ -34,95 +37,94 @@ export default function Navigation() {
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
-  const scrollTo = (id: string) => {
-    document.getElementById(id)?.scrollIntoView({ behavior: "smooth" });
-    setMobileOpen(false);
-  };
-
   return (
-    <>
-      <motion.nav
-        className={`fixed top-0 left-0 right-0 z-50 transition-all duration-500 ${
-          scrolled
-            ? "bg-white/80 backdrop-blur-xl border-b border-border/50 shadow-sm"
-            : "bg-transparent"
-        }`}
-        initial={{ y: -20, opacity: 0 }}
-        animate={{ y: 0, opacity: 1 }}
-        transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
-      >
-        <div className="max-w-5xl mx-auto px-6 md:px-8 flex items-center justify-between h-16">
-          <button
-            onClick={() => scrollTo("hero")}
-            className="flex items-center gap-2 group"
-          >
-            <div className="w-7 h-7 rounded-lg bg-accent flex items-center justify-center">
-              <span className="text-white text-xs font-bold">L</span>
-            </div>
-            <span className="text-sm font-medium text-text hidden sm:block">
-              Lucas Méndez
-            </span>
-          </button>
+    <motion.header
+      initial={{ y: -20, opacity: 0 }}
+      animate={{ y: 0, opacity: 1 }}
+      transition={{ duration: 0.6, ease: "easeOut" }}
+      className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
+        scrolled
+          ? "bg-[rgba(5,5,8,0.75)] backdrop-blur-xl border-b border-white/[0.04]"
+          : "bg-transparent"
+      }`}
+    >
+      <div className="section-container flex items-center justify-between h-16 md:h-20">
+        <a href="#hero" className="text-sm font-mono tracking-widest text-muted hover:text-text transition-colors">
+          LUCAS MÉNDEZ
+        </a>
 
-          <div className="hidden md:flex items-center gap-8">
-            {sections.slice(1).map((section) => (
-              <button
-                key={section.id}
-                onClick={() => scrollTo(section.id)}
-                className={`relative text-sm transition-colors duration-200 ${
-                  active === section.id
-                    ? "text-accent"
-                    : "text-text-secondary hover:text-text"
-                }`}
-              >
-                {section.label}
-                {active === section.id && (
-                  <motion.div
-                    layoutId="nav-indicator"
-                    className="absolute -bottom-1 left-0 right-0 h-[2px] bg-accent rounded-full"
-                    transition={{ type: "spring", stiffness: 400, damping: 30 }}
-                  />
-                )}
-              </button>
-            ))}
-          </div>
+        <nav className="hidden md:flex items-center gap-1">
+          {sections.map((s) => (
+            <a
+              key={s.id}
+              href={`#${s.id}`}
+              className={`relative px-4 py-2 text-xs tracking-wider transition-colors ${
+                active === s.id ? "text-text" : "text-muted hover:text-text"
+              }`}
+            >
+              {active === s.id && (
+                <motion.div
+                  layoutId="nav-indicator"
+                  className="absolute inset-0 bg-accent-dim rounded-lg"
+                  transition={{ type: "spring", stiffness: 400, damping: 30 }}
+                />
+              )}
+              <span className="relative z-10">{s.label}</span>
+            </a>
+          ))}
+        </nav>
+
+        <div className="flex items-center gap-3">
+          <a
+            href="https://www.linkedin.com/in/lucas-m%C3%A9ndez-34a0a53a1/"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="hidden md:flex items-center gap-2 px-4 py-2 text-xs font-medium tracking-wider text-white bg-accent/10 border border-accent/20 rounded-lg hover:bg-accent/20 transition-colors"
+          >
+            <LinkedinIcon style={{ width: 14, height: 14 }} />
+            LinkedIn
+          </a>
 
           <button
-            onClick={() => setMobileOpen(!mobileOpen)}
-            className="md:hidden p-2 -mr-2 text-text-secondary hover:text-text transition-colors"
-            aria-label="Menu"
+            onClick={() => setMenuOpen(!menuOpen)}
+            className="md:hidden p-2 text-muted hover:text-text transition-colors"
           >
-            {mobileOpen ? <X size={20} /> : <Menu size={20} />}
+            {menuOpen ? <X size={20} /> : <Menu size={20} />}
           </button>
         </div>
-      </motion.nav>
+      </div>
 
       <AnimatePresence>
-        {mobileOpen && (
+        {menuOpen && (
           <motion.div
-            className="fixed inset-0 z-40 bg-white/98 backdrop-blur-lg md:hidden"
-            initial={{ opacity: 0, y: -10 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -10 }}
-            transition={{ duration: 0.2 }}
+            initial={{ height: 0, opacity: 0 }}
+            animate={{ height: "auto", opacity: 1 }}
+            exit={{ height: 0, opacity: 0 }}
+            className="md:hidden overflow-hidden border-t border-white/[0.04] bg-[rgba(5,5,8,0.95)] backdrop-blur-xl"
           >
-            <div className="flex flex-col items-center justify-center h-full gap-8">
-              {sections.map((section, i) => (
-                <motion.button
-                  key={section.id}
-                  onClick={() => scrollTo(section.id)}
-                  className="text-2xl font-medium text-text hover:text-accent transition-colors"
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: i * 0.05 }}
+            <div className="section-container py-4 space-y-1">
+              {sections.map((s) => (
+                <a
+                  key={s.id}
+                  href={`#${s.id}`}
+                  onClick={() => setMenuOpen(false)}
+                  className="block px-4 py-3 text-sm text-muted hover:text-text hover:bg-accent-dim rounded-lg transition-colors"
                 >
-                  {section.label}
-                </motion.button>
+                  {s.label}
+                </a>
               ))}
+              <a
+                href="https://www.linkedin.com/in/lucas-m%C3%A9ndez-34a0a53a1/"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex items-center gap-2 px-4 py-3 text-sm text-accent hover:bg-accent-dim rounded-lg transition-colors"
+              >
+                <LinkedinIcon style={{ width: 16, height: 16 }} /> LinkedIn
+              </a>
             </div>
           </motion.div>
         )}
       </AnimatePresence>
-    </>
+    </motion.header>
   );
 }

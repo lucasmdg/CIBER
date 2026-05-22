@@ -1,101 +1,74 @@
 "use client";
 
-import { useRef } from "react";
-import { motion, useInView } from "framer-motion";
-import { Mail, Globe, CodeXml, ExternalLink } from "lucide-react";
+import { motion } from "framer-motion";
+import GlowCard from "./GlowCard";
+import { Mail, ArrowUpRight, Globe, CodeXml } from "lucide-react";
 
 const links = [
   {
     href: "https://www.linkedin.com/in/lucas-m%C3%A9ndez-34a0a53a1/",
     label: "LinkedIn",
     icon: Globe,
-    description: "Conecta conmigo profesionalmente",
+    desc: "Conecta profesionalmente",
   },
   {
     href: "https://github.com/lucasmdg/CIBER",
     label: "GitHub",
     icon: CodeXml,
-    description: "Explora mis proyectos y código",
+    desc: "Explora mi código y proyectos",
   },
   {
     href: "mailto:lucas@example.com",
     label: "Email",
     icon: Mail,
-    description: "Envíame un mensaje directo",
+    desc: "Envíame un mensaje directo",
   },
 ];
 
 export default function Contact() {
-  const ref = useRef<HTMLDivElement>(null);
-  const isInView = useInView(ref, { once: true });
-
   return (
-    <section id="contact" ref={ref} className="section-spacing bg-gray-50/50">
+    <section id="contact" className="section-spacing relative">
       <div className="section-container">
-        <motion.div
-          className="max-w-3xl mx-auto text-center mb-16"
-          initial={{ opacity: 0, y: 30 }}
-          animate={isInView ? { opacity: 1, y: 0 } : {}}
-          transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
-        >
-          <span className="text-xs font-medium text-accent tracking-wide uppercase mb-4 block">
-            Contacto
-          </span>
-          <h2 className="text-3xl md:text-4xl font-bold text-text tracking-tight mb-4">
-            Hablemos
+        <div className="text-center mb-16">
+          <div className="inline-flex items-center gap-2 px-3 py-1.5 bg-accent-dim border border-accent/20 rounded-full text-xs font-mono text-accent tracking-wider mb-4">
+            CONTACTO
+          </div>
+          <h2 className="text-3xl sm:text-4xl font-bold tracking-tight mb-4">
+            Conecta{" "}
+            <span className="gradient-text">conmigo</span>
           </h2>
-          <p className="text-text-secondary">
-            Siempre abierto a nuevas oportunidades, retos y conexiones.
+          <p className="text-muted max-w-2xl mx-auto text-sm">
+            Estoy abierto a oportunidades, colaboraciones y retos técnicos
           </p>
-        </motion.div>
+        </div>
 
-        <div className="max-w-2xl mx-auto grid sm:grid-cols-3 gap-4">
-          {links.map((link, i) => {
-            const Icon = link.icon;
+        <div className="grid md:grid-cols-3 gap-5 max-w-3xl mx-auto">
+          {links.map((l) => {
+            const Icon = l.icon;
             return (
-              <motion.a
-                key={link.label}
-                href={link.href}
-                target="_blank"
-                rel="noreferrer"
-                className="card-hover p-6 flex flex-col items-center text-center gap-3 group"
-                initial={{ opacity: 0, y: 20 }}
-                animate={isInView ? { opacity: 1, y: 0 } : {}}
-                transition={{
-                  duration: 0.5,
-                  delay: 0.1 + i * 0.1,
-                  ease: [0.22, 1, 0.36, 1],
-                }}
-              >
-                <Icon
-                  size={24}
-                  className="text-text-secondary group-hover:text-accent transition-colors duration-200"
-                />
-                <div>
-                  <span className="text-sm font-medium text-text group-hover:text-accent transition-colors duration-200 inline-flex items-center gap-1">
-                    {link.label}
-                    <ExternalLink size={12} className="opacity-0 group-hover:opacity-100 transition-opacity" />
-                  </span>
-                  <p className="text-xs text-text-tertiary mt-1">
-                    {link.description}
-                  </p>
+              <GlowCard key={l.label} as="a" href={l.href} className="p-6 text-center group">
+                <div className="flex flex-col items-center gap-3">
+                  <div className="w-12 h-12 rounded-xl bg-accent-dim border border-accent/20 flex items-center justify-center group-hover:border-accent/40 transition-colors">
+                    <Icon size={22} className="text-accent" />
+                  </div>
+                  <div>
+                    <h3 className="font-semibold text-sm mb-0.5">{l.label}</h3>
+                    <p className="text-[11px] text-muted">{l.desc}</p>
+                  </div>
+                  <ArrowUpRight size={14} className="text-dim group-hover:text-accent transition-colors" />
                 </div>
-              </motion.a>
+              </GlowCard>
             );
           })}
         </div>
-
-        <motion.div
-          className="text-center mt-20"
-          initial={{ opacity: 0 }}
-          animate={isInView ? { opacity: 1 } : {}}
-          transition={{ duration: 0.6, delay: 0.5 }}
-        >
-          <p className="text-xs text-text-tertiary">
-            © {new Date().getFullYear()} Lucas Méndez Díez
-          </p>
-        </motion.div>
       </div>
+
+      <footer className="mt-20 border-t border-white/[0.04]">
+        <div className="section-container py-8 flex flex-col md:flex-row items-center justify-between gap-4 text-xs text-dim font-mono">
+          <span>&copy; {new Date().getFullYear()} Lucas Méndez Díez</span>
+          <span className="tracking-wider">FP SUPERIOR STI · CIBERSEGURIDAD</span>
+        </div>
+      </footer>
     </section>
   );
 }

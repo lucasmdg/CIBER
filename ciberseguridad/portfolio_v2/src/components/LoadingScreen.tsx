@@ -1,62 +1,59 @@
 "use client";
 
-import { useEffect, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
+import { useEffect, useState } from "react";
 
-export default function LoadingScreen() {
-  const [loading, setLoading] = useState(true);
+export default function LoadingScreen({ onFinish }: { onFinish: () => void }) {
   const [progress, setProgress] = useState(0);
 
   useEffect(() => {
     const interval = setInterval(() => {
       setProgress((p) => {
-        if (p >= 100) {
-          clearInterval(interval);
-          return 100;
-        }
-        return p + Math.random() * 15 + 5;
+        const next = p + Math.random() * 12;
+        return next >= 100 ? (clearInterval(interval), 100) : next;
       });
-    }, 100);
-
+    }, 120);
     return () => clearInterval(interval);
   }, []);
 
-  useEffect(() => {
-    if (progress >= 100) {
-      setTimeout(() => setLoading(false), 400);
-    }
-  }, [progress]);
-
   return (
     <AnimatePresence>
-      {loading && (
-        <motion.div
-          className="fixed inset-0 z-[99999] flex flex-col items-center justify-center bg-white"
-          exit={{ opacity: 0, y: -20 }}
-          transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
+      <motion.div
+        initial={{ opacity: 1 }}
+        exit={{ opacity: 0 }}
+        transition={{ duration: 0.6, ease: "easeInOut" }}
+        className="fixed inset-0 z-[9999] flex flex-col items-center justify-center bg-[#050508]"
+      >
+        <div className="flex items-baseline gap-1.5 mb-8">
+          {Array.from({ length: 8 }).map((_, i) => (
+            <motion.span
+              key={i}
+              className="w-1.5 h-1.5 rounded-full bg-accent"
+              animate={{ opacity: [0.2, 1, 0.2], scale: [0.8, 1.2, 0.8] }}
+              transition={{
+                duration: 1.2,
+                repeat: Infinity,
+                delay: i * 0.12,
+                ease: "easeInOut",
+              }}
+            />
+          ))}
+        </div>
+        <div className="w-48 h-[2px] bg-border rounded-full overflow-hidden">
+          <motion.div
+            className="h-full bg-gradient-to-r from-accent via-cyan to-teal rounded-full"
+            animate={{ width: `${progress}%` }}
+            transition={{ duration: 0.15, ease: "linear" }}
+          />
+        </div>
+        <motion.p
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          className="mt-4 text-xs text-muted font-mono tracking-widest"
         >
-          <div className="flex flex-col items-center gap-6">
-            <div className="flex items-center gap-2">
-              <div className="w-2 h-2 rounded-full bg-accent" />
-              <span className="text-sm font-medium text-text-secondary tracking-tight">
-                Cargando
-              </span>
-            </div>
-
-            <div className="relative w-48 h-[2px] bg-gray-100 rounded-full overflow-hidden">
-              <motion.div
-                className="absolute inset-y-0 left-0 bg-gradient-to-r from-accent to-cyan rounded-full"
-                style={{ width: `${Math.min(progress, 100)}%` }}
-                transition={{ duration: 0.15 }}
-              />
-            </div>
-
-            <span className="text-xs text-text-tertiary font-mono">
-              {Math.min(Math.floor(progress), 100)}%
-            </span>
-          </div>
-        </motion.div>
-      )}
+          INICIALIZANDO SISTEMA
+        </motion.p>
+      </motion.div>
     </AnimatePresence>
   );
 }
