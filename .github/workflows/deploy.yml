@@ -6,6 +6,7 @@ on:
       - main
     paths:
       - 'ciberseguridad/portfolio_v2/**'
+      - '.github/workflows/deploy.yml'
 
 permissions:
   contents: write
