@@ -4,19 +4,18 @@ import { useEffect, useRef, useMemo } from "react";
 import { Canvas, useFrame, useThree } from "@react-three/fiber";
 import * as THREE from "three";
 
-const TOTAL = 3500;
+const TOTAL = 2500;
 const LAYERS = [
-  { count: 1400, speed: 0.12, zRange: [-6, -3], size: [0.08, 0.2], alpha: 0.12 },
-  { count: 1300, speed: 0.25, zRange: [-2.5, 2.5], size: [0.12, 0.3], alpha: 0.25 },
-  { count: 800, speed: 0.4, zRange: [3, 6], size: [0.2, 0.45], alpha: 0.4 },
+  { count: 1000, speed: 0.08, zRange: [-6, -3], size: [0.06, 0.15], alpha: 0.08 },
+  { count: 1000, speed: 0.15, zRange: [-2.5, 2.5], size: [0.08, 0.2], alpha: 0.15 },
+  { count: 500, speed: 0.25, zRange: [3, 6], size: [0.12, 0.3], alpha: 0.25 },
 ];
-const CHARS = "01ABEF";
+const CHARS = "01AB";
 
 const palette = [
+  new THREE.Color("#58a6ff"),
+  new THREE.Color("#79c0ff"),
   new THREE.Color("#3b82f6"),
-  new THREE.Color("#60a5fa"),
-  new THREE.Color("#93c5fd"),
-  new THREE.Color("#22d3ee"),
 ];
 
 function createCharTexture() {
@@ -30,8 +29,8 @@ function createCharTexture() {
     ctx.font = "bold 48px 'JetBrains Mono', monospace";
     ctx.textAlign = "center";
     ctx.textBaseline = "middle";
-    ctx.shadowColor = "rgba(59,130,246,0.2)";
-    ctx.shadowBlur = 6;
+    ctx.shadowColor = "rgba(88,166,255,0.15)";
+    ctx.shadowBlur = 4;
     ctx.fillText(ch, i * 64 + 32, 42);
   });
   const tex = new THREE.CanvasTexture(c);
@@ -112,47 +111,39 @@ void main() {
   float layerSpeed = uLayerSpeeds[int(aLayer)];
   float t = uTime * layerSpeed;
 
-  float n = snoise(vec3(pos.x * 0.2 + t * 0.1, pos.y * 0.2 + t * 0.08, pos.z * 0.12 + aPhase));
-  pos.x += n * 0.35 * layerSpeed;
-  pos.y += n * 0.3 * layerSpeed;
-  pos.z += n * 0.2 * layerSpeed;
+  float n = snoise(vec3(pos.x * 0.18 + t * 0.08, pos.y * 0.18 + t * 0.06, pos.z * 0.1 + aPhase));
+  pos.x += n * 0.25 * layerSpeed;
+  pos.y += n * 0.2 * layerSpeed;
+  pos.z += n * 0.15 * layerSpeed;
 
-  float wave = sin(pos.x * 0.4 + t * 0.3 + aPhase) * 0.12;
-  wave += cos(pos.y * 0.35 + t * 0.2 + aPhase * 1.3) * 0.1;
+  float wave = sin(pos.x * 0.35 + t * 0.2 + aPhase) * 0.08;
+  wave += cos(pos.y * 0.3 + t * 0.15 + aPhase * 1.3) * 0.06;
   pos.x += wave * layerSpeed;
-  pos.y += wave * 0.6;
+  pos.y += wave * 0.4;
 
   float dist = distance(pos.xy, uMouse * 4.0);
-  float repel = 0.35 / (dist * dist + 0.5);
+  float repel = 0.2 / (dist * dist + 0.6);
   vec2 repelDir = normalize(pos.xy - uMouse * 4.0);
   pos.x += repelDir.x * repel;
   pos.y += repelDir.y * repel;
 
-  vGlow = glowCurve(dist) * 0.5;
+  vGlow = glowCurve(dist) * 0.4;
 
   float sw = uScroll;
-  float morphX = sw * 0.15 * sin(pos.y * 0.5 + aPhase + uTime * 0.08);
-  float morphY = sw * 0.12 * cos(pos.x * 0.4 + aPhase * 1.5 + uTime * 0.06);
+  float morphX = sw * 0.1 * sin(pos.y * 0.4 + aPhase + uTime * 0.06);
+  float morphY = sw * 0.08 * cos(pos.x * 0.35 + aPhase * 1.5 + uTime * 0.04);
   pos.x += morphX;
   pos.y += morphY;
 
-  float emerge = 1.0 + 0.1 * sin(uTime * 0.15 + aPhase) * layerSpeed;
-  pos.z *= emerge;
-
-  float breathe = 1.0 + 0.03 * sin(uTime * 0.2 + aPhase * 0.5);
-  pos *= breathe;
-
   vec4 mv = modelViewMatrix * vec4(pos, 1.0);
   float zDepth = -mv.z / 10.0;
-  float sizeBase = aSize * (300.0 / -mv.z);
-  float sizePulse = 1.0 + 0.15 * sin(uTime * 0.4 + aPhase * 2.0);
-  float depthScale = 1.0 + zDepth * 0.3;
-  gl_PointSize = sizeBase * sizePulse * depthScale;
+  float sizeBase = aSize * (280.0 / -mv.z);
+  gl_PointSize = sizeBase;
 
-  float layerAlpha = aLayer == 0.0 ? 0.12 : (aLayer == 1.0 ? 0.25 : 0.4);
+  float layerAlpha = aLayer == 0.0 ? 0.08 : (aLayer == 1.0 ? 0.15 : 0.25);
   float fadeEdge = 1.0 - abs(pos.y) / 6.5;
   vAlpha = layerAlpha * max(0.0, fadeEdge);
-  vAlpha += vGlow * 0.3;
+  vAlpha += vGlow * 0.2;
 
   gl_Position = projectionMatrix * mv;
 }
@@ -177,11 +168,11 @@ void main() {
     float alpha = tex.a * (1.0 - d * 1.5) * vAlpha;
     if (alpha < 0.02) discard;
     vec3 mixed = mix(vColor, tex.rgb, 0.4);
-    gl_FragColor = vec4(mixed + vGlow * 0.3, alpha);
+    gl_FragColor = vec4(mixed + vGlow * 0.15, alpha);
   } else {
     float soft = 1.0 - smoothstep(0.0, 0.5, d);
-    float alpha = soft * vAlpha * 0.85;
-    vec3 col = vColor + vGlow * 0.4;
+    float alpha = soft * vAlpha * 0.7;
+    vec3 col = vColor + vGlow * 0.2;
     gl_FragColor = vec4(col, alpha);
   }
 }
@@ -259,7 +250,7 @@ function ParticleField() {
 
   useFrame((_, delta) => {
     if (matRef.current) {
-      matRef.current.uniforms.uTime.value += delta * 0.2;
+      matRef.current.uniforms.uTime.value += delta * 0.12;
       matRef.current.uniforms.uScroll.value += (scrollRef.current - matRef.current.uniforms.uScroll.value) * 0.03;
       mouseRef.current.x += (pointer.x - mouseRef.current.x) * 0.06;
       mouseRef.current.y += (pointer.y - mouseRef.current.y) * 0.06;
@@ -304,7 +295,7 @@ export default function CyberAsset() {
       camera={{ position: [0, 0, 9], fov: 50 }}
       gl={{ antialias: false, alpha: true }}
       style={{ position: "fixed", top: 0, left: 0, width: "100%", height: "100%", pointerEvents: "none", zIndex: 0 }}
-      dpr={[1, 1.5]}
+      dpr={[1, 1.2]}
     >
       <ParticleField />
     </Canvas>

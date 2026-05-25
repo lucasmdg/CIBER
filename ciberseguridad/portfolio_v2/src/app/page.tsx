@@ -1,6 +1,7 @@
 "use client";
 
 import dynamic from "next/dynamic";
+import Hero from "@/components/Hero";
 
 const CyberAsset = dynamic(() => import("@/components/CyberAsset"), { ssr: false });
 
@@ -18,7 +19,7 @@ export default function Home() {
         }}
       />
       <div className="relative z-10">
-        {/* Hero */}
+        <Hero />
         {/* About */}
         {/* TechStack */}
         {/* AIWorkflow */}
