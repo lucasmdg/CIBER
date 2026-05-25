@@ -9,6 +9,7 @@ import Projects from "@/components/Projects";
 import Journey from "@/components/Journey";
 import Personality from "@/components/Personality";
 import Goals from "@/components/Goals";
+import Contact from "@/components/Contact";
 
 const CyberAsset = dynamic(() => import("@/components/CyberAsset"), { ssr: false });
 
@@ -34,7 +35,7 @@ export default function Home() {
         <Journey />
         <Personality />
         <Goals />
-        {/* Contact */}
+        <Contact />
       </div>
     </main>
   );
