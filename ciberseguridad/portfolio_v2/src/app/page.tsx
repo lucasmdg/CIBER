@@ -4,6 +4,7 @@ import dynamic from "next/dynamic";
 import Hero from "@/components/Hero";
 import About from "@/components/About";
 import TechStack from "@/components/TechStack";
+import AIWorkflow from "@/components/AIWorkflow";
 
 const CyberAsset = dynamic(() => import("@/components/CyberAsset"), { ssr: false });
 
@@ -24,7 +25,7 @@ export default function Home() {
         <Hero />
         <About />
         <TechStack />
-        {/* AIWorkflow */}
+        <AIWorkflow />
         {/* Projects */}
         {/* Journey */}
         {/* Personality */}
