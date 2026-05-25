@@ -11,15 +11,7 @@ const TUNNEL_LENGTH = 80;
 const RING_RADIUS = 4;
 const PARTICLE_COUNT = 800;
 
-function TunnelRing({
-  z,
-  index,
-  total,
-}: {
-  z: number;
-  index: number;
-  total: number;
-}) {
+function TunnelRing({ z, index, total }: { z: number; index: number; total: number }) {
   const ref = useRef<THREE.Mesh>(null!);
   const t = index / total;
   const radius = RING_RADIUS + Math.sin(t * Math.PI * 3) * 0.3;
@@ -159,20 +151,33 @@ function CameraController({ progress }: { progress: number }) {
   return null;
 }
 
+const PHASES = [
+  { key: "inicializando", label: "INICIALIZANDO SISTEMA", color: "#8b949e", threshold: 0 },
+  { key: "cargando", label: "CARGANDO", color: "#58a6ff", threshold: 0.4 },
+  { key: "iniciando", label: "INICIANDO", color: "#22d3ee", threshold: 0.75 },
+] as const;
+
 export default function LoadingScreen({ onFinish }: { onFinish: () => void }) {
   const [progress, setProgress] = useState(0);
-  const [phase, setPhase] = useState<"loading" | "transition">("loading");
-  const startTime = useRef(Date.now());
+  const [phaseIndex, setPhaseIndex] = useState(0);
+  const phaseRef = useRef(0);
 
   useEffect(() => {
-    const duration = 3500;
+    const duration = 3000;
+    const start = Date.now();
+
     const interval = setInterval(() => {
-      const elapsed = Date.now() - startTime.current;
+      const elapsed = Date.now() - start;
       const p = Math.min(elapsed / duration, 1);
       setProgress(p);
 
-      if (p >= 0.85 && phase === "loading") {
-        setPhase("transition");
+      let newPhase = phaseRef.current;
+      if (p >= 0.75) newPhase = 2;
+      else if (p >= 0.4) newPhase = 1;
+
+      if (newPhase !== phaseRef.current) {
+        phaseRef.current = newPhase;
+        setPhaseIndex(newPhase);
       }
 
       if (p >= 1) {
@@ -180,8 +185,11 @@ export default function LoadingScreen({ onFinish }: { onFinish: () => void }) {
         setTimeout(() => onFinish(), 400);
       }
     }, 16);
+
     return () => clearInterval(interval);
-  }, [onFinish, phase]);
+  }, [onFinish]);
+
+  const currentPhase = PHASES[phaseIndex];
 
   return (
     <AnimatePresence>
@@ -226,31 +234,17 @@ export default function LoadingScreen({ onFinish }: { onFinish: () => void }) {
           </motion.div>
 
           <AnimatePresence mode="wait">
-            {phase === "loading" ? (
-              <motion.p
-                key="loading"
-                initial={{ opacity: 0, y: 6 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: -6 }}
-                transition={{ duration: 0.4 }}
-                className="text-xs font-mono tracking-[0.25em]"
-                style={{ color: "#8b949e" }}
-              >
-                INICIALIZANDO SISTEMA
-              </motion.p>
-            ) : (
-              <motion.p
-                key="welcome"
-                initial={{ opacity: 0, y: 6 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: -6 }}
-                transition={{ duration: 0.4 }}
-                className="text-xs font-mono tracking-[0.25em]"
-                style={{ color: "#58a6ff" }}
-              >
-                BIENVENIDO
-              </motion.p>
-            )}
+            <motion.p
+              key={currentPhase.key}
+              initial={{ opacity: 0, y: 6 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -6 }}
+              transition={{ duration: 0.4 }}
+              className="text-xs font-mono tracking-[0.25em]"
+              style={{ color: currentPhase.color }}
+            >
+              {currentPhase.label}
+            </motion.p>
           </AnimatePresence>
 
           <div
@@ -261,8 +255,7 @@ export default function LoadingScreen({ onFinish }: { onFinish: () => void }) {
               className="h-full rounded-full transition-all duration-100 ease-linear"
               style={{
                 width: `${progress * 100}%`,
-                background:
-                  "linear-gradient(90deg, #58a6ff, #79c0ff)",
+                background: "linear-gradient(90deg, #58a6ff, #79c0ff)",
               }}
             />
           </div>

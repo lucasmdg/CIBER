@@ -1,3 +1,11 @@
+/*
+ * ── DESIGN SYSTEM ──────────────────────────────────────
+ * Source of truth: src/lib/design-tokens.ts
+ * Tokens are defined in JS and mirrored here for Tailwind/CSS.
+ * NEVER hardcode values in both places — update tokens.ts first.
+ * ────────────────────────────────────────────────────────
+ */
+
 @import "tailwindcss";
 
 @plugin "@tailwindcss/typography";
@@ -18,6 +26,8 @@
   --color-accent-soft: #3b82f6;
   --color-accent-dim: rgba(88, 166, 255, 0.08);
   --color-accent-glow: rgba(88, 166, 255, 0.12);
+  --color-accent-cyan: #22d3ee;
+  --color-accent-cyan-dim: rgba(34, 211, 238, 0.06);
   --color-cyan: #79c0ff;
   --color-cyan-dim: rgba(121, 192, 255, 0.06);
   --color-purple: #bc8cff;

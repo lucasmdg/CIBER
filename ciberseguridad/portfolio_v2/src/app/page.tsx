@@ -1,6 +1,7 @@
 "use client";
 
 import dynamic from "next/dynamic";
+import SectionTransition from "@/components/SectionTransition";
 import Hero from "@/components/Hero";
 import About from "@/components/About";
 import TechStack from "@/components/TechStack";
@@ -27,15 +28,33 @@ export default function Home() {
         }}
       />
       <div className="relative z-10">
-        <Hero />
-        <About />
-        <TechStack />
-        <AIWorkflow />
-        <Projects />
-        <Journey />
-        <Personality />
-        <Goals />
-        <Contact />
+        <SectionTransition direction="none" delay={0.2}>
+          <Hero />
+        </SectionTransition>
+        <SectionTransition direction="up" delay={0.1} id="about">
+          <About />
+        </SectionTransition>
+        <SectionTransition direction="up" delay={0.1} id="tech">
+          <TechStack />
+        </SectionTransition>
+        <SectionTransition direction="up" delay={0.1} id="workflow">
+          <AIWorkflow />
+        </SectionTransition>
+        <SectionTransition direction="up" delay={0.1} id="projects">
+          <Projects />
+        </SectionTransition>
+        <SectionTransition direction="up" delay={0.1} id="journey">
+          <Journey />
+        </SectionTransition>
+        <SectionTransition direction="up" delay={0.1} id="personality">
+          <Personality />
+        </SectionTransition>
+        <SectionTransition direction="up" delay={0.1} id="goals">
+          <Goals />
+        </SectionTransition>
+        <SectionTransition direction="up" delay={0.1} id="contact">
+          <Contact />
+        </SectionTransition>
       </div>
     </main>
   );
