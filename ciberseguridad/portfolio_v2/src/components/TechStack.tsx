@@ -122,14 +122,15 @@ function SkillCard({
   categoryIndex: number;
 }) {
   const Icon = skill.icon;
+  const dir = index % 2 === 0 ? -20 : 20;
   return (
     <motion.div
-      initial={{ opacity: 0, y: 10 }}
-      whileInView={{ opacity: 1, y: 0 }}
+      initial={{ opacity: 0, x: dir }}
+      whileInView={{ opacity: 1, x: 0 }}
       viewport={{ once: true }}
       transition={{
-        duration: 0.3,
-        delay: index * 0.04 + categoryIndex * 0.1,
+        duration: 0.4,
+        delay: index * 0.05 + categoryIndex * 0.1,
         ease: [0.16, 1, 0.3, 1],
       }}
       className="card-hover glass-panel rounded-xl p-3 flex items-center gap-3"
@@ -167,8 +168,8 @@ export default function TechStack() {
           {categories.map((cat, ci) => (
             <div key={cat.title}>
               <motion.h3
-                initial={{ opacity: 0 }}
-                whileInView={{ opacity: 1 }}
+                initial={{ opacity: 0, x: -10 }}
+                whileInView={{ opacity: 1, x: 0 }}
                 viewport={{ once: true }}
                 transition={{ duration: 0.3, delay: ci * 0.1 }}
                 className="text-xs font-mono tracking-wider uppercase mb-4"

@@ -1,16 +1,53 @@
 "use client";
 
+import { useRef, useEffect } from "react";
 import { motion } from "framer-motion";
+import gsap from "gsap";
+import { ScrollTrigger } from "gsap/ScrollTrigger";
+
+gsap.registerPlugin(ScrollTrigger);
 
 const stats = [
-  { value: "33+", label: "Proyectos" },
-  { value: "10+", label: "Tecnologías" },
-  { value: "Python", label: "Lenguaje Principal" },
+  { value: "33+", label: "Proyectos", num: 33 },
+  { value: "10+", label: "Tecnologías", num: 10 },
+  { value: "Python", label: "Lenguaje Principal", num: 1 },
 ];
 
 export default function About() {
+  const sectionRef = useRef<HTMLElement>(null);
+  const statsRef = useRef<(HTMLDivElement | null)[]>([]);
+
+  useEffect(() => {
+    const ctx = gsap.context(() => {
+      const reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+      if (reduced) return;
+
+      statsRef.current.forEach((el, i) => {
+        if (!el) return;
+        const stat = stats[i];
+        const obj = { val: 0 };
+        gsap.to(obj, {
+          val: stat.num,
+          duration: 1.5,
+          ease: "power2.out",
+          scrollTrigger: {
+            trigger: el,
+            start: "top 90%",
+            toggleActions: "play none none reverse",
+          },
+          onUpdate: () => {
+            el.textContent = stat.label === "Lenguaje Principal"
+              ? "Python"
+              : `${Math.floor(obj.val)}+`;
+          },
+        });
+      });
+    }, sectionRef);
+    return () => ctx.revert();
+  }, []);
+
   return (
-    <section id="about" className="section-spacing relative">
+    <section id="about" ref={sectionRef} className="section-spacing relative">
       <div className="section-container">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
@@ -52,16 +89,19 @@ export default function About() {
           </div>
 
           <div className="grid grid-cols-3 gap-6 mt-10">
-            {stats.map((s) => (
+            {stats.map((s, i) => (
               <motion.div
                 key={s.label}
                 initial={{ opacity: 0, y: 10 }}
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
-                transition={{ duration: 0.4, delay: 0.1 }}
+                transition={{ duration: 0.4, delay: i * 0.1 }}
                 className="text-center"
               >
-                <div className="text-2xl sm:text-3xl font-bold text-accent mb-1">
+                <div
+                  ref={(el) => { statsRef.current[i] = el; }}
+                  className="text-2xl sm:text-3xl font-bold text-accent mb-1"
+                >
                   {s.value}
                 </div>
                 <div className="text-xs text-muted font-mono tracking-wide">

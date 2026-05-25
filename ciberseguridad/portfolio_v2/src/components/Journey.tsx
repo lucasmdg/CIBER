@@ -47,25 +47,28 @@ const milestones = [
     icon: IconRadar,
   },
   {
-    year: "2027",
+    year: "2027 → 2028",
     title: "Especialización en Ciberseguridad",
     desc: "Continuación en el mismo ciclo con especialización en ciberseguridad ofensiva y defensiva. IA aplicada a seguridad, infraestructura cloud-native y herramientas Red Team.",
     icon: IconRocket,
-    future: false,
+    future: true,
   },
 ];
 
 export default function Journey() {
   const sectionRef = useRef<HTMLElement>(null);
   const lineRef = useRef<HTMLDivElement>(null);
+  const dotsRef = useRef<(HTMLDivElement | null)[]>([]);
 
   useEffect(() => {
     const ctx = gsap.context(() => {
       const reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
       if (reduced) {
         if (lineRef.current) gsap.set(lineRef.current, { scaleY: 1 });
+        dotsRef.current.forEach((d) => { if (d) gsap.set(d, { scale: 1, opacity: 1 }); });
         return;
       }
+
       if (lineRef.current) {
         gsap.fromTo(
           lineRef.current,
@@ -82,7 +85,27 @@ export default function Journey() {
           }
         );
       }
+
+      dotsRef.current.forEach((dotEl, i) => {
+        if (!dotEl) return;
+        gsap.fromTo(
+          dotEl,
+          { scale: 0, opacity: 0 },
+          {
+            scale: 1,
+            opacity: 1,
+            duration: 0.6,
+            ease: "back.out(2)",
+            scrollTrigger: {
+              trigger: dotEl,
+              start: "top 85%",
+              toggleActions: "play none none reverse",
+            },
+          }
+        );
+      });
     }, sectionRef);
+
     return () => ctx.revert();
   }, []);
 
@@ -110,7 +133,7 @@ export default function Journey() {
             ref={lineRef}
             className="absolute left-[40px] md:left-1/2 top-0 w-px h-full -translate-x-1/2 origin-top"
             style={{
-              background: "linear-gradient(to bottom, rgba(88,166,255,0.3), rgba(34,211,238,0.1))",
+              background: "linear-gradient(to bottom, rgba(88,166,255,0.4), rgba(34,211,238,0.15))",
             }}
           />
 
@@ -122,27 +145,36 @@ export default function Journey() {
             return (
               <motion.div
                 key={m.title}
-                initial={{ opacity: 0, y: 16 }}
+                initial={{ opacity: 0, y: 20 }}
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true, margin: "-50px" }}
                 transition={{
-                  duration: 0.4,
-                  delay: i * 0.08,
+                  duration: 0.5,
+                  delay: i * 0.1,
                   ease: [0.16, 1, 0.3, 1],
                 }}
                 className="flex items-start gap-4 mb-10 md:mb-14 last:mb-0"
               >
                 <div className="w-8 shrink-0 relative z-10 order-1 md:order-2 flex justify-center">
                   <div
-                    className={`w-3.5 h-3.5 rounded-full border-2 relative ${
+                    ref={(el) => { dotsRef.current[i] = el; }}
+                    className={`w-4 h-4 rounded-full border-2 relative ${
                       isFuture ? "border-accent-cyan" : "border-accent"
                     }`}
                     style={{ backgroundColor: "#06080f" }}
                   >
                     <div
                       className={`absolute inset-0.5 rounded-full ${
-                        isFuture ? "bg-accent-cyan/40" : "bg-accent/40"
+                        isFuture ? "bg-accent-cyan/50" : "bg-accent/50"
                       }`}
+                    />
+                    <div
+                      className={`absolute inset-[-4px] rounded-full opacity-0 ${
+                        isFuture ? "bg-accent-cyan/10" : "bg-accent/10"
+                      }`}
+                      style={{
+                        animation: `glow-pulse 2s ease-in-out ${i * 0.3}s infinite`,
+                      }}
                     />
                   </div>
                 </div>
@@ -194,7 +226,7 @@ export default function Journey() {
                           </span>
                           {isFuture && (
                             <span className="text-[10px] font-mono px-1.5 py-0.5 rounded-full bg-accent-cyan/10 text-accent-cyan border border-accent-cyan/20 tracking-wider">
-                              SIGUIENTE
+                              PROXIMO
                             </span>
                           )}
                         </div>

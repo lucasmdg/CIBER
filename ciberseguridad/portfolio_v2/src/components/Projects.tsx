@@ -61,10 +61,11 @@ function ProjectCard({
   return (
     <motion.div
       layout
-      initial={{ opacity: 0, y: 15 }}
-      animate={{ opacity: 1, y: 0 }}
-      exit={{ opacity: 0, y: -10, scale: 0.98 }}
-      transition={{ duration: 0.3, ease: "easeOut", delay: index * 0.02 }}
+      initial={{ opacity: 0, y: 20, scale: 0.97 }}
+      whileInView={{ opacity: 1, y: 0, scale: 1 }}
+      viewport={{ once: true, margin: "-30px" }}
+      exit={{ opacity: 0, y: -10, scale: 0.95 }}
+      transition={{ duration: 0.4, ease: [0.16, 1, 0.3, 1], delay: index * 0.03 }}
     >
       <a
         href={p.github}
@@ -214,7 +215,12 @@ export default function Projects() {
         </div>
 
         <AnimatePresence mode="wait">
-          <motion.div key={active}>
+          <motion.div
+            key={active}
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.3 }}
+          >
             {featured.length > 0 && (
               <div className="mb-6">
                 <motion.p
