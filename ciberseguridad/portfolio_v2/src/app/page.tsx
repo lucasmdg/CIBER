@@ -6,6 +6,9 @@ import About from "@/components/About";
 import TechStack from "@/components/TechStack";
 import AIWorkflow from "@/components/AIWorkflow";
 import Projects from "@/components/Projects";
+import Journey from "@/components/Journey";
+import Personality from "@/components/Personality";
+import Goals from "@/components/Goals";
 
 const CyberAsset = dynamic(() => import("@/components/CyberAsset"), { ssr: false });
 
@@ -28,9 +31,9 @@ export default function Home() {
         <TechStack />
         <AIWorkflow />
         <Projects />
-        {/* Journey */}
-        {/* Personality */}
-        {/* Goals */}
+        <Journey />
+        <Personality />
+        <Goals />
         {/* Contact */}
       </div>
     </main>
