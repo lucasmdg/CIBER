@@ -2,6 +2,7 @@
 
 import { useRef } from "react";
 import { motion, useInView } from "framer-motion";
+import { IconCpu, IconBolt, IconGhost, IconArrowRight } from "@tabler/icons-react";
 
 const tools = [
   {
@@ -9,36 +10,63 @@ const tools = [
     role: "Editor IA",
     desc: "Entorno de desarrollo con IA integrada. Edición contextual, generación de código y refactorización asistida.",
     color: "#58a6ff",
+    icon: null,
   },
   {
     name: "Claude",
     role: "Asistente IA",
     desc: "Modelo de Anthropic para análisis de código, documentación técnica y resolución de problemas complejos.",
     color: "#bc8cff",
+    icon: null,
   },
   {
     name: "Copilot",
     role: "Autocompletado",
     desc: "Sugerencias de código en tiempo real. Automatización de patrones repetitivos y generación de tests.",
     color: "#79c0ff",
+    icon: null,
   },
   {
     name: "ChatGPT",
     role: "Research IA",
     desc: "Investigación técnica, resolución de dudas de arquitectura, generación de scripts y prototipado rápido.",
     color: "#58a6ff",
+    icon: null,
   },
   {
     name: "Perplexity",
     role: "Búsqueda IA",
     desc: "Investigación técnica con fuentes verificadas. Ayuda a mantener el stack actualizado y resolver bugs.",
     color: "#79c0ff",
+    icon: null,
   },
   {
     name: "Windsurf",
     role: "Flujo IA",
     desc: "Entorno de desarrollo con flujo de trabajo IA nativo. Integración de agentes y automatización de tareas.",
     color: "#3b82f6",
+    icon: null,
+  },
+  {
+    name: "LM Studio",
+    role: "Inferencia Local",
+    desc: "Ejecución de modelos de lenguaje locales (LLaMA, Mistral, Phi). Prototipado rápido sin dependencia de APIs externas.",
+    color: "#22d3ee",
+    icon: IconCpu,
+  },
+  {
+    name: "OpenCL",
+    role: "Cómputo Paralelo",
+    desc: "Programación heterogénea para acelerar tareas de IA y procesamiento de datos. Optimización de kernels en GPU/CPU.",
+    color: "#3b82f6",
+    icon: IconBolt,
+  },
+  {
+    name: "Hermes Agent",
+    role: "Agente Autónomo",
+    desc: "Framework de agentes de IA para automatización de tareas complejas. Ejecución de workflows autónomos con decisión contextual.",
+    color: "#bc8cff",
+    icon: IconGhost,
   },
 ];
 
@@ -69,6 +97,15 @@ const workflowItems = [
   },
 ];
 
+const pipelineStages = [
+  { name: "Idea", desc: "Concepto" },
+  { name: "Prompt", desc: "Ingeniería" },
+  { name: "Code", desc: "Generación" },
+  { name: "Review", desc: "Revisión" },
+  { name: "Test", desc: "Validación" },
+  { name: "Deploy", desc: "Despliegue" },
+];
+
 function IconCursor({ size }: { size?: number }) {
   return (
     <svg width={size || 20} height={size || 20} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
@@ -97,9 +134,10 @@ function IconCopilot({ size }: { size?: number }) {
   );
 }
 
+const fallbackIcons = [IconCursor, IconClaude, IconCopilot];
+
 function ToolCard({ tool, index }: { tool: typeof tools[0]; index: number }) {
-  const icons = [IconCursor, IconClaude, IconCopilot];
-  const Icon = icons[index % icons.length];
+  const Icon = tool.icon || fallbackIcons[index % fallbackIcons.length];
 
   return (
     <motion.div
@@ -108,7 +146,7 @@ function ToolCard({ tool, index }: { tool: typeof tools[0]; index: number }) {
       viewport={{ once: true }}
       transition={{
         duration: 0.4,
-        delay: index * 0.08,
+        delay: index * 0.06,
         ease: [0.16, 1, 0.3, 1],
       }}
       className="card-hover glass-panel rounded-xl p-5 group"
@@ -172,7 +210,7 @@ export default function AIWorkflow() {
           </p>
         </motion.div>
 
-        <div className="max-w-4xl mx-auto">
+        <div className="max-w-5xl mx-auto">
           <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
             {tools.map((t, i) => (
               <ToolCard key={t.name} tool={t} index={i} />
@@ -184,6 +222,42 @@ export default function AIWorkflow() {
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true, margin: "-80px" }}
             transition={{ duration: 0.5, delay: 0.3 }}
+            className="mt-12"
+          >
+            <div className="glass-panel rounded-2xl p-6 md:p-8">
+              <h3 className="text-lg font-semibold mb-6 text-center">
+                Pipeline de desarrollo con IA
+              </h3>
+              <div className="flex items-center justify-center gap-0 overflow-x-auto pb-2 scrollbar-none">
+                {pipelineStages.map((stage, i) => (
+                  <div key={stage.name} className="flex items-center shrink-0">
+                    <div className="glass-panel rounded-lg px-3 py-2.5 text-center min-w-[80px] border-accent/10">
+                      <div className="text-xs font-semibold text-accent">
+                        {i + 1}
+                      </div>
+                      <div className="text-xs font-semibold text-text mt-0.5">
+                        {stage.name}
+                      </div>
+                      <div className="text-[10px] text-muted mt-0.5">
+                        {stage.desc}
+                      </div>
+                    </div>
+                    {i < pipelineStages.length - 1 && (
+                      <div className="flex items-center mx-1 md:mx-2">
+                        <IconArrowRight size={16} className="text-accent/30 shrink-0" />
+                      </div>
+                    )}
+                  </div>
+                ))}
+              </div>
+            </div>
+          </motion.div>
+
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true, margin: "-80px" }}
+            transition={{ duration: 0.5, delay: 0.4 }}
             className="mt-12"
           >
             <div className="glass-panel rounded-2xl p-6 md:p-8">

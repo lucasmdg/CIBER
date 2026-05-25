@@ -132,6 +132,15 @@ export default function Hero() {
               <span className="px-3 py-1.5 bg-cyan/5 border border-cyan/10 rounded-lg text-xs font-mono text-cyan">
                 Raspberry Pi
               </span>
+              <span className="px-3 py-1.5 bg-purple-dim border border-purple/20 rounded-lg text-xs font-mono text-purple">
+                OpenCL
+              </span>
+              <span className="px-3 py-1.5 bg-accent-cyan-dim border border-accent-cyan/20 rounded-lg text-xs font-mono text-accent-cyan">
+                LM Studio
+              </span>
+              <span className="px-3 py-1.5 bg-accent-dim border border-accent/20 rounded-lg text-xs font-mono text-accent">
+                Hermes Agent
+              </span>
             </motion.div>
 
             <motion.div
@@ -153,12 +162,22 @@ export default function Hero() {
                   </svg>
                   Descargar CV
                 </span>
+                <motion.span
+                  className="relative z-10"
+                  animate={{ x: [0, 3, 0] }}
+                  transition={{ duration: 1.5, repeat: Infinity, ease: "easeInOut" }}
+                >
+                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                    <path d="M5 12h14" />
+                    <path d="m12 5 7 7-7 7" />
+                  </svg>
+                </motion.span>
               </a>
               <a
                 href="https://www.linkedin.com/in/lucas-m%C3%A9ndez-34a0a53a1/"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="group relative inline-flex items-center gap-2 px-5 py-2.5 text-xs font-mono tracking-wider text-muted border border-border rounded-lg hover:text-text hover:border-border-light transition-all duration-300"
+                className="group relative inline-flex items-center gap-2 px-5 py-2.5 text-xs font-mono tracking-wider text-muted border border-border rounded-lg hover:text-text hover:border-border-light hover:shadow-lg hover:shadow-accent/10 transition-all duration-300"
               >
                 <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor">
                   <path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433a2.062 2.062 0 01-2.063-2.065 2.064 2.064 0 112.063 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z" />
@@ -176,7 +195,7 @@ export default function Hero() {
             transition={{ duration: 0.8, delay: 0.5, ease: [0.16, 1, 0.3, 1] }}
             className="flex-shrink-0 mx-auto lg:mx-0 lg:order-1"
           >
-            <div className="photo-frame w-64 h-64 sm:w-72 sm:h-72 lg:w-80 lg:h-80">
+            <div className="photo-frame w-64 h-64 sm:w-72 sm:h-72 lg:w-96 lg:h-96">
               <div
                 className="w-full h-full transition-transform duration-200 ease-out"
                 style={{

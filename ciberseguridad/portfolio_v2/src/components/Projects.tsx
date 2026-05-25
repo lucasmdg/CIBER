@@ -81,7 +81,7 @@ function ProjectCard({
             setMouse({ x: 50, y: 50 });
           }}
           className={`relative overflow-hidden rounded-xl transition-all duration-300 ${
-            compact ? "p-4" : "p-5"
+            compact ? "p-4" : "p-6"
           } glass-panel card-hover`}
           style={{
             transform: hover
@@ -224,7 +224,7 @@ export default function Projects() {
                 >
                   Destacados
                 </motion.p>
-                <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-5">
                   {featured.map((p, i) => (
                     <ProjectCard key={p.title} project={p} index={i} />
                   ))}

@@ -18,6 +18,9 @@ import {
   IconRouter,
   IconTerminal2,
   IconCpu,
+  IconBolt,
+  IconGhost,
+  IconRobotFace,
 } from "@tabler/icons-react";
 
 const categories = [
@@ -58,6 +61,16 @@ const categories = [
       { icon: IconCloudComputing, name: "Cloud" },
       { icon: IconRouter, name: "GPON/FTTH" },
       { icon: IconCpu, name: "IoT" },
+    ],
+  },
+  {
+    title: "AI & Tools",
+    skills: [
+      { icon: IconRobotFace, name: "Cursor" },
+      { icon: IconTerminal2, name: "Claude AI" },
+      { icon: IconBolt, name: "LM Studio" },
+      { icon: IconGhost, name: "Hermes Agent" },
+      { icon: IconCpu, name: "OpenCL" },
     ],
   },
 ];

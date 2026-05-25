@@ -36,11 +36,11 @@ export default function About() {
             </p>
             <p className="text-muted leading-relaxed">
               He desarrollado más de 30 proyectos de ciberseguridad que abarcan
-              desde herramientas básicas de hardening hasta simulaciones de
-              amenazas avanzadas (APT, Red Team). Mi flujo de trabajo integra
-              inteligencia artificial de forma natural: uso asistentes de código,
-              automatización con IA y herramientas modernas para acelerar el
-              desarrollo sin sacrificar calidad.
+              desde hardening básico hasta simulaciones de amenazas avanzadas
+              (APT, Red Team). Mi flujo de trabajo es nativamente AI-driven:
+              uso Cursor, Claude, Copilot y agentes autónomos como Hermes Agent
+              para acelerar el desarrollo, junto con inferencia local via
+              LM Studio y cómputo paralelo con OpenCL.
             </p>
             <p className="text-muted leading-relaxed">
               Estoy especialmente interesado en la intersección entre la

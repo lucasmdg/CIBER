@@ -5,22 +5,22 @@ import { motion } from "framer-motion";
 const goals = [
   {
     title: "Red Team",
-    desc: "Especialización en ciberseguridad ofensiva: simulación de amenazas avanzadas, post-explotación y evasión de defensas.",
+    desc: "Especialización en ciberseguridad ofensiva a partir de 2027: simulación de amenazas avanzadas, post-explotación, evasión de defensas y operaciones Red Team reales.",
     number: "01",
   },
   {
     title: "AI Security",
-    desc: "Intersección entre inteligencia artificial y ciberseguridad: detección de amenazas con ML, análisis predictivo y automatización defensiva.",
+    desc: "Intersección entre inteligencia artificial y ciberseguridad: detección de amenazas con ML, análisis predictivo, automatización defensiva y agentes de seguridad autónomos.",
     number: "02",
   },
   {
     title: "Cloud Infra",
-    desc: "Infraestructura cloud-native segura: despliegue automatizado, hardening de entornos cloud y DevSecOps práctico.",
+    desc: "Infraestructura cloud-native segura: despliegue automatizado con IA, hardening de entornos cloud, DevSecOps práctico y orquestación de contenedores.",
     number: "03",
   },
   {
     title: "Liderazgo",
-    desc: "Crecimiento hacia roles técnicos de responsabilidad: mentoría, liderazgo de equipos de seguridad y dirección técnica de proyectos.",
+    desc: "Crecimiento hacia roles técnicos de responsabilidad: mentoría en ciberseguridad, liderazgo de equipos Red Team y dirección técnica de proyectos de seguridad.",
     number: "04",
   },
 ];
@@ -42,7 +42,7 @@ export default function Goals() {
             <span className="gradient-text-purple">objetivos</span>
           </h2>
           <p className="section-subtitle mx-auto">
-            Áreas de enfoque para los próximos años en mi carrera técnica
+            Áreas de enfoque para 2027 en adelante en mi carrera técnica
           </p>
         </motion.div>
 

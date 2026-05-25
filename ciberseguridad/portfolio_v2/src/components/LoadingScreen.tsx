@@ -6,7 +6,7 @@ import * as THREE from "three";
 import { motion, AnimatePresence } from "framer-motion";
 
 const RING_SEGMENTS = 48;
-const RING_COUNT = 60;
+const RING_COUNT = 80;
 const TUNNEL_LENGTH = 80;
 const RING_RADIUS = 4;
 const PARTICLE_COUNT = 800;
@@ -68,9 +68,15 @@ function Particles({ progress }: { progress: number }) {
   const ref = useRef<THREE.Points>(null!);
   const cameraZ = progress * TUNNEL_LENGTH - TUNNEL_LENGTH / 2;
 
-  const [pos, sizes] = useMemo(() => {
+  const [pos, sizes, colors] = useMemo(() => {
     const p = new Float32Array(PARTICLE_COUNT * 3);
     const s = new Float32Array(PARTICLE_COUNT);
+    const c = new Float32Array(PARTICLE_COUNT * 3);
+    const palette = [
+      new THREE.Color("#58a6ff"),
+      new THREE.Color("#79c0ff"),
+      new THREE.Color("#bc8cff"),
+    ];
     for (let i = 0; i < PARTICLE_COUNT; i++) {
       const angle = Math.random() * Math.PI * 2;
       const radius = 0.5 + Math.random() * RING_RADIUS * 0.85;
@@ -79,8 +85,12 @@ function Particles({ progress }: { progress: number }) {
       p[i * 3 + 1] = Math.sin(angle) * radius;
       p[i * 3 + 2] = z;
       s[i] = 0.02 + Math.random() * 0.06;
+      const col = palette[Math.floor(Math.random() * palette.length)];
+      c[i * 3] = col.r;
+      c[i * 3 + 1] = col.g;
+      c[i * 3 + 2] = col.b;
     }
-    return [p, s];
+    return [p, s, c];
   }, []);
 
   useFrame((state) => {
@@ -95,15 +105,16 @@ function Particles({ progress }: { progress: number }) {
       <bufferGeometry>
         <bufferAttribute attach="attributes-position" args={[pos, 3]} />
         <bufferAttribute attach="attributes-size" args={[sizes, 1]} />
+        <bufferAttribute attach="attributes-color" args={[colors, 3]} />
       </bufferGeometry>
       <pointsMaterial
         size={0.06}
-        color="#58a6ff"
         transparent
         opacity={0.3}
         blending={THREE.AdditiveBlending}
         depthWrite={false}
         sizeAttenuation
+        vertexColors
       />
     </points>
   );
