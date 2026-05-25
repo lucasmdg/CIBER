@@ -8,6 +8,9 @@ export const metadata: Metadata = {
   title: "Lucas Méndez Díez | Telecomunicaciones y Ciberseguridad",
   description:
     "FP Superior STI · Ciberseguridad, Redes e Infraestructura Crítica. Python, C, JavaScript, fibra óptica, sistemas de telecomunicaciones.",
+  icons: {
+    icon: "/favicon.svg",
+  },
   openGraph: {
     title: "Lucas Méndez Díez | Telecom & Cybersecurity",
     description:

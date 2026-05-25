@@ -52,7 +52,7 @@ export default function Hero() {
     >
       <motion.div style={{ opacity }} className="w-full">
         <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-12 lg:gap-16">
-          <div className="flex-1 max-w-2xl">
+          <div className="flex-1 max-w-2xl lg:order-2">
             <motion.div
               initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
@@ -174,7 +174,7 @@ export default function Hero() {
             initial={{ opacity: 0, scale: 0.95 }}
             animate={{ opacity: 1, scale: 1 }}
             transition={{ duration: 0.8, delay: 0.5, ease: [0.16, 1, 0.3, 1] }}
-            className="flex-shrink-0 mx-auto lg:mx-0"
+            className="flex-shrink-0 mx-auto lg:mx-0 lg:order-1"
           >
             <div className="photo-frame w-64 h-64 sm:w-72 sm:h-72 lg:w-80 lg:h-80">
               <div
