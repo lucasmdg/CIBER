@@ -2,6 +2,8 @@
 
 import dynamic from "next/dynamic";
 import Hero from "@/components/Hero";
+import About from "@/components/About";
+import TechStack from "@/components/TechStack";
 
 const CyberAsset = dynamic(() => import("@/components/CyberAsset"), { ssr: false });
 
@@ -20,8 +22,8 @@ export default function Home() {
       />
       <div className="relative z-10">
         <Hero />
-        {/* About */}
-        {/* TechStack */}
+        <About />
+        <TechStack />
         {/* AIWorkflow */}
         {/* Projects */}
         {/* Journey */}
