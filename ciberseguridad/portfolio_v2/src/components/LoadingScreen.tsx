@@ -1,20 +1,187 @@
 "use client";
 
+import { useEffect, useRef, useState, useMemo } from "react";
+import { Canvas, useFrame, useThree } from "@react-three/fiber";
+import * as THREE from "three";
 import { motion, AnimatePresence } from "framer-motion";
-import { useEffect, useState } from "react";
+
+const RING_SEGMENTS = 48;
+const RING_COUNT = 60;
+const TUNNEL_LENGTH = 80;
+const RING_RADIUS = 4;
+const PARTICLE_COUNT = 800;
+
+function TunnelRing({
+  z,
+  index,
+  total,
+}: {
+  z: number;
+  index: number;
+  total: number;
+}) {
+  const ref = useRef<THREE.Mesh>(null!);
+  const t = index / total;
+  const radius = RING_RADIUS + Math.sin(t * Math.PI * 3) * 0.3;
+  const hue = 0.58 + Math.sin(t * Math.PI * 2) * 0.04;
+
+  useFrame((state) => {
+    if (ref.current) {
+      ref.current.rotation.x += 0.002;
+      ref.current.rotation.y += 0.004;
+    }
+  });
+
+  return (
+    <mesh ref={ref} position={[0, 0, z]}>
+      <torusGeometry args={[radius, 0.025, 8, RING_SEGMENTS]} />
+      <meshBasicMaterial
+        color={new THREE.Color().setHSL(hue, 0.6, 0.4)}
+        transparent
+        opacity={0.15 + (1 - Math.abs(z) / TUNNEL_LENGTH) * 0.2}
+      />
+    </mesh>
+  );
+}
+
+function TunnelRings({ progress }: { progress: number }) {
+  const count = RING_COUNT;
+  const cameraZ = progress * TUNNEL_LENGTH - TUNNEL_LENGTH / 2;
+
+  const rings = useMemo(() => {
+    const arr: number[] = [];
+    for (let i = 0; i < count; i++) {
+      const t = i / count - 0.5;
+      arr.push(t * TUNNEL_LENGTH);
+    }
+    return arr;
+  }, []);
+
+  const visibleRings = rings.filter((z) => {
+    const relZ = z - cameraZ;
+    return relZ > -12 && relZ < 12;
+  });
+
+  return (
+    <group>
+      <pointLight position={[0, 0, cameraZ + 2]} intensity={2} color="#58a6ff" distance={10} />
+      {visibleRings.map((z, i) => (
+        <TunnelRing key={i} z={z} index={i} total={count} />
+      ))}
+    </group>
+  );
+}
+
+function Particles({ progress }: { progress: number }) {
+  const ref = useRef<THREE.Points>(null!);
+  const cameraZ = progress * TUNNEL_LENGTH - TUNNEL_LENGTH / 2;
+
+  const [pos, sizes] = useMemo(() => {
+    const p = new Float32Array(PARTICLE_COUNT * 3);
+    const s = new Float32Array(PARTICLE_COUNT);
+    for (let i = 0; i < PARTICLE_COUNT; i++) {
+      const angle = Math.random() * Math.PI * 2;
+      const radius = 0.5 + Math.random() * RING_RADIUS * 0.85;
+      const z = (Math.random() - 0.5) * TUNNEL_LENGTH;
+      p[i * 3] = Math.cos(angle) * radius;
+      p[i * 3 + 1] = Math.sin(angle) * radius;
+      p[i * 3 + 2] = z;
+      s[i] = 0.02 + Math.random() * 0.06;
+    }
+    return [p, s];
+  }, []);
+
+  useFrame((state) => {
+    if (ref.current) {
+      ref.current.position.z = -cameraZ;
+      ref.current.rotation.y += 0.0005;
+    }
+  });
+
+  return (
+    <points ref={ref}>
+      <bufferGeometry>
+        <bufferAttribute attach="attributes-position" args={[pos, 3]} />
+        <bufferAttribute attach="attributes-size" args={[sizes, 1]} />
+      </bufferGeometry>
+      <pointsMaterial
+        size={0.06}
+        color="#58a6ff"
+        transparent
+        opacity={0.3}
+        blending={THREE.AdditiveBlending}
+        depthWrite={false}
+        sizeAttenuation
+      />
+    </points>
+  );
+}
+
+function ProgressBeam({ progress }: { progress: number }) {
+  const beamZ = progress * TUNNEL_LENGTH - TUNNEL_LENGTH / 2;
+
+  return (
+    <mesh position={[0, 0, beamZ]} rotation={[Math.PI / 2, 0, 0]}>
+      <ringGeometry args={[2.8, 3.2, 64]} />
+      <meshBasicMaterial
+        color="#58a6ff"
+        transparent
+        opacity={0.15 + progress * 0.15}
+        side={THREE.DoubleSide}
+      />
+    </mesh>
+  );
+}
+
+function LoadingScene({ progress }: { progress: number }) {
+  return (
+    <>
+      <color attach="background" args={["#06080f"]} />
+      <fog attach="fog" args={["#06080f", 6, 14]} />
+      <TunnelRings progress={progress} />
+      <Particles progress={progress} />
+      <ProgressBeam progress={progress} />
+      <CameraController progress={progress} />
+    </>
+  );
+}
+
+function CameraController({ progress }: { progress: number }) {
+  const { camera } = useThree();
+  const targetZ = progress * TUNNEL_LENGTH - TUNNEL_LENGTH / 2;
+
+  useFrame(() => {
+    camera.position.z += (targetZ - camera.position.z) * 0.06;
+    camera.position.y += (-0.3 - camera.position.y) * 0.03;
+    camera.lookAt(0, 0, targetZ + 2);
+  });
+
+  return null;
+}
 
 export default function LoadingScreen({ onFinish }: { onFinish: () => void }) {
   const [progress, setProgress] = useState(0);
+  const [phase, setPhase] = useState<"loading" | "transition">("loading");
+  const startTime = useRef(Date.now());
 
   useEffect(() => {
+    const duration = 3500;
     const interval = setInterval(() => {
-      setProgress((p) => {
-        const next = p + Math.random() * 12;
-        return next >= 100 ? (clearInterval(interval), 100) : next;
-      });
-    }, 120);
+      const elapsed = Date.now() - startTime.current;
+      const p = Math.min(elapsed / duration, 1);
+      setProgress(p);
+
+      if (p >= 0.85 && phase === "loading") {
+        setPhase("transition");
+      }
+
+      if (p >= 1) {
+        clearInterval(interval);
+        setTimeout(() => onFinish(), 400);
+      }
+    }, 16);
     return () => clearInterval(interval);
-  }, []);
+  }, [onFinish, phase]);
 
   return (
     <AnimatePresence>
@@ -22,37 +189,84 @@ export default function LoadingScreen({ onFinish }: { onFinish: () => void }) {
         initial={{ opacity: 1 }}
         exit={{ opacity: 0 }}
         transition={{ duration: 0.6, ease: "easeInOut" }}
-        className="fixed inset-0 z-[9999] flex flex-col items-center justify-center bg-[#050508]"
+        className="fixed inset-0 z-[9999] bg-[#06080f]"
       >
-        <div className="flex items-baseline gap-1.5 mb-8">
-          {Array.from({ length: 8 }).map((_, i) => (
-            <motion.span
-              key={i}
-              className="w-1.5 h-1.5 rounded-full bg-accent"
-              animate={{ opacity: [0.2, 1, 0.2], scale: [0.8, 1.2, 0.8] }}
-              transition={{
-                duration: 1.2,
-                repeat: Infinity,
-                delay: i * 0.12,
-                ease: "easeInOut",
+        <Canvas
+          camera={{ position: [0, -0.3, -12], fov: 55 }}
+          gl={{ antialias: false, alpha: false }}
+          dpr={[1, 1.5]}
+        >
+          <LoadingScene progress={progress} />
+        </Canvas>
+
+        <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
+          <motion.div
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.8, delay: 0.3 }}
+            className="flex items-baseline gap-[3px] mb-10"
+          >
+            {Array.from({ length: 6 }).map((_, i) => (
+              <motion.span
+                key={i}
+                className="w-1 h-1 rounded-full"
+                style={{ backgroundColor: "#58a6ff" }}
+                animate={{
+                  opacity: [0.15, 0.8, 0.15],
+                  scale: [1, 1.3, 1],
+                }}
+                transition={{
+                  duration: 1.4,
+                  repeat: Infinity,
+                  delay: i * 0.15,
+                  ease: "easeInOut",
+                }}
+              />
+            ))}
+          </motion.div>
+
+          <AnimatePresence mode="wait">
+            {phase === "loading" ? (
+              <motion.p
+                key="loading"
+                initial={{ opacity: 0, y: 6 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -6 }}
+                transition={{ duration: 0.4 }}
+                className="text-xs font-mono tracking-[0.25em]"
+                style={{ color: "#8b949e" }}
+              >
+                INICIALIZANDO SISTEMA
+              </motion.p>
+            ) : (
+              <motion.p
+                key="welcome"
+                initial={{ opacity: 0, y: 6 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -6 }}
+                transition={{ duration: 0.4 }}
+                className="text-xs font-mono tracking-[0.25em]"
+                style={{ color: "#58a6ff" }}
+              >
+                BIENVENIDO
+              </motion.p>
+            )}
+          </AnimatePresence>
+
+          <div
+            className="mt-6 w-32 h-[1px] overflow-hidden rounded-full"
+            style={{ background: "rgba(255,255,255,0.04)" }}
+          >
+            <div
+              className="h-full rounded-full transition-all duration-100 ease-linear"
+              style={{
+                width: `${progress * 100}%`,
+                background:
+                  "linear-gradient(90deg, #58a6ff, #79c0ff)",
               }}
             />
-          ))}
+          </div>
         </div>
-        <div className="w-48 h-[2px] bg-border rounded-full overflow-hidden">
-          <motion.div
-            className="h-full bg-gradient-to-r from-accent via-cyan to-teal rounded-full"
-            animate={{ width: `${progress}%` }}
-            transition={{ duration: 0.15, ease: "linear" }}
-          />
-        </div>
-        <motion.p
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          className="mt-4 text-xs text-muted font-mono tracking-widest"
-        >
-          INICIALIZANDO SISTEMA
-        </motion.p>
       </motion.div>
     </AnimatePresence>
   );
