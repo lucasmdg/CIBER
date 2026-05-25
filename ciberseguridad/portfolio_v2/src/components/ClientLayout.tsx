@@ -1,23 +1,19 @@
 "use client";
 
 import { ReactLenis } from "lenis/react";
-import { useEffect, useState } from "react";
-import LoadingScreen from "./LoadingScreen";
+import dynamic from "next/dynamic";
 import Navigation from "./Navigation";
 
+const Cursor = dynamic(() => import("./Cursor"), { ssr: false });
+const AudioToggle = dynamic(() => import("./AudioToggle"), { ssr: false });
+
 export default function ClientLayout({ children }: { children: React.ReactNode }) {
-  const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    const timer = setTimeout(() => setLoading(false), 1600);
-    return () => clearTimeout(timer);
-  }, []);
-
   return (
     <ReactLenis root options={{ lerp: 0.08, wheelMultiplier: 1.1 }}>
-      {loading && <LoadingScreen onFinish={() => setLoading(false)} />}
+      <Cursor />
       <Navigation />
       {children}
+      <AudioToggle />
     </ReactLenis>
   );
 }
