@@ -94,7 +94,7 @@ function ProjectCard({
             <div
               className="pointer-events-none absolute inset-0 transition-opacity duration-150"
               style={{
-                background: `radial-gradient(500px circle at ${mouse.x}% ${mouse.y}%, rgba(88,166,255,0.05) 0%, transparent 50%)`,
+                background: `radial-gradient(500px circle at ${mouse.x}% ${mouse.y}%, rgba(0,240,255,0.05) 0%, transparent 50%)`,
               }}
             />
           )}

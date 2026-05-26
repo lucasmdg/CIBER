@@ -13,9 +13,9 @@ const LAYERS = [
 const CHARS = "01AB";
 
 const palette = [
-  new THREE.Color("#58a6ff"),
-  new THREE.Color("#79c0ff"),
-  new THREE.Color("#3b82f6"),
+  new THREE.Color("#00f0ff"),
+  new THREE.Color("#4d79ff"),
+  new THREE.Color("#0066ff"),
 ];
 
 function createCharTexture() {
@@ -25,11 +25,11 @@ function createCharTexture() {
   const ctx = c.getContext("2d")!;
   CHARS.split("").forEach((ch, i) => {
     ctx.clearRect(i * 64, 0, 64, 80);
-    ctx.fillStyle = "#3b82f6";
+    ctx.fillStyle = "#0066ff";
     ctx.font = "bold 48px 'JetBrains Mono', monospace";
     ctx.textAlign = "center";
     ctx.textBaseline = "middle";
-    ctx.shadowColor = "rgba(88,166,255,0.15)";
+    ctx.shadowColor = "rgba(0,240,255,0.15)";
     ctx.shadowBlur = 4;
     ctx.fillText(ch, i * 64 + 32, 42);
   });

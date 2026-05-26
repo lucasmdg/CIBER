@@ -133,7 +133,7 @@ export default function Journey() {
             ref={lineRef}
             className="absolute left-[40px] md:left-1/2 top-0 w-px h-full -translate-x-1/2 origin-top"
             style={{
-              background: "linear-gradient(to bottom, rgba(88,166,255,0.4), rgba(34,211,238,0.15))",
+              background: "linear-gradient(to bottom, rgba(0,240,255,0.4), rgba(77,121,255,0.15))",
             }}
           />
 
@@ -161,7 +161,7 @@ export default function Journey() {
                     className={`w-4 h-4 rounded-full border-2 relative ${
                       isFuture ? "border-accent-cyan" : "border-accent"
                     }`}
-                    style={{ backgroundColor: "#06080f" }}
+                    style={{ backgroundColor: "#000000" }}
                   >
                     <div
                       className={`absolute inset-0.5 rounded-full ${

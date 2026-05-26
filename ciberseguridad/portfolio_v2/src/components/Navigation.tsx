@@ -55,7 +55,7 @@ export default function Navigation() {
       transition={{ duration: 0.3, ease: "easeInOut" }}
       className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
         scrolled
-          ? "bg-[rgba(6,8,15,0.75)] backdrop-blur-2xl border-b border-white/[0.04]"
+          ? "bg-[rgba(0,0,0,0.75)] backdrop-blur-2xl border-b border-white/[0.04]"
           : "bg-transparent"
       }`}
     >
@@ -119,7 +119,7 @@ export default function Navigation() {
             initial={{ height: 0, opacity: 0 }}
             animate={{ height: "auto", opacity: 1 }}
             exit={{ height: 0, opacity: 0 }}
-            className="md:hidden overflow-hidden border-t border-white/[0.04] bg-[rgba(6,8,15,0.95)] backdrop-blur-2xl"
+            className="md:hidden overflow-hidden border-t border-white/[0.04] bg-[rgba(0,0,0,0.95)] backdrop-blur-2xl"
           >
             <div className="section-container py-4 space-y-1">
               {sections.map((s) => (

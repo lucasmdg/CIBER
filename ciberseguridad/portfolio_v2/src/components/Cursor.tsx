@@ -44,8 +44,8 @@ export default function Cursor() {
       if (ringRef.current) {
         ringRef.current.style.width = "48px";
         ringRef.current.style.height = "48px";
-        ringRef.current.style.borderColor = "rgba(88, 166, 255, 0.2)";
-        ringRef.current.style.backgroundColor = "rgba(88, 166, 255, 0.04)";
+        ringRef.current.style.borderColor = "rgba(0, 240, 255, 0.2)";
+        ringRef.current.style.backgroundColor = "rgba(0, 240, 255, 0.04)";
       }
     } else {
       isHovering.current = false;

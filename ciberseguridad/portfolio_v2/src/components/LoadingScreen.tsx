@@ -6,7 +6,7 @@ import * as THREE from "three";
 import { motion, AnimatePresence } from "framer-motion";
 
 const RING_SEGMENTS = 48;
-const RING_COUNT = 80;
+const RING_COUNT = 60;
 const TUNNEL_LENGTH = 80;
 const RING_RADIUS = 4;
 const PARTICLE_COUNT = 800;
@@ -15,7 +15,7 @@ function TunnelRing({ z, index, total }: { z: number; index: number; total: numb
   const ref = useRef<THREE.Mesh>(null!);
   const t = index / total;
   const radius = RING_RADIUS + Math.sin(t * Math.PI * 3) * 0.3;
-  const hue = 0.58 + Math.sin(t * Math.PI * 2) * 0.04;
+  const hue = 0.52 + Math.sin(t * Math.PI * 2) * 0.03;
 
   useFrame((state) => {
     if (ref.current) {
@@ -56,7 +56,7 @@ function TunnelRings({ progress }: { progress: number }) {
 
   return (
     <group>
-      <pointLight position={[0, 0, cameraZ + 2]} intensity={2} color="#58a6ff" distance={10} />
+      <pointLight position={[0, 0, cameraZ + 2]} intensity={2} color="#00f0ff" distance={10} />
       {visibleRings.map((z, i) => (
         <TunnelRing key={i} z={z} index={i} total={count} />
       ))}
@@ -73,9 +73,9 @@ function Particles({ progress }: { progress: number }) {
     const s = new Float32Array(PARTICLE_COUNT);
     const c = new Float32Array(PARTICLE_COUNT * 3);
     const palette = [
-      new THREE.Color("#58a6ff"),
-      new THREE.Color("#79c0ff"),
-      new THREE.Color("#bc8cff"),
+      new THREE.Color("#00f0ff"),
+      new THREE.Color("#4d79ff"),
+      new THREE.Color("#0066ff"),
     ];
     for (let i = 0; i < PARTICLE_COUNT; i++) {
       const angle = Math.random() * Math.PI * 2;
@@ -127,7 +127,7 @@ function ProgressBeam({ progress }: { progress: number }) {
     <mesh position={[0, 0, beamZ]} rotation={[Math.PI / 2, 0, 0]}>
       <ringGeometry args={[2.8, 3.2, 64]} />
       <meshBasicMaterial
-        color="#58a6ff"
+        color="#00f0ff"
         transparent
         opacity={0.15 + progress * 0.15}
         side={THREE.DoubleSide}
@@ -139,8 +139,8 @@ function ProgressBeam({ progress }: { progress: number }) {
 function LoadingScene({ progress }: { progress: number }) {
   return (
     <>
-      <color attach="background" args={["#06080f"]} />
-      <fog attach="fog" args={["#06080f", 6, 14]} />
+      <color attach="background" args={["#000000"]} />
+      <fog attach="fog" args={["#000000", 6, 14]} />
       <TunnelRings progress={progress} />
       <Particles progress={progress} />
       <ProgressBeam progress={progress} />
@@ -164,8 +164,8 @@ function CameraController({ progress }: { progress: number }) {
 
 const PHASES = [
   { key: "inicializando", label: "INICIALIZANDO SISTEMA", color: "#8b949e", threshold: 0 },
-  { key: "cargando", label: "CARGANDO", color: "#58a6ff", threshold: 0.4 },
-  { key: "iniciando", label: "INICIANDO", color: "#22d3ee", threshold: 0.75 },
+  { key: "cargando", label: "CARGANDO", color: "#00f0ff", threshold: 0.4 },
+  { key: "iniciando", label: "INICIANDO", color: "#4d79ff", threshold: 0.75 },
 ] as const;
 
 export default function LoadingScreen({ onFinish }: { onFinish: () => void }) {
@@ -208,7 +208,7 @@ export default function LoadingScreen({ onFinish }: { onFinish: () => void }) {
         initial={{ opacity: 1 }}
         exit={{ opacity: 0 }}
         transition={{ duration: 0.6, ease: "easeInOut" }}
-        className="fixed inset-0 z-[9999] bg-[#06080f]"
+        className="fixed inset-0 z-[9999] bg-[#000000]"
       >
         <Canvas
           camera={{ position: [0, -0.3, -12], fov: 55 }}
@@ -229,7 +229,7 @@ export default function LoadingScreen({ onFinish }: { onFinish: () => void }) {
               <motion.span
                 key={i}
                 className="w-1 h-1 rounded-full"
-                style={{ backgroundColor: "#58a6ff" }}
+                style={{ backgroundColor: "#00f0ff" }}
                 animate={{
                   opacity: [0.15, 0.8, 0.15],
                   scale: [1, 1.3, 1],
@@ -266,7 +266,7 @@ export default function LoadingScreen({ onFinish }: { onFinish: () => void }) {
               className="h-full rounded-full transition-all duration-100 ease-linear"
               style={{
                 width: `${progress * 100}%`,
-                background: "linear-gradient(90deg, #58a6ff, #79c0ff)",
+                background: "linear-gradient(90deg, #00f0ff, #4d79ff)",
               }}
             />
           </div>

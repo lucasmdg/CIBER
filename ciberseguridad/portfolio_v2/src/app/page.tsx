@@ -1,7 +1,6 @@
 "use client";
 
-import dynamic from "next/dynamic";
-import SectionTransition from "@/components/SectionTransition";
+import SectionPortal from "@/components/SectionPortal";
 import Hero from "@/components/Hero";
 import About from "@/components/About";
 import TechStack from "@/components/TechStack";
@@ -12,50 +11,36 @@ import Personality from "@/components/Personality";
 import Goals from "@/components/Goals";
 import Contact from "@/components/Contact";
 
-const CyberAsset = dynamic(() => import("@/components/CyberAsset"), { ssr: false });
-
 export default function Home() {
   return (
-    <main className="relative">
-      <CyberAsset />
-      <div
-        className="fixed inset-0 z-[1] pointer-events-none"
-        style={{
-          background: `
-            radial-gradient(ellipse 80% 60% at 50% 0%, rgba(6,8,15,0.4) 0%, transparent 60%),
-            radial-gradient(ellipse 60% 50% at 50% 100%, rgba(6,8,15,0.3) 0%, transparent 50%)
-          `,
-        }}
-      />
-      <div className="relative z-10">
-        <SectionTransition direction="none" delay={0.2}>
-          <Hero />
-        </SectionTransition>
-        <SectionTransition direction="up" delay={0.1} id="about">
-          <About />
-        </SectionTransition>
-        <SectionTransition direction="up" delay={0.1} id="tech">
-          <TechStack />
-        </SectionTransition>
-        <SectionTransition direction="up" delay={0.1} id="workflow">
-          <AIWorkflow />
-        </SectionTransition>
-        <SectionTransition direction="up" delay={0.1} id="projects">
-          <Projects />
-        </SectionTransition>
-        <SectionTransition direction="up" delay={0.1} id="journey">
-          <Journey />
-        </SectionTransition>
-        <SectionTransition direction="up" delay={0.1} id="personality">
-          <Personality />
-        </SectionTransition>
-        <SectionTransition direction="up" delay={0.1} id="goals">
-          <Goals />
-        </SectionTransition>
-        <SectionTransition direction="up" delay={0.1} id="contact">
-          <Contact />
-        </SectionTransition>
-      </div>
+    <main className="relative z-10">
+      <SectionPortal chapter="00">
+        <Hero />
+      </SectionPortal>
+      <SectionPortal id="about" chapter="01">
+        <About />
+      </SectionPortal>
+      <SectionPortal id="tech" chapter="02">
+        <TechStack />
+      </SectionPortal>
+      <SectionPortal id="workflow" chapter="03">
+        <AIWorkflow />
+      </SectionPortal>
+      <SectionPortal id="projects" chapter="04">
+        <Projects />
+      </SectionPortal>
+      <SectionPortal id="journey" chapter="05">
+        <Journey />
+      </SectionPortal>
+      <SectionPortal id="personality" chapter="06">
+        <Personality />
+      </SectionPortal>
+      <SectionPortal id="goals" chapter="07">
+        <Goals />
+      </SectionPortal>
+      <SectionPortal id="contact" chapter="08">
+        <Contact />
+      </SectionPortal>
     </main>
   );
 }

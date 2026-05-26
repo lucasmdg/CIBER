@@ -2,6 +2,7 @@
 
 import { useRef, useState } from "react";
 import { motion } from "framer-motion";
+import MagneticButton from "@/components/MagneticButton";
 
 const links = [
   {
@@ -86,11 +87,12 @@ function ContactCard({
         ease: [0.16, 1, 0.3, 1],
       }}
     >
-      <a
+      <MagneticButton
         href={link.href}
         target={link.href.startsWith("http") ? "_blank" : undefined}
         rel={link.href.startsWith("http") ? "noopener noreferrer" : undefined}
         className="block"
+        strength={0.25}
       >
         <div
           ref={ref}
@@ -111,7 +113,7 @@ function ContactCard({
             <div
               className="pointer-events-none absolute inset-0"
               style={{
-                background: `radial-gradient(400px circle at ${mouse.x}% ${mouse.y}%, rgba(88,166,255,0.06) 0%, transparent 50%)`,
+                background: `radial-gradient(400px circle at ${mouse.x}% ${mouse.y}%, rgba(0,240,255,0.06) 0%, transparent 50%)`,
               }}
             />
           )}
@@ -137,7 +139,7 @@ function ContactCard({
             </svg>
           </div>
         </div>
-      </a>
+      </MagneticButton>
     </motion.div>
   );
 }

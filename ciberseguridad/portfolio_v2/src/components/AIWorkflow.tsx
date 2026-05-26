@@ -1,15 +1,19 @@
 "use client";
 
-import { useRef } from "react";
+import { useRef, useEffect } from "react";
 import { motion, useInView } from "framer-motion";
+import gsap from "gsap";
+import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { IconCpu, IconBolt, IconGhost, IconArrowRight } from "@tabler/icons-react";
+
+gsap.registerPlugin(ScrollTrigger);
 
 const tools = [
   {
     name: "Cursor",
     role: "Editor IA",
     desc: "Entorno de desarrollo con IA integrada. Edición contextual, generación de código y refactorización asistida.",
-    color: "#58a6ff",
+    color: "#00f0ff",
     icon: null,
   },
   {
@@ -23,42 +27,42 @@ const tools = [
     name: "Copilot",
     role: "Autocompletado",
     desc: "Sugerencias de código en tiempo real. Automatización de patrones repetitivos y generación de tests.",
-    color: "#79c0ff",
+    color: "#4d79ff",
     icon: null,
   },
   {
     name: "ChatGPT",
     role: "Research IA",
     desc: "Investigación técnica, resolución de dudas de arquitectura, generación de scripts y prototipado rápido.",
-    color: "#58a6ff",
+    color: "#00f0ff",
     icon: null,
   },
   {
     name: "Perplexity",
     role: "Búsqueda IA",
     desc: "Investigación técnica con fuentes verificadas. Ayuda a mantener el stack actualizado y resolver bugs.",
-    color: "#79c0ff",
+    color: "#4d79ff",
     icon: null,
   },
   {
     name: "Windsurf",
     role: "Flujo IA",
     desc: "Entorno de desarrollo con flujo de trabajo IA nativo. Integración de agentes y automatización de tareas.",
-    color: "#3b82f6",
+    color: "#0066ff",
     icon: null,
   },
   {
     name: "LM Studio",
     role: "Inferencia Local",
     desc: "Ejecución de modelos de lenguaje locales (LLaMA, Mistral, Phi). Prototipado rápido sin dependencia de APIs externas.",
-    color: "#22d3ee",
+    color: "#00f0ff",
     icon: IconCpu,
   },
   {
     name: "OpenCL",
     role: "Cómputo Paralelo",
     desc: "Programación heterogénea para acelerar tareas de IA y procesamiento de datos. Optimización de kernels en GPU/CPU.",
-    color: "#3b82f6",
+    color: "#0066ff",
     icon: IconBolt,
   },
   {
@@ -185,6 +189,113 @@ function ToolCard({ tool, index }: { tool: typeof tools[0]; index: number }) {
   );
 }
 
+function NeuralNetwork() {
+  const svgRef = useRef<SVGSVGElement>(null);
+  const lineRefs = useRef<(SVGPathElement | null)[]>([]);
+
+  useEffect(() => {
+    const ctx = gsap.context(() => {
+      const reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+      if (reduced) {
+        lineRefs.current.forEach((l) => { if (l) gsap.set(l, { strokeDashoffset: 0 }); });
+        return;
+      }
+
+      lineRefs.current.forEach((line, i) => {
+        if (!line) return;
+        const length = line.getTotalLength();
+        gsap.fromTo(
+          line,
+          { strokeDashoffset: length },
+          {
+            strokeDashoffset: 0,
+            duration: 1.5,
+            ease: "none",
+            scrollTrigger: {
+              trigger: svgRef.current,
+              start: "top 80%",
+              end: "bottom 20%",
+              scrub: 1,
+            },
+          }
+        );
+      });
+    }, svgRef);
+
+    return () => ctx.revert();
+  }, []);
+
+  return (
+    <svg
+      ref={svgRef}
+      className="absolute inset-0 w-full h-full pointer-events-none opacity-30"
+      viewBox="0 0 800 600"
+      preserveAspectRatio="xMidYMid meet"
+      aria-hidden="true"
+    >
+      <defs>
+        <linearGradient id="neural-grad" x1="0%" y1="0%" x2="100%" y2="100%">
+          <stop offset="0%" stopColor="#00f0ff" stopOpacity="0.3" />
+          <stop offset="100%" stopColor="#4d79ff" stopOpacity="0.1" />
+        </linearGradient>
+      </defs>
+      <g stroke="url(#neural-grad)" strokeWidth="0.5" fill="none" strokeLinecap="round">
+        <path
+          ref={(el) => { lineRefs.current[0] = el; }}
+          d="M150,100 L200,180 L300,160 L400,250 L500,200"
+          strokeDasharray="800"
+          strokeDashoffset="800"
+        />
+        <path
+          ref={(el) => { lineRefs.current[1] = el; }}
+          d="M150,100 L180,300 L250,350 L350,300 L450,380"
+          strokeDasharray="800"
+          strokeDashoffset="800"
+        />
+        <path
+          ref={(el) => { lineRefs.current[2] = el; }}
+          d="M400,250 L500,200 L600,280 L700,220"
+          strokeDasharray="600"
+          strokeDashoffset="600"
+        />
+        <path
+          ref={(el) => { lineRefs.current[3] = el; }}
+          d="M350,300 L450,380 L550,340 L650,420"
+          strokeDasharray="600"
+          strokeDashoffset="600"
+        />
+        <path
+          ref={(el) => { lineRefs.current[4] = el; }}
+          d="M200,180 L300,160 L350,300"
+          strokeDasharray="500"
+          strokeDashoffset="500"
+        />
+        <path
+          ref={(el) => { lineRefs.current[5] = el; }}
+          d="M500,200 L550,340 L650,420"
+          strokeDasharray="500"
+          strokeDashoffset="500"
+        />
+      </g>
+      <g fill="#00f0ff" opacity="0.4">
+        <circle cx="150" cy="100" r="3" />
+        <circle cx="200" cy="180" r="2" />
+        <circle cx="300" cy="160" r="2.5" />
+        <circle cx="400" cy="250" r="3" />
+        <circle cx="500" cy="200" r="2" />
+        <circle cx="600" cy="280" r="2.5" />
+        <circle cx="700" cy="220" r="3" />
+        <circle cx="180" cy="300" r="2" />
+        <circle cx="250" cy="350" r="2.5" />
+        <circle cx="350" cy="300" r="3" />
+        <circle cx="450" cy="380" r="2" />
+        <circle cx="550" cy="340" r="2.5" />
+        <circle cx="650" cy="420" r="3" />
+      </g>
+    </svg>
+  );
+}
+
 export default function AIWorkflow() {
   const ref = useRef<HTMLElement>(null);
   const inView = useInView(ref, { once: true, margin: "-100px" });
@@ -192,6 +303,7 @@ export default function AIWorkflow() {
   return (
     <section ref={ref} id="ai-workflow" className="section-spacing relative">
       <div className="section-container">
+        <NeuralNetwork />
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
