@@ -8,6 +8,7 @@ import LoadingScreen from "./LoadingScreen";
 
 const Cursor = dynamic(() => import("./Cursor"), { ssr: false });
 const PersistentCorridor = dynamic(() => import("./PersistentCorridor"), { ssr: false });
+const ScrollDistortion = dynamic(() => import("./ScrollDistortion"), { ssr: false });
 const AudioToggle = dynamic(() => import("./AudioToggle"), { ssr: false });
 
 export default function ClientLayout({ children }: { children: React.ReactNode }) {
@@ -20,6 +21,7 @@ export default function ClientLayout({ children }: { children: React.ReactNode }
       ) : (
         <>
           <PersistentCorridor />
+          <ScrollDistortion />
           <ReactLenis root options={{ lerp: 0.08, wheelMultiplier: 1.1 }}>
             <Cursor />
             <Navigation />

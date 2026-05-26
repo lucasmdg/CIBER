@@ -151,12 +151,13 @@ function LoadingScene({ progress }: { progress: number }) {
 
 function CameraController({ progress }: { progress: number }) {
   const { camera } = useThree();
-  const targetZ = progress * TUNNEL_LENGTH - TUNNEL_LENGTH / 2;
+  // Start at -12, end at -10 (PersistentCorridor start)
+  const targetZ = progress * (TUNNEL_LENGTH - 2) - 12;
 
   useFrame(() => {
     camera.position.z += (targetZ - camera.position.z) * 0.06;
-    camera.position.y += (-0.3 - camera.position.y) * 0.03;
-    camera.lookAt(0, 0, targetZ + 2);
+    camera.position.y += (-0.2 - camera.position.y) * 0.03;
+    camera.lookAt(0, 0, targetZ + 3);
   });
 
   return null;
@@ -211,7 +212,7 @@ export default function LoadingScreen({ onFinish }: { onFinish: () => void }) {
         className="fixed inset-0 z-[9999] bg-[#000000]"
       >
         <Canvas
-          camera={{ position: [0, -0.3, -12], fov: 55 }}
+          camera={{ position: [0, -0.2, -12], fov: 55 }}
           gl={{ antialias: false, alpha: false }}
           dpr={[1, 1.5]}
         >

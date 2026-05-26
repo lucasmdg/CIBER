@@ -9,8 +9,15 @@ import { CAMERA_START_Z, CAMERA_END_Z, TUNNEL_DEPTH } from "@/hooks/useScrollCam
 const RING_COUNT = 60;
 const RING_RADIUS = 4;
 const RING_TUBE = 0.02;
-const PARTICLE_COUNT = 10000;
 const TUNNEL_RANGE = TUNNEL_DEPTH + 40;
+
+function isMobileDevice(): boolean {
+  if (typeof navigator === "undefined") return false;
+  return navigator.maxTouchPoints > 0 || /Mobi|Android|iPhone/i.test(navigator.userAgent);
+}
+
+const PARTICLE_COUNT = isMobileDevice() ? 3000 : 10000;
+const ENABLE_POSTPROCESSING = !isMobileDevice();
 
 function getScrollProgress(): number {
   if (typeof window === "undefined") return 0;
@@ -332,8 +339,8 @@ export default function PersistentCorridor() {
       <TrackScrollVelocity />
       <Canvas
         camera={{ position: [0, -0.2, CAMERA_START_Z], fov: 55 }}
-        gl={{ antialias: false, alpha: false, powerPreference: "high-performance" }}
-        dpr={[1, 1.5]}
+        gl={{ antialias: false, alpha: false, powerPreference: isMobileDevice() ? "default" : "high-performance" }}
+        dpr={isMobileDevice() ? [1, 1] : [1, 1.5]}
         style={{
           position: "fixed",
           top: 0,
@@ -349,10 +356,12 @@ export default function PersistentCorridor() {
         <TunnelRings />
         <CorridorParticles />
         <CameraController />
-        <EffectComposer>
-          <Bloom intensity={0.15} luminanceThreshold={0.6} mipmapBlur />
-          <ChromaticAberrationController />
-        </EffectComposer>
+        {ENABLE_POSTPROCESSING && (
+          <EffectComposer>
+            <Bloom intensity={0.15} luminanceThreshold={0.6} mipmapBlur />
+            <ChromaticAberrationController />
+          </EffectComposer>
+        )}
       </Canvas>
     </>
   );
