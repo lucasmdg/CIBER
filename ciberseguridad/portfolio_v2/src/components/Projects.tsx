@@ -10,6 +10,7 @@ const filters: { label: string; value: ProjectLevel | "all" }[] = [
   { label: "Intermedio", value: "intermedio" },
   { label: "Avanzado", value: "avanzado" },
   { label: "Futuro", value: "futuro" },
+  { label: "Proyectos Varios", value: "varios" },
 ];
 
 const levelColors: Record<ProjectLevel, string> = {
@@ -17,6 +18,7 @@ const levelColors: Record<ProjectLevel, string> = {
   intermedio: "text-accent border-accent/20 bg-accent/5",
   avanzado: "text-purple-400 border-purple-400/20 bg-purple-400/5",
   futuro: "text-muted border-border bg-surface",
+  varios: "text-accent border-accent/20 bg-accent/5",
 };
 
 const levelLabels: Record<ProjectLevel, string> = {
@@ -24,6 +26,7 @@ const levelLabels: Record<ProjectLevel, string> = {
   intermedio: "Intermedio",
   avanzado: "Avanzado",
   futuro: "Futuro",
+  varios: "Proyectos Varios",
 };
 
 // Featured = 6 most representative projects (mix of avanzado + intermedio)
@@ -169,6 +172,7 @@ export default function Projects() {
     intermedio: projectsData.filter((p) => p.level === "intermedio").length,
     avanzado: projectsData.filter((p) => p.level === "avanzado").length,
     futuro: projectsData.filter((p) => p.level === "futuro").length,
+    varios: projectsData.filter((p) => p.level === "varios").length,
   };
 
   return (

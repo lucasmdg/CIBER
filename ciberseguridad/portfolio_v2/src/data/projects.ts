@@ -1,4 +1,4 @@
-export type ProjectLevel = 'basico' | 'intermedio' | 'avanzado' | 'futuro';
+export type ProjectLevel = 'basico' | 'intermedio' | 'avanzado' | 'futuro' | 'varios';
 
 export interface Project {
   title: string;
@@ -239,5 +239,12 @@ export const projectsData: Project[] = [
     "description": "Framework completo de Red Team con gestión de sesiones remotas, módulos de post-explotación y automatización.",
     "github": "https://github.com/lucasmdg/CIBER",
     "tags": ["framework", "C2", "post-exploit"]
+  },
+  {
+    "title": "QuantumTrade AI",
+    "level": "varios",
+    "description": "Plataforma web de simulación de bot de trading algorítmico con IA. Dashboard en tiempo real, 16 estrategias, 40+ activos, análisis multi-agente, riesgo institucional. 100% paper trading.",
+    "github": "https://github.com/lucasmdg/quantum-trade-ai",
+    "tags": ["Next.js", "TypeScript", "Recharts", "Ollama", "Zustand"]
   }
 ];
