@@ -3,13 +3,10 @@
 import { ReactLenis } from "lenis/react";
 import { useState } from "react";
 import dynamic from "next/dynamic";
-import Navigation from "./Navigation";
-import LoadingScreen from "./LoadingScreen";
+import HUDOverlay from "./HUDOverlay";
 
-const Cursor = dynamic(() => import("./Cursor"), { ssr: false });
-const PersistentCorridor = dynamic(() => import("./PersistentCorridor"), { ssr: false });
-const ScrollDistortion = dynamic(() => import("./ScrollDistortion"), { ssr: false });
-const AudioToggle = dynamic(() => import("./AudioToggle"), { ssr: false });
+const CanvasBackground = dynamic(() => import("./CanvasBackground"), { ssr: false });
+const LoadingScreen = dynamic(() => import("./LoadingScreen"), { ssr: false });
 
 export default function ClientLayout({ children }: { children: React.ReactNode }) {
   const [loading, setLoading] = useState(true);
@@ -20,13 +17,13 @@ export default function ClientLayout({ children }: { children: React.ReactNode }
         <LoadingScreen onFinish={() => setLoading(false)} />
       ) : (
         <>
-          <PersistentCorridor />
-          <ScrollDistortion />
-          <ReactLenis root options={{ lerp: 0.08, wheelMultiplier: 1.1 }}>
-            <Cursor />
-            <Navigation />
+          <CanvasBackground />
+          <div className="wallace-beam wallace-beam-1" />
+          <div className="wallace-beam wallace-beam-2" />
+          <HUDOverlay />
+          <div className="scanline-overlay" />
+          <ReactLenis root options={{ lerp: 0.06, wheelMultiplier: 0.9 }}>
             {children}
-            <AudioToggle />
           </ReactLenis>
         </>
       )}

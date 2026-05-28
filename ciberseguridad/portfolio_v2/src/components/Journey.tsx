@@ -1,9 +1,6 @@
 "use client";
 
-import { useRef, useEffect } from "react";
 import { motion } from "framer-motion";
-import gsap from "gsap";
-import { ScrollTrigger } from "gsap/ScrollTrigger";
 import {
   IconSchool,
   IconCode,
@@ -13,238 +10,138 @@ import {
   IconRocket,
 } from "@tabler/icons-react";
 
-gsap.registerPlugin(ScrollTrigger);
-
 const milestones = [
   {
     year: "2025",
     title: "Inicio FP Superior STI",
     desc: "Comienzo de la formación oficial en Sistemas de Telecomunicaciones e Informáticos. Primer contacto con redes, fibra óptica, ciberseguridad y administración de sistemas.",
+    status: "SYSTEM_INITIALIZED",
+    dotClass: "status-dot-online",
     icon: IconSchool,
   },
   {
     year: "2025",
     title: "Primeros proyectos de ciberseguridad",
     desc: "Password locker, port scanner, hash cracker, Caesar cipher. Python como lenguaje principal para herramientas de seguridad ofensiva y defensiva básica.",
+    status: "CODE_BASE_COMPILED",
+    dotClass: "status-dot-online",
     icon: IconCode,
   },
   {
     year: "2026",
     title: "Ciberseguridad intermedia",
-    desc: "Sistemas IDS, detección de ARP spoofing, network sniffers avanzados. Automatización de tareas de seguridad con scripts multihilo y análisis de tráfico.",
+    desc: "Sistemas IDS, detección de ARP spoofing, network sniffers avanzados. Detección de intrusiones en tiempo real y análisis de tráfico de red.",
+    status: "FIREWALL_ARMED",
+    dotClass: "status-dot-online",
     icon: IconShield,
   },
   {
     year: "2026",
     title: "Integración de IA en el workflow",
     desc: "Adopción masiva de herramientas de IA: Cursor, Claude AI, Copilot. Flujo de trabajo AI-native con asistentes de código y automatización inteligente.",
+    status: "AI_COGNITION_ONLINE",
+    dotClass: "status-dot-active",
     icon: IconTerminal2,
   },
   {
     year: "2027",
     title: "Finalización FP + Proyectos avanzados",
-    desc: "Culminación del FP Superior STI. Simulador C2, framework de explotación, threat hunting lab, ransomware simulator. Técnicas ofensivas en entorno controlado.",
+    desc: "Culminación del FP Superior STI. Simulador C2, framework de explotación modular, threat hunting lab, ransomware simulator. Técnicas ofensivas avanzadas en entorno controlado.",
+    status: "THREAT_INTEL_ACTIVE",
+    dotClass: "status-dot-active",
     icon: IconRadar,
   },
   {
     year: "2027 → 2028",
     title: "Especialización en Ciberseguridad",
     desc: "Continuación en el mismo ciclo con especialización en ciberseguridad ofensiva y defensiva. IA aplicada a seguridad, infraestructura cloud-native y herramientas Red Team.",
+    status: "RED_TEAM_QUEUED",
+    dotClass: "status-dot-warning",
     icon: IconRocket,
     future: true,
   },
 ];
 
 export default function Journey() {
-  const sectionRef = useRef<HTMLElement>(null);
-  const lineRef = useRef<HTMLDivElement>(null);
-  const dotsRef = useRef<(HTMLDivElement | null)[]>([]);
-
-  useEffect(() => {
-    const ctx = gsap.context(() => {
-      const reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-      if (reduced) {
-        if (lineRef.current) gsap.set(lineRef.current, { scaleY: 1 });
-        dotsRef.current.forEach((d) => { if (d) gsap.set(d, { scale: 1, opacity: 1 }); });
-        return;
-      }
-
-      if (lineRef.current) {
-        gsap.fromTo(
-          lineRef.current,
-          { scaleY: 0 },
-          {
-            scaleY: 1,
-            ease: "none",
-            scrollTrigger: {
-              trigger: sectionRef.current,
-              start: "top 70%",
-              end: "bottom 30%",
-              scrub: 1,
-            },
-          }
-        );
-      }
-
-      dotsRef.current.forEach((dotEl, i) => {
-        if (!dotEl) return;
-        gsap.fromTo(
-          dotEl,
-          { scale: 0, opacity: 0 },
-          {
-            scale: 1,
-            opacity: 1,
-            duration: 0.6,
-            ease: "back.out(2)",
-            scrollTrigger: {
-              trigger: dotEl,
-              start: "top 85%",
-              toggleActions: "play none none reverse",
-            },
-          }
-        );
-      });
-    }, sectionRef);
-
-    return () => ctx.revert();
-  }, []);
-
   return (
-    <section id="journey" ref={sectionRef} className="section-spacing relative overflow-hidden">
-      <div className="section-container">
+    <section id="journey" className="relative py-20 px-6">
+      <div className="max-w-3xl mx-auto">
+        {/* Section header */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true, margin: "-80px" }}
-          transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
-          className="text-center mb-14"
+          viewport={{ once: true, margin: "-100px" }}
+          transition={{ duration: 0.6 }}
+          className="mb-8"
         >
-          <div className="section-badge inline-flex">TRAYECTORIA</div>
-          <h2 className="section-title">
-            Mi recorrido de <span className="gradient-text">aprendizaje</span>
-          </h2>
-          <p className="section-subtitle mx-auto">
-            De los primeros scripts de seguridad a la especialización en Red Team
-          </p>
+          <div className="flex items-center gap-3 mb-2">
+            <div className="status-dot status-dot-active" />
+            <span className="text-[10px] tracking-widest text-cyan/60 uppercase font-mono">
+              SYSTEM.JOURNEY.AUDIT_LOGS
+            </span>
+          </div>
+          <div className="signal-line w-full" />
         </motion.div>
 
-        <div className="max-w-4xl mx-auto relative">
-          <div
-            ref={lineRef}
-            className="absolute left-[40px] md:left-1/2 top-0 w-px h-full -translate-x-1/2 origin-top"
-            style={{
-              background: "linear-gradient(to bottom, rgba(0,240,255,0.4), rgba(77,121,255,0.15))",
-            }}
-          />
+        {/* Audit timeline */}
+        <div className="relative">
+          {/* Vertical conduit line */}
+          <div className="absolute left-[11px] top-2 bottom-2 w-px bg-gradient-to-b from-green/20 via-cyan/20 to-transparent" />
 
-          {milestones.map((m, i) => {
-            const isLeft = i % 2 === 0;
-            const Icon = m.icon;
-            const isFuture = m.future;
-
-            return (
-              <motion.div
-                key={m.title}
-                initial={{ opacity: 0, y: 20 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true, margin: "-50px" }}
-                transition={{
-                  duration: 0.5,
-                  delay: i * 0.1,
-                  ease: [0.16, 1, 0.3, 1],
-                }}
-                className="flex items-start gap-4 mb-10 md:mb-14 last:mb-0"
-              >
-                <div className="w-8 shrink-0 relative z-10 order-1 md:order-2 flex justify-center">
-                  <div
-                    ref={(el) => { dotsRef.current[i] = el; }}
-                    className={`w-4 h-4 rounded-full border-2 relative ${
-                      isFuture ? "border-accent-cyan" : "border-accent"
-                    }`}
-                    style={{ backgroundColor: "#000000" }}
-                  >
-                    <div
-                      className={`absolute inset-0.5 rounded-full ${
-                        isFuture ? "bg-accent-cyan/50" : "bg-accent/50"
-                      }`}
-                    />
-                    <div
-                      className={`absolute inset-[-4px] rounded-full opacity-0 ${
-                        isFuture ? "bg-accent-cyan/10" : "bg-accent/10"
-                      }`}
-                      style={{
-                        animation: `glow-pulse 2s ease-in-out ${i * 0.3}s infinite`,
-                      }}
-                    />
-                  </div>
-                </div>
-
-                <div
-                  className={`flex-1 min-w-0 order-2 ${
-                    isLeft
-                      ? "md:order-1 md:text-right md:pr-10"
-                      : "md:order-3 md:pl-10"
-                  }`}
+          <div className="space-y-6">
+            {milestones.map((m, i) => {
+              const Icon = m.icon;
+              return (
+                <motion.div
+                  key={m.title}
+                  initial={{ opacity: 0, x: -15 }}
+                  whileInView={{ opacity: 1, x: 0 }}
+                  viewport={{ once: true, margin: "-50px" }}
+                  transition={{ duration: 0.4, delay: i * 0.05 }}
+                  className="relative pl-8 flex gap-4 items-start"
                 >
-                  <div
-                    className={`glass-panel rounded-xl p-4 md:p-5 ${
-                      isFuture ? "border-accent-cyan/20" : ""
-                    }`}
-                    style={isFuture ? { borderStyle: "dashed" } : undefined}
-                  >
-                    <div
-                      className={`flex items-start gap-3 md:gap-4 ${
-                        isLeft ? "md:flex-row-reverse" : ""
-                      }`}
-                    >
-                      <div
-                        className={`hidden md:flex w-9 h-9 rounded-lg items-center justify-center shrink-0 ${
-                          isFuture
-                            ? "bg-accent-cyan-dim border border-accent-cyan/20"
-                            : "bg-accent-dim border border-accent/20"
-                        }`}
-                      >
-                        <Icon size={16} className={isFuture ? "text-accent-cyan" : "text-accent"} />
-                      </div>
-                      <div className="flex-1 min-w-0">
-                        <div className="flex items-center gap-2 mb-1.5 flex-wrap">
-                          <div
-                            className={`md:hidden w-7 h-7 rounded-lg flex items-center justify-center shrink-0 ${
-                              isFuture
-                                ? "bg-accent-cyan-dim border border-accent-cyan/20"
-                                : "bg-accent-dim border border-accent/20"
-                            }`}
-                          >
-                            <Icon size={14} className={isFuture ? "text-accent-cyan" : "text-accent"} />
-                          </div>
-                          <span
-                            className={`text-[11px] font-mono tracking-wider ${
-                              isFuture ? "text-accent-cyan" : "text-accent"
-                            }`}
-                          >
-                            {m.year}
-                          </span>
-                          {isFuture && (
-                            <span className="text-[10px] font-mono px-1.5 py-0.5 rounded-full bg-accent-cyan/10 text-accent-cyan border border-accent-cyan/20 tracking-wider">
-                              PROXIMO
-                            </span>
-                          )}
+                  {/* Node dot */}
+                  <div className="absolute left-0 top-1">
+                    <div className={`status-dot ${m.dotClass}`} />
+                  </div>
+
+                  {/* Audit details */}
+                  <div className="sys-panel rounded-lg p-5 flex-1 group hover:border-cyan/15 transition-all duration-300">
+                    <div className="flex flex-col gap-2 font-mono">
+                      {/* Entry header telemetry */}
+                      <div className="flex items-center justify-between border-b border-border pb-2 mb-2 text-[9px] text-dim/60">
+                        <div className="flex items-center gap-2">
+                          <span className="text-cyan/60 font-bold">[{m.year}]</span>
+                          <span className="hidden sm:inline">|</span>
+                          <span className="hidden sm:inline">EVENT_ID: 0x{String(4096 + i * 256).toUpperCase()}</span>
                         </div>
-                        <h3 className="text-sm font-semibold mb-1">{m.title}</h3>
-                        <p className="text-xs text-muted leading-relaxed">{m.desc}</p>
+                        <span className={`font-bold ${
+                          m.future ? "text-amber/70" : "text-green/70"
+                        }`}>
+                          {m.status}
+                        </span>
+                      </div>
+
+                      {/* Content */}
+                      <div className="flex items-start gap-4">
+                        <div className="w-7 h-7 rounded border border-border flex items-center justify-center shrink-0">
+                          <Icon size={12} className="text-dim/50 group-hover:text-cyan transition-colors" />
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <h4 className="text-xs font-bold text-text/80 group-hover:text-cyan transition-colors">
+                            {m.title}
+                          </h4>
+                          <p className="text-[11px] text-muted leading-relaxed mt-1">
+                            {m.desc}
+                          </p>
+                        </div>
                       </div>
                     </div>
                   </div>
-                </div>
-
-                <div
-                  className={`hidden md:block flex-1 ${
-                    isLeft ? "md:order-3" : "md:order-1"
-                  }`}
-                />
-              </motion.div>
-            );
-          })}
+                </motion.div>
+              );
+            })}
+          </div>
         </div>
       </div>
     </section>

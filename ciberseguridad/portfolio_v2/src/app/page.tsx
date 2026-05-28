@@ -1,46 +1,31 @@
 "use client";
 
-import SectionPortal from "@/components/SectionPortal";
+import dynamic from "next/dynamic";
 import Hero from "@/components/Hero";
+import SystemTerminal from "@/components/SystemTerminal";
 import About from "@/components/About";
 import TechStack from "@/components/TechStack";
-import AIWorkflow from "@/components/AIWorkflow";
-import Projects from "@/components/Projects";
 import Journey from "@/components/Journey";
-import Personality from "@/components/Personality";
-import Goals from "@/components/Goals";
+import SystemProjects from "@/components/SystemProjects";
+import LearningRoadmap from "@/components/LearningRoadmap";
 import Contact from "@/components/Contact";
+import SystemFooter from "@/components/SystemFooter";
+
+const Navigation = dynamic(() => import("@/components/Navigation"), { ssr: false });
 
 export default function Home() {
   return (
     <main className="relative z-10">
-      <SectionPortal chapter="00">
-        <Hero />
-      </SectionPortal>
-      <SectionPortal id="about" chapter="01">
-        <About />
-      </SectionPortal>
-      <SectionPortal id="tech" chapter="02">
-        <TechStack />
-      </SectionPortal>
-      <SectionPortal id="workflow" chapter="03">
-        <AIWorkflow />
-      </SectionPortal>
-      <SectionPortal id="projects" chapter="04">
-        <Projects />
-      </SectionPortal>
-      <SectionPortal id="journey" chapter="05">
-        <Journey />
-      </SectionPortal>
-      <SectionPortal id="personality" chapter="06">
-        <Personality />
-      </SectionPortal>
-      <SectionPortal id="goals" chapter="07">
-        <Goals />
-      </SectionPortal>
-      <SectionPortal id="contact" chapter="08">
-        <Contact />
-      </SectionPortal>
+      <Navigation />
+      <Hero />
+      <SystemTerminal />
+      <About />
+      <TechStack />
+      <Journey />
+      <SystemProjects />
+      <LearningRoadmap />
+      <Contact />
+      <SystemFooter />
     </main>
   );
 }

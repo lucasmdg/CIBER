@@ -26,3 +26,6 @@ baseline.json
 # IDEs
 .vscode/
 .idea/
+
+# Pruebas aisladas (privado)
+ciberseguridad/pruebas_claude/

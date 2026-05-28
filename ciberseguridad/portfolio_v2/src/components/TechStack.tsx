@@ -25,164 +25,123 @@ import {
 
 const categories = [
   {
-    title: "Lenguajes",
+    title: "LANGUAGES (L_SYS)",
     skills: [
-      { icon: IconBrandPython, name: "Python" },
-      { icon: FileTypeC, name: "C" },
-      { icon: IconBrandJavascript, name: "JavaScript" },
-      { icon: FileTypeJava, name: "Java" },
-      { icon: IconFileTypeCss, name: "CSS/HTML" },
+      { name: "Python", status: "ADVANCED", val: "85%", dotClass: "status-dot-active", icon: IconBrandPython },
+      { name: "C / C++", status: "INTERMEDIATE", val: "60%", dotClass: "status-dot-warning", icon: IconCpu },
+      { name: "JavaScript", status: "ADVANCED", val: "75%", dotClass: "status-dot-active", icon: IconBrandJavascript },
+      { name: "Java", status: "INTERMEDIATE", val: "55%", dotClass: "status-dot-warning", icon: IconCpu },
+      { name: "CSS/HTML", status: "COMPLETED", val: "90%", dotClass: "status-dot-online", icon: IconFileTypeCss },
     ],
   },
   {
-    title: "Frameworks & Herramientas",
+    title: "WEB FRAMEWORKS (WF_SYS)",
     skills: [
-      { icon: IconBrandNextjs, name: "Next.js" },
-      { icon: IconBrandReact, name: "React" },
-      { icon: IconBrandTailwind, name: "Tailwind CSS" },
-      { icon: IconBrandThreejs, name: "Three.js" },
-      { icon: IconBrandNodejs, name: "Node.js" },
+      { name: "Next.js", status: "ACTIVE", val: "80%", dotClass: "status-dot-active", icon: IconBrandNextjs },
+      { name: "React", status: "ACTIVE", val: "80%", dotClass: "status-dot-active", icon: IconBrandReact },
+      { name: "Tailwind CSS", status: "COMPLETED", val: "90%", dotClass: "status-dot-online", icon: IconBrandTailwind },
+      { name: "Three.js (R3F)", status: "ACTIVE", val: "70%", dotClass: "status-dot-active", icon: IconBrandThreejs },
+      { name: "Node.js", status: "ACTIVE", val: "75%", dotClass: "status-dot-active", icon: IconBrandNodejs },
     ],
   },
   {
-    title: "Sistemas & Redes",
+    title: "NETWORKS & SYSTEMS (NET_SYS)",
     skills: [
-      { icon: BrandLinux, name: "Linux" },
-      { icon: IconBrandDocker, name: "Docker" },
-      { icon: IconBrandGit, name: "Git" },
-      { icon: IconTerminal2, name: "Bash" },
-      { icon: IconNetwork, name: "Redes" },
+      { name: "Linux Administration", status: "ADVANCED", val: "80%", dotClass: "status-dot-active", icon: IconTerminal2 },
+      { name: "Docker Containers", status: "ACTIVE", val: "65%", dotClass: "status-dot-warning", icon: IconBrandDocker },
+      { name: "Git / Versioning", status: "COMPLETED", val: "85%", dotClass: "status-dot-online", icon: IconBrandGit },
+      { name: "Bash Scripting", status: "COMPLETED", val: "80%", dotClass: "status-dot-online", icon: IconTerminal2 },
+      { name: "TCP/IP Networking", status: "ADVANCED", val: "85%", dotClass: "status-dot-active", icon: IconNetwork },
     ],
   },
   {
-    title: "Ciberseguridad",
+    title: "CYBERSECURITY MODULES (SEC_SYS)",
     skills: [
-      { icon: IconShieldLock, name: "Pentesting" },
-      { icon: IconCloudComputing, name: "Cloud" },
-      { icon: IconRouter, name: "GPON/FTTH" },
-      { icon: IconCpu, name: "IoT" },
+      { name: "Offensive Pentesting", status: "ADVANCED", val: "80%", dotClass: "status-dot-active", icon: IconShieldLock },
+      { name: "Cloud Security", status: "LEARNING", val: "50%", dotClass: "status-dot-warning", icon: IconCloudComputing },
+      { name: "GPON / FTTH Telecoms", status: "ADVANCED", val: "85%", dotClass: "status-dot-active", icon: IconRouter },
+      { name: "IoT Hardware (R-Pi)", status: "ADVANCED", val: "80%", dotClass: "status-dot-active", icon: IconCpu },
     ],
   },
   {
-    title: "AI & Tools",
+    title: "AI & ACCELERATION (AI_SYS)",
     skills: [
-      { icon: IconRobotFace, name: "Cursor" },
-      { icon: IconTerminal2, name: "Claude AI" },
-      { icon: IconBolt, name: "LM Studio" },
-      { icon: IconGhost, name: "Hermes Agent" },
-      { icon: IconCpu, name: "OpenCL" },
+      { name: "Cursor Editor", status: "ACTIVE", val: "95%", dotClass: "status-dot-online", icon: IconRobotFace },
+      { name: "Claude AI Workflow", status: "ACTIVE", val: "90%", dotClass: "status-dot-online", icon: IconTerminal2 },
+      { name: "LM Studio (LLMs)", status: "ACTIVE", val: "80%", dotClass: "status-dot-active", icon: IconBolt },
+      { name: "Hermes Agent Framework", status: "ACTIVE", val: "75%", dotClass: "status-dot-active", icon: IconGhost },
+      { name: "OpenCL Acceleration", status: "LEARNING", val: "50%", dotClass: "status-dot-warning", icon: IconCpu },
     ],
   },
 ];
 
-function FileTypeC({ size, className }: { size?: number; className?: string }) {
-  return (
-    <svg width={size || 24} height={size || 24} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}>
-      <path d="M14 3v4a1 1 0 0 0 1 1h4" />
-      <path d="M17 21h-10a2 2 0 0 1-2-2v-14a2 2 0 0 1 2-2h7l5 5v11a2 2 0 0 1-2 2z" />
-      <path d="M10 12h4" />
-      <path d="M12 10v4" />
-    </svg>
-  );
-}
-
-function FileTypeJava({ size, className }: { size?: number; className?: string }) {
-  return (
-    <svg width={size || 24} height={size || 24} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}>
-      <path d="M14 3v4a1 1 0 0 0 1 1h4" />
-      <path d="M17 21h-10a2 2 0 0 1-2-2v-14a2 2 0 0 1 2-2h7l5 5v11a2 2 0 0 1-2 2z" />
-      <path d="M8 11h8" />
-      <path d="M10 15h4" />
-      <path d="M8 7h8" />
-    </svg>
-  );
-}
-
-function BrandLinux({ size, className }: { size?: number; className?: string }) {
-  return (
-    <svg width={size || 24} height={size || 24} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}>
-      <path d="M12 2c-1.3 0-2.5.8-3.1 2" />
-      <path d="M10 8c0-1.1.9-2 2-2s2 .9 2 2" />
-      <path d="M6 14c0-2 1.5-5 3-5" />
-      <path d="M18 14c0-2-1.5-5-3-5" />
-      <path d="M6 18c0-1.5.7-3 2-4" />
-      <path d="M18 18c0-1.5-.7-3-2-4" />
-      <path d="M8 18v2a2 2 0 0 0 2 2h4a2 2 0 0 0 2-2v-2" />
-    </svg>
-  );
-}
-
-function SkillCard({
-  skill,
-  index,
-  categoryIndex,
-}: {
-  skill: { icon: React.ComponentType<{ size?: number; className?: string }>; name: string };
-  index: number;
-  categoryIndex: number;
-}) {
-  const Icon = skill.icon;
-  const dir = index % 2 === 0 ? -20 : 20;
-  return (
-    <motion.div
-      initial={{ opacity: 0, x: dir }}
-      whileInView={{ opacity: 1, x: 0 }}
-      viewport={{ once: true }}
-      transition={{
-        duration: 0.4,
-        delay: index * 0.05 + categoryIndex * 0.1,
-        ease: [0.16, 1, 0.3, 1],
-      }}
-      className="card-hover glass-panel rounded-xl p-3 flex items-center gap-3"
-    >
-      <div className="w-8 h-8 rounded-lg bg-accent-dim flex items-center justify-center flex-shrink-0">
-        <Icon size={16} className="text-accent" />
-      </div>
-      <span className="text-sm text-muted font-mono">{skill.name}</span>
-    </motion.div>
-  );
-}
-
 export default function TechStack() {
   return (
-    <section id="stack" className="section-spacing relative">
-      <div className="section-container">
+    <section id="stack" className="relative py-20 px-6">
+      <div className="max-w-3xl mx-auto">
+        {/* Section header */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true, margin: "-80px" }}
-          transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
-          className="text-center mb-14"
+          viewport={{ once: true, margin: "-100px" }}
+          transition={{ duration: 0.6 }}
+          className="mb-8"
         >
-          <div className="section-badge inline-flex">TECH STACK</div>
-          <h2 className="section-title">
-            Tecnologías y{" "}
-            <span className="gradient-text">herramientas</span>
-          </h2>
-          <p className="section-subtitle mx-auto">
-            Stack moderno para desarrollo, redes y ciberseguridad
-          </p>
+          <div className="flex items-center gap-3 mb-2">
+            <div className="status-dot status-dot-active" />
+            <span className="text-[10px] tracking-widest text-cyan/60 uppercase font-mono">
+              SYSTEM.INVENTORY.MODULES
+            </span>
+          </div>
+          <div className="signal-line w-full" />
         </motion.div>
 
-        <div className="grid md:grid-cols-2 gap-8 max-w-4xl mx-auto">
+        {/* System inventory layout */}
+        <div className="space-y-8">
           {categories.map((cat, ci) => (
-            <div key={cat.title}>
-              <motion.h3
-                initial={{ opacity: 0, x: -10 }}
-                whileInView={{ opacity: 1, x: 0 }}
-                viewport={{ once: true }}
-                transition={{ duration: 0.3, delay: ci * 0.1 }}
-                className="text-xs font-mono tracking-wider uppercase mb-4"
-                style={{ color: "rgba(139,148,158,0.6)" }}
-              >
+            <motion.div
+              key={cat.title}
+              initial={{ opacity: 0, x: -10 }}
+              whileInView={{ opacity: 1, x: 0 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.4, delay: ci * 0.05 }}
+              className="sys-panel rounded-lg p-5"
+            >
+              <h3 className="text-[10px] font-mono tracking-widest text-dim/60 mb-4 uppercase">
                 {cat.title}
-              </motion.h3>
-              <div className="space-y-2">
-                {cat.skills.map((s, i) => (
-                  <SkillCard key={s.name} skill={s} index={i} categoryIndex={ci} />
-                ))}
+              </h3>
+              
+              <div className="divide-y divide-border">
+                {cat.skills.map((skill, si) => {
+                  const Icon = skill.icon;
+                  return (
+                    <div key={skill.name} className="flex items-center gap-4 py-2.5 first:pt-0 last:pb-0 group">
+                      <div className="w-6 h-6 rounded border border-border flex items-center justify-center shrink-0 group-hover:border-cyan/20 transition-colors">
+                        <Icon size={12} className="text-dim/50 group-hover:text-cyan transition-colors" />
+                      </div>
+                      
+                      <span className="text-xs text-text/80 group-hover:text-cyan transition-colors flex-1 font-mono">
+                        {skill.name}
+                      </span>
+                      
+                      <span className={`text-[9px] font-mono tracking-widest hidden sm:inline text-dim/40`}>
+                        {skill.val}
+                      </span>
+
+                      <div className="flex items-center gap-2 shrink-0">
+                        <span className={`text-[9px] font-mono tracking-widest ${
+                          skill.dotClass === "status-dot-online" ? "text-green/60" :
+                          skill.dotClass === "status-dot-active" ? "text-cyan/60" : "text-amber/60"
+                        }`}>
+                          [{skill.status}]
+                        </span>
+                        <div className={`status-dot shrink-0 ${skill.dotClass}`} />
+                      </div>
+                    </div>
+                  );
+                })}
               </div>
-            </div>
+            </motion.div>
           ))}
         </div>
       </div>

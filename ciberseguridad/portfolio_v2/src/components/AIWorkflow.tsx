@@ -1,77 +1,61 @@
 "use client";
 
-import { useRef, useEffect } from "react";
-import { motion, useInView } from "framer-motion";
-import gsap from "gsap";
-import { ScrollTrigger } from "gsap/ScrollTrigger";
-import { IconCpu, IconBolt, IconGhost, IconArrowRight } from "@tabler/icons-react";
-
-gsap.registerPlugin(ScrollTrigger);
+import { useRef } from "react";
+import { motion } from "framer-motion";
+import { IconCpu, IconBolt, IconGhost, IconArrowRight, IconRobotFace, IconTerminal2 } from "@tabler/icons-react";
 
 const tools = [
   {
     name: "Cursor",
-    role: "Editor IA",
+    role: "AI_EDITOR",
     desc: "Entorno de desarrollo con IA integrada. Edición contextual, generación de código y refactorización asistida.",
-    color: "#00f0ff",
-    icon: null,
+    color: "cyan",
+    icon: IconRobotFace,
   },
   {
     name: "Claude",
-    role: "Asistente IA",
+    role: "AI_ASSISTANT",
     desc: "Modelo de Anthropic para análisis de código, documentación técnica y resolución de problemas complejos.",
-    color: "#bc8cff",
-    icon: null,
+    color: "green",
+    icon: IconTerminal2,
   },
   {
     name: "Copilot",
-    role: "Autocompletado",
+    role: "AUTOCOMPLETE",
     desc: "Sugerencias de código en tiempo real. Automatización de patrones repetitivos y generación de tests.",
-    color: "#4d79ff",
-    icon: null,
-  },
-  {
-    name: "ChatGPT",
-    role: "Research IA",
-    desc: "Investigación técnica, resolución de dudas de arquitectura, generación de scripts y prototipado rápido.",
-    color: "#00f0ff",
-    icon: null,
-  },
-  {
-    name: "Perplexity",
-    role: "Búsqueda IA",
-    desc: "Investigación técnica con fuentes verificadas. Ayuda a mantener el stack actualizado y resolver bugs.",
-    color: "#4d79ff",
-    icon: null,
-  },
-  {
-    name: "Windsurf",
-    role: "Flujo IA",
-    desc: "Entorno de desarrollo con flujo de trabajo IA nativo. Integración de agentes y automatización de tareas.",
-    color: "#0066ff",
-    icon: null,
-  },
-  {
-    name: "LM Studio",
-    role: "Inferencia Local",
-    desc: "Ejecución de modelos de lenguaje locales (LLaMA, Mistral, Phi). Prototipado rápido sin dependencia de APIs externas.",
-    color: "#00f0ff",
+    color: "cyan",
     icon: IconCpu,
   },
   {
-    name: "OpenCL",
-    role: "Cómputo Paralelo",
-    desc: "Programación heterogénea para acelerar tareas de IA y procesamiento de datos. Optimización de kernels en GPU/CPU.",
-    color: "#0066ff",
+    name: "LM Studio",
+    role: "LOCAL_INFERENCE",
+    desc: "Ejecución de modelos de lenguaje locales (LLaMA, Mistral, Phi). Prototipado rápido sin dependencia de APIs externas.",
+    color: "amber",
     icon: IconBolt,
   },
   {
     name: "Hermes Agent",
-    role: "Agente Autónomo",
+    role: "AUTONOMOUS_AGENT",
     desc: "Framework de agentes de IA para automatización de tareas complejas. Ejecución de workflows autónomos con decisión contextual.",
-    color: "#bc8cff",
+    color: "cyan",
     icon: IconGhost,
   },
+  {
+    name: "OpenCL Acceleration",
+    role: "PARALLEL_COMPUTE",
+    desc: "Programación heterogénea para acelerar tareas de IA y procesamiento de datos. Optimización de kernels en GPU/CPU.",
+    color: "amber",
+    icon: IconCpu,
+  },
+];
+
+const pipelineStages = [
+  { name: "Idea", desc: "Concepto" },
+  { name: "Prompt", desc: "Ingeniería" },
+  { name: "Code", desc: "Generación" },
+  { name: "Review", desc: "Revisión" },
+  { name: "Test", desc: "Validación" },
+  { name: "Deploy", desc: "Despliegue" },
 ];
 
 const workflowItems = [
@@ -91,318 +75,130 @@ const workflowItems = [
     title: "Automated Debugging",
     desc: "Análisis de errores y logs asistido por IA para identificar causas raíz y sugerir correcciones.",
   },
-  {
-    title: "Documentación con IA",
-    desc: "Generación de documentación técnica, comentarios de código y READMEs con asistencia contextual.",
-  },
-  {
-    title: "Workflow Automation",
-    desc: "Automatización de tareas repetitivas, pipelines de CI/CD y scripts de productividad con IA generativa.",
-  },
 ];
-
-const pipelineStages = [
-  { name: "Idea", desc: "Concepto" },
-  { name: "Prompt", desc: "Ingeniería" },
-  { name: "Code", desc: "Generación" },
-  { name: "Review", desc: "Revisión" },
-  { name: "Test", desc: "Validación" },
-  { name: "Deploy", desc: "Despliegue" },
-];
-
-function IconCursor({ size }: { size?: number }) {
-  return (
-    <svg width={size || 20} height={size || 20} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
-      <path d="M3 3l7.07 16.97 2.51-7.39 7.39-2.51L3 3z" />
-      <path d="M13 13l6 6" />
-    </svg>
-  );
-}
-
-function IconClaude({ size }: { size?: number }) {
-  return (
-    <svg width={size || 20} height={size || 20} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
-      <circle cx="12" cy="12" r="10" />
-      <path d="M12 6v6l4 2" />
-    </svg>
-  );
-}
-
-function IconCopilot({ size }: { size?: number }) {
-  return (
-    <svg width={size || 20} height={size || 20} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
-      <path d="M12 2L2 7l10 5 10-5-10-5z" />
-      <path d="M2 17l10 5 10-5" />
-      <path d="M2 12l10 5 10-5" />
-    </svg>
-  );
-}
-
-const fallbackIcons = [IconCursor, IconClaude, IconCopilot];
-
-function ToolCard({ tool, index }: { tool: typeof tools[0]; index: number }) {
-  const Icon = tool.icon || fallbackIcons[index % fallbackIcons.length];
-
-  return (
-    <motion.div
-      initial={{ opacity: 0, y: 20 }}
-      whileInView={{ opacity: 1, y: 0 }}
-      viewport={{ once: true }}
-      transition={{
-        duration: 0.4,
-        delay: index * 0.06,
-        ease: [0.16, 1, 0.3, 1],
-      }}
-      className="card-hover glass-panel rounded-xl p-5 group"
-    >
-      <div className="flex items-start gap-4">
-        <div
-          className="w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0 transition-colors duration-300"
-          style={{
-            backgroundColor: `${tool.color}10`,
-            border: `1px solid ${tool.color}20`,
-          }}
-        >
-          <div style={{ color: tool.color }}>
-            <Icon size={18} />
-          </div>
-        </div>
-        <div className="flex-1 min-w-0">
-          <div className="flex items-center gap-2 mb-0.5">
-            <h3 className="text-sm font-semibold text-text">{tool.name}</h3>
-            <span
-              className="text-[10px] font-mono px-1.5 py-0.5 rounded"
-              style={{
-                backgroundColor: `${tool.color}15`,
-                color: tool.color,
-              }}
-            >
-              {tool.role}
-            </span>
-          </div>
-          <p className="text-xs text-muted leading-relaxed mt-2 line-clamp-2 group-hover:line-clamp-none transition-all duration-300">
-            {tool.desc}
-          </p>
-        </div>
-      </div>
-    </motion.div>
-  );
-}
-
-function NeuralNetwork() {
-  const svgRef = useRef<SVGSVGElement>(null);
-  const lineRefs = useRef<(SVGPathElement | null)[]>([]);
-
-  useEffect(() => {
-    const ctx = gsap.context(() => {
-      const reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-      if (reduced) {
-        lineRefs.current.forEach((l) => { if (l) gsap.set(l, { strokeDashoffset: 0 }); });
-        return;
-      }
-
-      lineRefs.current.forEach((line, i) => {
-        if (!line) return;
-        const length = line.getTotalLength();
-        gsap.fromTo(
-          line,
-          { strokeDashoffset: length },
-          {
-            strokeDashoffset: 0,
-            duration: 1.5,
-            ease: "none",
-            scrollTrigger: {
-              trigger: svgRef.current,
-              start: "top 80%",
-              end: "bottom 20%",
-              scrub: 1,
-            },
-          }
-        );
-      });
-    }, svgRef);
-
-    return () => ctx.revert();
-  }, []);
-
-  return (
-    <svg
-      ref={svgRef}
-      className="absolute inset-0 w-full h-full pointer-events-none opacity-30"
-      viewBox="0 0 800 600"
-      preserveAspectRatio="xMidYMid meet"
-      aria-hidden="true"
-    >
-      <defs>
-        <linearGradient id="neural-grad" x1="0%" y1="0%" x2="100%" y2="100%">
-          <stop offset="0%" stopColor="#00f0ff" stopOpacity="0.3" />
-          <stop offset="100%" stopColor="#4d79ff" stopOpacity="0.1" />
-        </linearGradient>
-      </defs>
-      <g stroke="url(#neural-grad)" strokeWidth="0.5" fill="none" strokeLinecap="round">
-        <path
-          ref={(el) => { lineRefs.current[0] = el; }}
-          d="M150,100 L200,180 L300,160 L400,250 L500,200"
-          strokeDasharray="800"
-          strokeDashoffset="800"
-        />
-        <path
-          ref={(el) => { lineRefs.current[1] = el; }}
-          d="M150,100 L180,300 L250,350 L350,300 L450,380"
-          strokeDasharray="800"
-          strokeDashoffset="800"
-        />
-        <path
-          ref={(el) => { lineRefs.current[2] = el; }}
-          d="M400,250 L500,200 L600,280 L700,220"
-          strokeDasharray="600"
-          strokeDashoffset="600"
-        />
-        <path
-          ref={(el) => { lineRefs.current[3] = el; }}
-          d="M350,300 L450,380 L550,340 L650,420"
-          strokeDasharray="600"
-          strokeDashoffset="600"
-        />
-        <path
-          ref={(el) => { lineRefs.current[4] = el; }}
-          d="M200,180 L300,160 L350,300"
-          strokeDasharray="500"
-          strokeDashoffset="500"
-        />
-        <path
-          ref={(el) => { lineRefs.current[5] = el; }}
-          d="M500,200 L550,340 L650,420"
-          strokeDasharray="500"
-          strokeDashoffset="500"
-        />
-      </g>
-      <g fill="#00f0ff" opacity="0.4">
-        <circle cx="150" cy="100" r="3" />
-        <circle cx="200" cy="180" r="2" />
-        <circle cx="300" cy="160" r="2.5" />
-        <circle cx="400" cy="250" r="3" />
-        <circle cx="500" cy="200" r="2" />
-        <circle cx="600" cy="280" r="2.5" />
-        <circle cx="700" cy="220" r="3" />
-        <circle cx="180" cy="300" r="2" />
-        <circle cx="250" cy="350" r="2.5" />
-        <circle cx="350" cy="300" r="3" />
-        <circle cx="450" cy="380" r="2" />
-        <circle cx="550" cy="340" r="2.5" />
-        <circle cx="650" cy="420" r="3" />
-      </g>
-    </svg>
-  );
-}
 
 export default function AIWorkflow() {
-  const ref = useRef<HTMLElement>(null);
-  const inView = useInView(ref, { once: true, margin: "-100px" });
+  const containerRef = useRef<HTMLDivElement>(null);
 
   return (
-    <section ref={ref} id="ai-workflow" className="section-spacing relative">
-      <div className="section-container">
-        <NeuralNetwork />
+    <section id="ai-workflow" className="relative py-20 px-6">
+      <div className="max-w-3xl mx-auto" ref={containerRef}>
+        {/* Section header */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true, margin: "-80px" }}
-          transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
-          className="text-center mb-14"
+          viewport={{ once: true, margin: "-100px" }}
+          transition={{ duration: 0.6 }}
+          className="mb-8"
         >
-          <div className="section-badge inline-flex">AI WORKFLOW</div>
-          <h2 className="section-title">
-            Ecosistema{" "}
-            <span className="gradient-text-purple">Inteligente</span>
-          </h2>
-          <p className="section-subtitle mx-auto">
-            Herramientas de IA integradas en mi flujo de trabajo diario para
-            desarrollo, investigación y automatización
-          </p>
+          <div className="flex items-center gap-3 mb-2">
+            <div className="status-dot status-dot-active" />
+            <span className="text-[10px] tracking-widest text-cyan/60 uppercase font-mono">
+              SYSTEM.INTELLIGENCE.INTEGRATION
+            </span>
+          </div>
+          <div className="signal-line w-full" />
         </motion.div>
 
-        <div className="max-w-5xl mx-auto">
-          <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
-            {tools.map((t, i) => (
-              <ToolCard key={t.name} tool={t} index={i} />
+        {/* Tools grid */}
+        <div className="grid sm:grid-cols-2 gap-4 mb-8">
+          {tools.map((t, i) => {
+            const Icon = t.icon;
+            return (
+              <motion.div
+                key={t.name}
+                initial={{ opacity: 0, y: 15 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ duration: 0.4, delay: i * 0.05 }}
+                className="sys-panel rounded-lg p-5 group hover:border-cyan/15 transition-all duration-300"
+              >
+                <div className="flex items-start gap-4">
+                  <div className="w-8 h-8 rounded border border-border flex items-center justify-center shrink-0 group-hover:border-cyan/20 transition-colors">
+                    <Icon size={14} className={`
+                      ${t.color === "cyan" ? "text-cyan/60" : 
+                        t.color === "green" ? "text-green/60" : "text-amber/60"}
+                    `} />
+                  </div>
+                  <div>
+                    <div className="flex items-center gap-2 mb-1 flex-wrap">
+                      <span className="text-xs font-mono font-bold text-text/80 group-hover:text-cyan transition-colors">
+                        {t.name}
+                      </span>
+                      <span className={`text-[8px] font-mono px-1.5 py-0.5 border rounded-sm tracking-widest uppercase
+                        ${t.color === "cyan" ? "text-cyan/50 border-cyan/10 bg-cyan-dim" : 
+                          t.color === "green" ? "text-green/50 border-green/10 bg-green-dim" : 
+                          "text-amber/50 border-amber/10 bg-amber-dim"}`}
+                      >
+                        {t.role}
+                      </span>
+                    </div>
+                    <p className="text-[11px] text-muted leading-relaxed font-mono">
+                      {t.desc}
+                    </p>
+                  </div>
+                </div>
+              </motion.div>
+            );
+          })}
+        </div>
+
+        {/* Pipeline block */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          className="sys-panel rounded-lg p-5 mb-8"
+        >
+          <h3 className="text-[10px] font-mono tracking-widest text-dim/60 mb-4 uppercase">
+            AI WORKFLOW PIPELINE (PIPELINE_SYS)
+          </h3>
+          <div className="flex items-center justify-start gap-0 overflow-x-auto pb-2 scrollbar-none">
+            {pipelineStages.map((stage, i) => (
+              <div key={stage.name} className="flex items-center shrink-0">
+                <div className="border border-border rounded px-3 py-2 text-center min-w-[90px]">
+                  <div className="text-[9px] font-mono text-cyan/70">
+                    STAGE_{String(i + 1).padStart(2, "0")}
+                  </div>
+                  <div className="text-xs font-mono text-text/80 mt-0.5">
+                    {stage.name}
+                  </div>
+                  <div className="text-[9px] text-dim/50 font-mono mt-0.5">
+                    {stage.desc}
+                  </div>
+                </div>
+                {i < pipelineStages.length - 1 && (
+                  <div className="flex items-center mx-2">
+                    <IconArrowRight size={12} className="text-dim/30 shrink-0" />
+                  </div>
+                )}
+              </div>
             ))}
           </div>
+        </motion.div>
 
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true, margin: "-80px" }}
-            transition={{ duration: 0.5, delay: 0.3 }}
-            className="mt-12"
-          >
-            <div className="glass-panel rounded-2xl p-6 md:p-8">
-              <h3 className="text-lg font-semibold mb-6 text-center">
-                Pipeline de desarrollo con IA
-              </h3>
-              <div className="flex items-center justify-center gap-0 overflow-x-auto pb-2 scrollbar-none">
-                {pipelineStages.map((stage, i) => (
-                  <div key={stage.name} className="flex items-center shrink-0">
-                    <div className="glass-panel rounded-lg px-3 py-2.5 text-center min-w-[80px] border-accent/10">
-                      <div className="text-xs font-semibold text-accent">
-                        {i + 1}
-                      </div>
-                      <div className="text-xs font-semibold text-text mt-0.5">
-                        {stage.name}
-                      </div>
-                      <div className="text-[10px] text-muted mt-0.5">
-                        {stage.desc}
-                      </div>
-                    </div>
-                    {i < pipelineStages.length - 1 && (
-                      <div className="flex items-center mx-1 md:mx-2">
-                        <IconArrowRight size={16} className="text-accent/30 shrink-0" />
-                      </div>
-                    )}
-                  </div>
-                ))}
+        {/* Workflow capabilities */}
+        <div className="grid sm:grid-cols-2 gap-4">
+          {workflowItems.map((item, i) => (
+            <motion.div
+              key={item.title}
+              initial={{ opacity: 0 }}
+              whileInView={{ opacity: 1 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.3, delay: i * 0.05 }}
+              className="p-4 rounded border border-border bg-surface/40 hover:border-cyan/10 transition-colors"
+            >
+              <div className="flex items-center gap-2 mb-2">
+                <div className="w-1.5 h-1.5 rounded-full bg-cyan/50 status-dot-active" />
+                <h4 className="text-[10px] font-mono text-cyan/70 tracking-widest uppercase">
+                  {item.title}
+                </h4>
               </div>
-            </div>
-          </motion.div>
-
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true, margin: "-80px" }}
-            transition={{ duration: 0.5, delay: 0.4 }}
-            className="mt-12"
-          >
-            <div className="glass-panel rounded-2xl p-6 md:p-8">
-              <h3 className="text-lg font-semibold mb-6 text-center">
-                Flujos de trabajo con IA
-              </h3>
-              <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
-                {workflowItems.map((item, i) => (
-                  <motion.div
-                    key={item.title}
-                    initial={{ opacity: 0, y: 10 }}
-                    whileInView={{ opacity: 1, y: 0 }}
-                    viewport={{ once: true }}
-                    transition={{
-                      duration: 0.3,
-                      delay: i * 0.05,
-                    }}
-                    className="p-4 rounded-xl bg-accent-dim/30 border border-accent/5 hover:border-accent/15 transition-colors"
-                  >
-                    <div className="flex items-center gap-2 mb-2">
-                      <div className="w-1.5 h-1.5 rounded-full bg-accent" />
-                      <h4 className="text-xs font-mono text-accent tracking-wider uppercase">
-                        {item.title}
-                      </h4>
-                    </div>
-                    <p className="text-xs text-muted leading-relaxed">
-                      {item.desc}
-                    </p>
-                  </motion.div>
-                ))}
-              </div>
-            </div>
-          </motion.div>
+              <p className="text-[11px] font-mono text-text/60 leading-relaxed">
+                {item.desc}
+              </p>
+            </motion.div>
+          ))}
         </div>
       </div>
     </section>

@@ -1,27 +1,38 @@
 import type { Metadata } from "next";
-import { GeistSans } from "geist/font/sans";
-import { GeistMono } from "geist/font/mono";
+import { JetBrains_Mono, Inter } from "next/font/google";
 import "./globals.css";
 import ClientLayout from "@/components/ClientLayout";
 
+const jetbrainsMono = JetBrains_Mono({
+  subsets: ["latin"],
+  variable: "--font-jetbrains-mono",
+  display: "swap",
+});
+
+const inter = Inter({
+  subsets: ["latin"],
+  variable: "--font-inter",
+  display: "swap",
+});
+
 export const metadata: Metadata = {
-  title: "Lucas Méndez Díez | Telecomunicaciones y Ciberseguridad",
+  title: "LUCAS_SYS — Telecommunications & Systems",
   description:
-    "FP Superior STI · Ciberseguridad, Redes e Infraestructura Crítica. Python, C, JavaScript, fibra óptica, sistemas de telecomunicaciones.",
+    "Active systems portfolio. FP Superior STI. Cybersecurity, networking, fiber optics, infrastructure. Still learning.",
   icons: {
     icon: "/favicon.svg",
   },
   openGraph: {
-    title: "Lucas Méndez Díez | Telecom & Cybersecurity",
+    title: "LUCAS_SYS — Telecommunications & Systems",
     description:
-      "FP Superior en STI especializado en ciberseguridad, redes y telecomunicaciones.",
+      "Live operations terminal. Cybersecurity labs, networking infrastructure, and telecom systems.",
     type: "website",
   },
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="es" className={`${GeistSans.variable} ${GeistMono.variable}`}>
+    <html lang="es" className={`${jetbrainsMono.variable} ${inter.variable}`}>
       <body className="bg-bg text-text antialiased overflow-x-hidden">
         <ClientLayout>{children}</ClientLayout>
       </body>
