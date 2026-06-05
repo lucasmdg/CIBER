@@ -1,0 +1,547 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sentry Honeypot - Active Threat Map Console</title>
+    <style>
+        :root {
+            --bg-color: #030303;
+            --panel-bg: #0b0c10;
+            --border-color: #1a1c23;
+            --text-color: #f1f5f9;
+            --text-dim: #64748b;
+            --primary: #f43f5e; /* Attack Alert Crimson */
+            --primary-glow: rgba(244, 63, 94, 0.15);
+            --accent: #eab308; /* Yellow Alerts */
+            --accent-glow: rgba(234, 179, 8, 0.15);
+            --success: #10b981; /* Green Safe Status */
+            --font-mono: 'JetBrains Mono', 'Courier New', Courier, monospace;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            font-family: system-ui, -apple-system, sans-serif;
+            font-size: 13px;
+            line-height: 1.5;
+            height: 100vh;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            position: relative;
+        }
+
+        body::before {
+            content: " ";
+            display: block;
+            position: absolute;
+            top: 0; left: 0; bottom: 0; right: 0;
+            background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.25) 50%);
+            z-index: 999;
+            background-size: 100% 4px;
+            pointer-events: none;
+            opacity: 0.3;
+        }
+
+        header {
+            background-color: var(--panel-bg);
+            border-bottom: 1px solid var(--border-color);
+            padding: 12px 24px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            height: 60px;
+        }
+
+        .logo-area {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .logo-icon {
+            width: 14px;
+            height: 14px;
+            border-radius: 50%;
+            background: var(--primary);
+            box-shadow: 0 0 10px var(--primary-glow);
+            animation: pulse 2s infinite ease-in-out;
+        }
+
+        h1 {
+            font-family: var(--font-mono);
+            font-size: 15px;
+            font-weight: 700;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+        }
+
+        .sys-mode {
+            font-family: var(--font-mono);
+            font-size: 11px;
+            color: var(--primary);
+            border: 1px solid var(--primary);
+            background: var(--primary-glow);
+            padding: 2px 8px;
+            border-radius: 3px;
+        }
+
+        main {
+            display: grid;
+            grid-template-columns: 320px 1fr;
+            flex: 1;
+            height: calc(100vh - 60px);
+            overflow: hidden;
+            background: radial-gradient(circle at 50% 50%, #0d0f17 0%, #030303 100%);
+        }
+
+        /* Side stats Panel */
+        .panel {
+            background-color: rgba(11, 12, 16, 0.85);
+            border-right: 1px solid var(--border-color);
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        .panel-header {
+            padding: 12px 20px;
+            border-bottom: 1px solid var(--border-color);
+            background: rgba(26, 28, 35, 0.2);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .panel-title {
+            font-family: var(--font-mono);
+            font-size: 11px;
+            font-weight: 700;
+            color: var(--primary);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .panel-content {
+            padding: 16px;
+            flex: 1;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .stat-card {
+            background: rgba(255, 255, 255, 0.02);
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            padding: 14px;
+        }
+
+        .stat-label {
+            font-size: 10px;
+            color: var(--text-dim);
+            text-transform: uppercase;
+            font-family: var(--font-mono);
+            margin-bottom: 4px;
+        }
+
+        .stat-value {
+            font-family: var(--font-mono);
+            font-size: 24px;
+            font-weight: 700;
+        }
+
+        /* Center topology workspace */
+        .workspace {
+            display: grid;
+            grid-template-rows: 1fr 240px;
+            overflow: hidden;
+        }
+
+        .topology-map {
+            position: relative;
+            background-image: 
+                linear-gradient(rgba(244, 63, 94, 0.03) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(244, 63, 94, 0.03) 1px, transparent 1px);
+            background-size: 30px 30px;
+            border-bottom: 1px solid var(--border-color);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        /* Simulated Network Nodes */
+        .network-layout {
+            position: relative;
+            width: 600px;
+            height: 300px;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            border-radius: 8px;
+            background: rgba(0, 0, 0, 0.2);
+            display: flex;
+            align-items: center;
+            justify-content: space-around;
+        }
+
+        .node {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 8px;
+            position: relative;
+            z-index: 5;
+        }
+
+        .node-circle {
+            width: 48px;
+            height: 48px;
+            border-radius: 8px;
+            background: rgba(255, 255, 255, 0.02);
+            border: 2px solid var(--border-color);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+            transition: all 0.3s ease;
+        }
+
+        .node.attacked .node-circle {
+            border-color: var(--primary);
+            box-shadow: 0 0 15px var(--primary-glow);
+            animation: node-flash 0.5s infinite alternate;
+        }
+
+        .node-label {
+            font-family: var(--font-mono);
+            font-size: 11px;
+            color: var(--text-color);
+        }
+
+        /* SVG lines overlay for network */
+        .svg-lines {
+            position: absolute;
+            top: 0; left: 0; width: 100%; height: 100%;
+            pointer-events: none;
+            z-index: 1;
+        }
+
+        .attack-beam {
+            stroke: var(--primary);
+            stroke-dasharray: 8 8;
+            animation: dash 1s linear infinite;
+            stroke-width: 2px;
+            opacity: 0;
+            transition: opacity 0.2s ease;
+        }
+
+        .attack-beam.active {
+            opacity: 1;
+        }
+
+        /* Attacks Table */
+        .table-container {
+            overflow-y: auto;
+            background: #050508;
+            padding: 16px;
+        }
+
+        .attack-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-family: var(--font-mono);
+            font-size: 11px;
+        }
+
+        .attack-table th, .attack-table td {
+            padding: 8px 12px;
+            text-align: left;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.02);
+        }
+
+        .attack-table th {
+            color: var(--text-dim);
+            text-transform: uppercase;
+            background: rgba(255, 255, 255, 0.01);
+        }
+
+        /* Toggle switches */
+        .toggle-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 4px 0;
+        }
+
+        .switch {
+            position: relative;
+            display: inline-block;
+            width: 36px;
+            height: 20px;
+        }
+
+        .switch input { opacity: 0; width: 0; height: 0; }
+
+        .slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background-color: var(--border-color);
+            transition: .4s;
+            border-radius: 20px;
+        }
+
+        .slider:before {
+            position: absolute;
+            content: "";
+            height: 14px;
+            width: 14px;
+            left: 3px;
+            bottom: 3px;
+            background-color: white;
+            transition: .4s;
+            border-radius: 50%;
+        }
+
+        input:checked + .slider { background-color: var(--success); }
+        input:checked + .slider:before { transform: translateX(16px); }
+
+        @keyframes pulse {
+            0% { transform: scale(1); opacity: 1; }
+            50% { transform: scale(1.2); opacity: 0.6; }
+            100% { transform: scale(1); opacity: 1; }
+        }
+
+        @keyframes dash {
+            to { stroke-dashoffset: -20; }
+        }
+
+        @keyframes node-flash {
+            0% { background-color: rgba(244, 63, 94, 0.1); }
+            100% { background-color: rgba(244, 63, 94, 0.4); }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="logo-area">
+            <div class="logo-icon"></div>
+            <h1>Sentry Honeypot Console // Active Threat Detection</h1>
+        </div>
+        <div class="sys-mode" style="color: var(--success); border-color: var(--success); background: rgba(16, 185, 129, 0.1);">DECOYS ACTIVE [4/4]</div>
+    </header>
+
+    <main>
+        <!-- LEFT STATS & DEC-TOOGLE -->
+        <section class="panel">
+            <div class="panel-header">
+                <h2 class="panel-title">MONITOR DE SEÑUELOS</h2>
+            </div>
+            <div class="panel-content">
+                <div class="stat-card">
+                    <div class="stat-label">Total Ataques Capturados</div>
+                    <div class="stat-value" style="color: var(--primary);" id="total-attacks">0</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-label">Atacantes Únicos (IPs)</div>
+                    <div class="stat-value" id="unique-ips">0</div>
+                </div>
+
+                <div class="panel-header" style="padding: 10px 0; border: none; margin-top: 10px;">
+                    <h2 class="panel-title" style="color: var(--accent);">Estado de Señuelos</h2>
+                </div>
+                <div class="toggle-row">
+                    <span>Honeypot SSH (Puerto 22)</span>
+                    <label class="switch">
+                        <input type="checkbox" id="chk-ssh" checked>
+                        <span class="slider"></span>
+                    </label>
+                </div>
+                <div class="toggle-row">
+                    <span>Honeypot Web (Puerto 80/8080)</span>
+                    <label class="switch">
+                        <input type="checkbox" id="chk-web" checked>
+                        <span class="slider"></span>
+                    </label>
+                </div>
+                <div class="toggle-row">
+                    <span>Honeypot DB (Puerto 3306)</span>
+                    <label class="switch">
+                        <input type="checkbox" id="chk-db" checked>
+                        <span class="slider"></span>
+                    </label>
+                </div>
+            </div>
+        </section>
+
+        <!-- CENTER WORKSPACE: MAP & LOGS -->
+        <section class="workspace">
+            <!-- Topology network view -->
+            <div class="topology-map">
+                <div class="network-layout">
+                    <!-- SVG lines for connection path -->
+                    <svg class="svg-lines">
+                        <path id="path-ssh" d="M 50 150 L 150 75" fill="none" class="attack-beam"></path>
+                        <path id="path-web" d="M 50 150 L 300 150" fill="none" class="attack-beam"></path>
+                        <path id="path-db" d="M 50 150 L 450 225" fill="none" class="attack-beam"></path>
+                        <path d="M 150 75 L 300 150" fill="none" stroke="rgba(255,255,255,0.05)" stroke-width="2"></path>
+                        <path d="M 300 150 L 450 225" fill="none" stroke="rgba(255,255,255,0.05)" stroke-width="2"></path>
+                    </svg>
+
+                    <!-- Nodes -->
+                    <div class="node" id="node-internet" style="position: absolute; left: 30px; top: 110px;">
+                        <div class="node-circle" style="border-color: var(--primary);">🌐</div>
+                        <div class="node-label">INTERNET</div>
+                    </div>
+
+                    <div class="node" id="node-ssh" style="position: absolute; left: 180px; top: 30px;">
+                        <div class="node-circle">📟</div>
+                        <div class="node-label">HONEYPOT-SSH</div>
+                    </div>
+
+                    <div class="node" id="node-web" style="position: absolute; left: 330px; top: 110px;">
+                        <div class="node-circle">💻</div>
+                        <div class="node-label">HONEYPOT-WEB</div>
+                    </div>
+
+                    <div class="node" id="node-db" style="position: absolute; left: 480px; top: 190px;">
+                        <div class="node-circle">🛢️</div>
+                        <div class="node-label">HONEYPOT-DB</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Incidents Table logs -->
+            <div class="table-container">
+                <div class="panel-header" style="padding: 0 0 10px 0; border: none; background: none;">
+                    <h2 class="panel-title" style="color: var(--text-color);">LOGS DE INTENTOS DE ATAQUE</h2>
+                </div>
+                <table class="attack-table">
+                    <thead>
+                        <tr>
+                            <th>HORA</th>
+                            <th>IP ATACANTE</th>
+                            <th>SEÑUELO OBJETIVO</th>
+                            <th>PROTOCOLO</th>
+                            <th>CREDENCIALES / PAYLOAD</th>
+                        </tr>
+                    </thead>
+                    <tbody id="attack-table-body">
+                        <!-- Dynamic logs -->
+                    </tbody>
+                </table>
+            </div>
+        </section>
+    </main>
+
+    <script>
+        let attacksCount = 0;
+        const attackers = new Set();
+
+        const totalAttacksDisplay = document.getElementById('total-attacks');
+        const uniqueIpsDisplay = document.getElementById('unique-ips');
+        const attackTableBody = document.getElementById('attack-table-body');
+
+        // Decoy Toggles
+        const chkSSH = document.getElementById('chk-ssh');
+        const chkWeb = document.getElementById('chk-web');
+        const chkDB = document.getElementById('chk-db');
+
+        const nodes = {
+            ssh: document.getElementById('node-ssh'),
+            web: document.getElementById('node-web'),
+            db: document.getElementById('node-db')
+        };
+
+        const beams = {
+            ssh: document.getElementById('path-ssh'),
+            web: document.getElementById('path-web'),
+            db: document.getElementById('path-db')
+        };
+
+        const attackPayloads = {
+            ssh: [
+                { proto: "SSH:22", payload: "admin / admin123" },
+                { proto: "SSH:22", payload: "root / password" },
+                { proto: "SSH:22", payload: "user / 123456" }
+            ],
+            web: [
+                { proto: "HTTP:80", payload: "GET /admin/config.php" },
+                { proto: "HTTP:80", payload: "POST /login SQLi: ' OR '1'='1" },
+                { proto: "HTTP:80", payload: "GET /etc/passwd LFI attempt" }
+            ],
+            db: [
+                { proto: "MySQL:3306", payload: "Connect attempt: root" },
+                { proto: "MySQL:3306", payload: "SELECT * FROM users" },
+                { proto: "MySQL:3306", payload: "Brute Force DB passwords" }
+            ]
+        };
+
+        function simulateAttack() {
+            // Pick active decoys
+            const activeDecoys = [];
+            if (chkSSH.checked) activeDecoys.push('ssh');
+            if (chkWeb.checked) activeDecoys.push('web');
+            if (chkDB.checked) activeDecoys.push('db');
+
+            if (activeDecoys.length === 0) return;
+
+            const decoyType = activeDecoys[Math.floor(Math.random() * activeDecoys.length)];
+            const attackerIp = `185.${Math.floor(Math.random() * 250)}.${Math.floor(Math.random() * 250)}.${Math.floor(Math.random() * 250)}`;
+
+            // Visual Trigger
+            triggerVisualAttack(decoyType);
+
+            // Log entry
+            const time = new Date().toLocaleTimeString();
+            const payloadSet = attackPayloads[decoyType];
+            const chosen = payloadSet[Math.floor(Math.random() * payloadSet.length)];
+
+            attacksCount++;
+            attackers.add(attackerIp);
+
+            // Add row
+            const tr = document.createElement('tr');
+            tr.innerHTML = `
+                <td style="color: var(--text-dim);">${time}</td>
+                <td style="color: var(--primary); font-weight: bold;">${attackerIp}</td>
+                <td>HONEYPOT-${decoyType.toUpperCase()}</td>
+                <td style="color: var(--accent); font-weight: bold;">${chosen.proto}</td>
+                <td style="color: #fff;">${chosen.payload}</td>
+            `;
+            attackTableBody.insertBefore(tr, attackTableBody.firstChild);
+
+            if (attackTableBody.childNodes.length > 20) {
+                attackTableBody.removeChild(attackTableBody.lastChild);
+            }
+
+            totalAttacksDisplay.textContent = attacksCount;
+            uniqueIpsDisplay.textContent = attackers.size;
+        }
+
+        function triggerVisualAttack(decoyType) {
+            const beam = beams[decoyType];
+            const node = nodes[decoyType];
+
+            beam.classList.add('active');
+            node.classList.add('attacked');
+
+            setTimeout(() => {
+                beam.classList.remove('active');
+                node.classList.remove('attacked');
+            }, 1000);
+        }
+
+        // Auto attackers looping
+        setInterval(simulateAttack, 2500);
+        simulateAttack();
+    </script>
+</body>
+</html>

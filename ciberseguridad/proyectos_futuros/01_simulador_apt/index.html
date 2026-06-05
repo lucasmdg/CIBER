@@ -1,0 +1,637 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>C2 Command & Control Center - APT Simulator</title>
+    <style>
+        :root {
+            --bg-color: #050507;
+            --panel-bg: #0c0d12;
+            --border-color: #1f2430;
+            --text-color: #e2e4e9;
+            --text-dim: #707a8a;
+            --primary: #00ff66; /* Neon Green */
+            --primary-glow: rgba(0, 255, 102, 0.15);
+            --accent: #00d9ff; /* Cyber Cyan */
+            --accent-glow: rgba(0, 217, 255, 0.15);
+            --danger: #ff3366; /* Warning Red */
+            --warning: #ffb800; /* Amber */
+            --font-mono: 'JetBrains Mono', 'Courier New', Courier, monospace;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            font-family: system-ui, -apple-system, sans-serif;
+            font-size: 14px;
+            line-height: 1.5;
+            height: 100vh;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            position: relative;
+        }
+
+        /* Scanline CRT overlay */
+        body::before {
+            content: " ";
+            display: block;
+            position: absolute;
+            top: 0; left: 0; bottom: 0; right: 0;
+            background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.25) 50%), linear-gradient(90deg, rgba(255, 0, 0, 0.06), rgba(0, 255, 0, 0.02), rgba(0, 0, 255, 0.06));
+            z-index: 999;
+            background-size: 100% 4px, 6px 100%;
+            pointer-events: none;
+            opacity: 0.4;
+        }
+
+        header {
+            background-color: var(--panel-bg);
+            border-bottom: 1px solid var(--border-color);
+            padding: 12px 24px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            height: 60px;
+        }
+
+        .logo-area {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .logo-icon {
+            width: 12px;
+            height: 12px;
+            background-color: var(--primary);
+            box-shadow: 0 0 10px var(--primary);
+            border-radius: 2px;
+            animation: pulse 2s infinite ease-in-out;
+        }
+
+        h1 {
+            font-family: var(--font-mono);
+            font-size: 16px;
+            font-weight: 700;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+        }
+
+        .status-badge {
+            font-family: var(--font-mono);
+            font-size: 11px;
+            color: var(--primary);
+            border: 1px solid var(--primary);
+            background: var(--primary-glow);
+            padding: 2px 8px;
+            border-radius: 3px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .status-dot {
+            width: 6px;
+            height: 6px;
+            background-color: var(--primary);
+            border-radius: 50%;
+            display: inline-block;
+            animation: blink 1s infinite alternate;
+        }
+
+        main {
+            display: grid;
+            grid-template-columns: 320px 1fr 380px;
+            flex: 1;
+            height: calc(100vh - 60px);
+            overflow: hidden;
+            background: radial-gradient(circle at 50% 50%, #10121a 0%, #050507 100%);
+        }
+
+        /* Panels layout */
+        .panel {
+            background-color: rgba(12, 13, 18, 0.7);
+            border-right: 1px solid var(--border-color);
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        .panel.right {
+            border-right: none;
+            border-left: 1px solid var(--border-color);
+        }
+
+        .panel-header {
+            padding: 12px 20px;
+            border-bottom: 1px solid var(--border-color);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: rgba(20, 22, 30, 0.3);
+        }
+
+        .panel-title {
+            font-family: var(--font-mono);
+            font-size: 12px;
+            font-weight: 700;
+            color: var(--accent);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .panel-content {
+            padding: 20px;
+            flex: 1;
+            overflow-y: auto;
+        }
+
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+        ::-webkit-scrollbar-track {
+            background: var(--bg-color);
+        }
+        ::-webkit-scrollbar-thumb {
+            background: var(--border-color);
+            border-radius: 3px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: var(--text-dim);
+        }
+
+        /* Left side stats */
+        .stat-card {
+            background: rgba(255, 255, 255, 0.02);
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            padding: 16px;
+            margin-bottom: 16px;
+        }
+
+        .stat-label {
+            font-size: 11px;
+            color: var(--text-dim);
+            text-transform: uppercase;
+            margin-bottom: 4px;
+        }
+
+        .stat-value {
+            font-family: var(--font-mono);
+            font-size: 24px;
+            font-weight: 700;
+            color: var(--text-color);
+        }
+
+        .stat-value.active {
+            color: var(--primary);
+            text-shadow: 0 0 10px var(--primary-glow);
+        }
+
+        /* Main center console view */
+        .workspace {
+            display: grid;
+            grid-template-rows: 1fr 280px;
+            overflow: hidden;
+        }
+
+        .map-section {
+            border-bottom: 1px solid var(--border-color);
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            position: relative;
+        }
+
+        /* Simulated World Map / Agent Grid */
+        .grid-view {
+            flex: 1;
+            border: 1px solid rgba(0, 217, 255, 0.1);
+            background-image: 
+                linear-gradient(rgba(0, 217, 255, 0.05) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(0, 217, 255, 0.05) 1px, transparent 1px);
+            background-size: 20px 20px;
+            position: relative;
+            border-radius: 4px;
+            overflow: hidden;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .grid-node {
+            position: absolute;
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .grid-node::before {
+            content: '';
+            position: absolute;
+            top: -10px; left: -10px; right: -10px; bottom: -10px;
+            border-radius: 50%;
+            border: 1px solid currentColor;
+            opacity: 0;
+            animation: ripple 2s infinite ease-out;
+        }
+
+        .node-green {
+            background-color: var(--primary);
+            color: var(--primary);
+            box-shadow: 0 0 8px var(--primary);
+        }
+
+        .node-cyan {
+            background-color: var(--accent);
+            color: var(--accent);
+            box-shadow: 0 0 8px var(--accent);
+        }
+
+        .node-warning {
+            background-color: var(--warning);
+            color: var(--warning);
+            box-shadow: 0 0 8px var(--warning);
+        }
+
+        /* Agents list table */
+        .agent-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 15px;
+        }
+
+        .agent-table th, .agent-table td {
+            text-align: left;
+            padding: 8px 12px;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .agent-table th {
+            color: var(--text-dim);
+            font-family: var(--font-mono);
+            font-size: 11px;
+            text-transform: uppercase;
+        }
+
+        .agent-table tr {
+            cursor: pointer;
+            transition: background 0.2s ease;
+        }
+
+        .agent-table tr:hover {
+            background: rgba(255, 255, 255, 0.03);
+        }
+
+        .agent-table tr.selected {
+            background: rgba(0, 217, 255, 0.08);
+            border-left: 2px solid var(--accent);
+        }
+
+        /* Terminal block */
+        .terminal {
+            background-color: #030305;
+            padding: 20px;
+            font-family: var(--font-mono);
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            border-top: 1px solid var(--border-color);
+        }
+
+        .terminal-header {
+            display: flex;
+            justify-content: space-between;
+            color: var(--text-dim);
+            font-size: 11px;
+            margin-bottom: 10px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+            padding-bottom: 5px;
+        }
+
+        .terminal-output {
+            flex: 1;
+            overflow-y: auto;
+            color: #39ff14; /* Matrix Green */
+            margin-bottom: 10px;
+            font-size: 13px;
+        }
+
+        .terminal-input-row {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .terminal-prompt {
+            color: var(--accent);
+            font-weight: bold;
+        }
+
+        .terminal-input {
+            background: transparent;
+            border: none;
+            outline: none;
+            color: #fff;
+            font-family: var(--font-mono);
+            font-size: 13px;
+            flex: 1;
+        }
+
+        /* Right log stream */
+        .log-stream {
+            font-family: var(--font-mono);
+            font-size: 11px;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .log-entry {
+            border-left: 2px solid var(--border-color);
+            padding-left: 8px;
+        }
+
+        .log-entry.info { border-color: var(--accent); }
+        .log-entry.success { border-color: var(--primary); }
+        .log-entry.warning { border-color: var(--warning); }
+        .log-entry.danger { border-color: var(--danger); }
+
+        .log-time {
+            color: var(--text-dim);
+        }
+
+        .log-msg {
+            color: var(--text-color);
+        }
+
+        /* Animations */
+        @keyframes pulse {
+            0% { transform: scale(1); opacity: 1; }
+            50% { transform: scale(1.2); opacity: 0.6; }
+            100% { transform: scale(1); opacity: 1; }
+        }
+
+        @keyframes blink {
+            0% { opacity: 0.2; }
+            100% { opacity: 1; }
+        }
+
+        @keyframes ripple {
+            0% { transform: scale(0.5); opacity: 0.8; }
+            100% { transform: scale(2.5); opacity: 0; }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="logo-area">
+            <div class="logo-icon"></div>
+            <h1>APT C2 SERVER // CENTRAL COMMAND v1.0.4</h1>
+        </div>
+        <div class="status-badge">
+            <span class="status-dot"></span> SECURE TUNNEL ACTIVE [PORT 8080]
+        </div>
+    </header>
+
+    <main>
+        <!-- LEFT PANEL: TELEMETRY -->
+        <section class="panel">
+            <div class="panel-header">
+                <h2 class="panel-title">TELEMETRÍA GLOBAL</h2>
+            </div>
+            <div class="panel-content">
+                <div class="stat-card">
+                    <div class="stat-label">Agentes Conectados</div>
+                    <div class="stat-value active" id="agent-count">3</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-label">Ancho de Banda Utilizado</div>
+                    <div class="stat-value">4.2 KB/s</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-label">Latencia Promedio</div>
+                    <div class="stat-value" style="color: var(--accent);">45 ms</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-label">Estado de Exfiltración</div>
+                    <div class="stat-value" style="color: var(--warning); font-size: 16px;">PENDIENTE DE COMANDO</div>
+                </div>
+            </div>
+        </section>
+
+        <!-- CENTER WORKSPACE: MAP & TERMINAL -->
+        <section class="workspace">
+            <div class="map-section">
+                <div class="panel-header" style="background: none; padding: 0 0 10px 0; border: none;">
+                    <h2 class="panel-title" style="color: var(--text-color);">RED DE AGENTES OPERATIVOS</h2>
+                </div>
+                <div class="grid-view" id="node-grid">
+                    <!-- Nodes will be rendered dynamically -->
+                </div>
+                
+                <table class="agent-table">
+                    <thead>
+                        <tr>
+                            <th>HOSTNAME</th>
+                            <th>DIRECCIÓN IP</th>
+                            <th>SISTEMA OPERATIVO</th>
+                            <th>ESTADO</th>
+                        </tr>
+                    </thead>
+                    <tbody id="agent-table-body">
+                        <!-- Rendered by JS -->
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="terminal">
+                <div class="terminal-header">
+                    <span>AGENTE TERMINAL INTERACTIVA</span>
+                    <span id="selected-agent-display">SELECCIONA UN AGENTE</span>
+                </div>
+                <div class="terminal-output" id="term-out">
+                    [C2 INITIALIZED] Ready to establish shell. Click an agent in the table above or grid to begin...
+                </div>
+                <div class="terminal-input-row">
+                    <span class="terminal-prompt">&gt;</span>
+                    <input type="text" class="terminal-input" id="term-in" placeholder="Escribe un comando... (p. ej: help, sysinfo, exfil, persist)" disabled>
+                </div>
+            </div>
+        </section>
+
+        <!-- RIGHT PANEL: LOGS STREAM -->
+        <section class="panel right">
+            <div class="panel-header">
+                <h2 class="panel-title">REGISTRO DE EVENTOS (LIVE)</h2>
+            </div>
+            <div class="panel-content" id="log-list" style="display: flex; flex-direction: column-reverse; gap: 10px;">
+                <!-- Logs rendered by JS -->
+            </div>
+        </section>
+    </main>
+
+    <script>
+        const agents = [
+            { id: 1, host: "MaquinaPrueba-01", ip: "192.168.1.15", os: "Windows 11 Enterprise", status: "ONLINE", type: "node-green", x: 25, y: 35 },
+            { id: 2, host: "ServerVulnerable-Deb", ip: "10.0.8.22", os: "Debian GNU/Linux 12", status: "ONLINE", type: "node-cyan", x: 65, y: 70 },
+            { id: 3, host: "HostDirector-Win", ip: "172.16.50.4", os: "Windows Server 2022", status: "DORMANT", type: "node-warning", x: 80, y: 20 }
+        ];
+
+        let selectedAgent = null;
+
+        const grid = document.getElementById('node-grid');
+        const tableBody = document.getElementById('agent-table-body');
+        const termOut = document.getElementById('term-out');
+        const termIn = document.getElementById('term-in');
+        const selectedDisplay = document.getElementById('selected-agent-display');
+        const logList = document.getElementById('log-list');
+
+        // Initialize Map Nodes
+        function initGrid() {
+            grid.innerHTML = '';
+            agents.forEach(agent => {
+                const node = document.createElement('div');
+                node.className = `grid-node ${agent.type}`;
+                node.style.left = `${agent.x}%`;
+                node.style.top = `${agent.y}%`;
+                node.title = `${agent.host} (${agent.ip})`;
+                node.onclick = () => selectAgent(agent.id);
+                grid.appendChild(node);
+            });
+        }
+
+        // Initialize Table
+        function initTable() {
+            tableBody.innerHTML = '';
+            agents.forEach(agent => {
+                const tr = document.createElement('tr');
+                tr.id = `agent-tr-${agent.id}`;
+                tr.onclick = () => selectAgent(agent.id);
+                tr.innerHTML = `
+                    <td style="font-family: var(--font-mono); font-weight: bold;">${agent.host}</td>
+                    <td style="font-family: var(--font-mono);">${agent.ip}</td>
+                    <td>${agent.os}</td>
+                    <td><span style="color: ${agent.status === 'ONLINE' ? 'var(--primary)' : 'var(--warning)'}">${agent.status}</span></td>
+                `;
+                tableBody.appendChild(tr);
+            });
+        }
+
+        function selectAgent(id) {
+            agents.forEach(a => {
+                const tr = document.getElementById(`agent-tr-${a.id}`);
+                if (tr) tr.classList.remove('selected');
+            });
+            
+            selectedAgent = agents.find(a => a.id === id);
+            document.getElementById(`agent-tr-${id}`).classList.add('selected');
+
+            selectedDisplay.textContent = `TARGET: ${selectedAgent.host.toUpperCase()} (${selectedAgent.ip})`;
+            termIn.removeAttribute('disabled');
+            termIn.focus();
+
+            termOut.innerHTML += `\n[+] Conectado a shell remota en ${selectedAgent.host}.\n`;
+            termOut.scrollTop = termOut.scrollHeight;
+
+            addLog(`Establecida conexión interactiva con el host ${selectedAgent.host}`, "info");
+        }
+
+        // Add Log Stream
+        function addLog(msg, type = "info") {
+            const time = new Date().toLocaleTimeString();
+            const entry = document.createElement('div');
+            entry.className = `log-entry ${type}`;
+            entry.innerHTML = `<span class="log-time">[${time}]</span> <span class="log-msg">${msg}</span>`;
+            logList.appendChild(entry);
+            if (logList.childNodes.length > 15) {
+                logList.removeChild(logList.firstChild);
+            }
+        }
+
+        // Terminal logic
+        termIn.addEventListener('keydown', function(e) {
+            if (e.key === 'Enter') {
+                const cmd = this.value.trim();
+                if (!cmd) return;
+
+                this.value = '';
+                executeCommand(cmd);
+            }
+        });
+
+        function executeCommand(cmd) {
+            termOut.innerHTML += `\n<span style="color: var(--accent);">&gt; ${cmd}</span>\n`;
+            
+            const lowerCmd = cmd.toLowerCase();
+            let output = "";
+
+            if (lowerCmd === 'help') {
+                output = "Comandos disponibles:\n  help         - Muestra esta lista de comandos\n  sysinfo      - Obtiene información de hardware y sistema\n  exfil        - Inicia simulación de robo y envío de datos sensibles\n  persist      - Instala rutina de persistencia en inicio automático\n  self-destruct- Elimina el agente del host remoto de forma segura\n  clear        - Limpia la terminal";
+            } else if (lowerCmd === 'sysinfo') {
+                output = `Host: ${selectedAgent.host}\nOS: ${selectedAgent.os}\nIP: ${selectedAgent.ip}\nCPU: Virtualized Intel Core i7 8 Cores @ 2.9GHz\nRAM: 8192MB\nUptime: 2 days, 4 hours, 12 minutes`;
+                addLog(`Enviado comando sysinfo a ${selectedAgent.host}`, "info");
+            } else if (lowerCmd === 'exfil') {
+                output = "[*] Buscando archivos confidenciales...\n[+] Encontrados 12 archivos .docx, 3 bases de datos SQLite.\n[*] Cifrando con AES-256...\n[+] Payload empaquetado: exfil_data_package.enc\n[*] Exfiltrando datos a través de canal DNS cifrado...\n[+] ¡Exfiltración completada! 42.5 KB enviados.";
+                addLog(`Exfiltración de datos completada desde ${selectedAgent.host}`, "success");
+            } else if (lowerCmd === 'persist') {
+                output = "[*] Creando persistencia...\n[+] Copiando ejecutable a %APPDATA%\\Microsoft\\Windows\\Start Menu\\Programs\\Startup\\helper.exe\n[+] Creado registro de arranque automático HKCU\\Software\\Microsoft\\Windows\\CurrentVersion\\Run\\TelemetryService\n[+] Persistencia instalada con éxito.";
+                addLog(`Persistencia inyectada en ${selectedAgent.host}`, "warning");
+            } else if (lowerCmd === 'self-destruct') {
+                output = "[!] Enviando comando de autodestrucción...\n[*] Limpiando rastros de logs del sistema...\n[*] Eliminando archivos de %APPDATA%...\n[+] Agente terminado con éxito. Conexión cerrada.";
+                selectedAgent.status = "DORMANT";
+                initTable();
+                termIn.setAttribute('disabled', 'true');
+                selectedDisplay.textContent = "SELECCIONA UN AGENTE";
+                addLog(`Agente en ${selectedAgent.host} autodestruido`, "danger");
+            } else if (lowerCmd === 'clear') {
+                termOut.innerHTML = "[!] Terminal limpia.";
+                return;
+            } else {
+                output = `Comando no reconocido: '${cmd}'. Escribe 'help' para ver la lista de comandos disponibles.`;
+            }
+
+            // Simulate typewriter effect in output
+            let i = 0;
+            const targetOut = termOut;
+            const timer = setInterval(() => {
+                if (i < output.length) {
+                    targetOut.innerHTML += output.charAt(i);
+                    targetOut.scrollTop = targetOut.scrollHeight;
+                    i++;
+                } else {
+                    clearInterval(timer);
+                    targetOut.innerHTML += "\n";
+                    targetOut.scrollTop = targetOut.scrollHeight;
+                }
+            }, 3);
+        }
+
+        // Initialize App
+        initGrid();
+        initTable();
+        addLog("C2 Server initialized on Port 8080", "success");
+        addLog("Listening for incoming beacons...", "info");
+
+        // Random beacon ping logs
+        setInterval(() => {
+            const randomAgent = agents[Math.floor(Math.random() * agents.length)];
+            if (randomAgent.status === "ONLINE") {
+                addLog(`Beacon recibido de ${randomAgent.host} (${randomAgent.ip})`, "success");
+            }
+        }, 15000);
+    </script>
+</body>
+</html>

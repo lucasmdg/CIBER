@@ -1,0 +1,504 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Aegis SIEM - Security Operations Center Dashboard</title>
+    <style>
+        :root {
+            --bg-color: #030303;
+            --panel-bg: #0c0d12;
+            --border-color: #1a1e29;
+            --text-color: #f0f3f8;
+            --text-dim: #64748b;
+            --primary: #3b82f6; /* Cyber Blue */
+            --primary-glow: rgba(59, 130, 246, 0.15);
+            --danger: #ef4444; /* Alert Red */
+            --danger-glow: rgba(239, 68, 68, 0.15);
+            --warning: #f59e0b; /* Warn Amber */
+            --warning-glow: rgba(245, 158, 11, 0.15);
+            --success: #10b981; /* Safe Green */
+            --success-glow: rgba(16, 185, 129, 0.15);
+            --font-mono: 'JetBrains Mono', 'Courier New', Courier, monospace;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            font-family: system-ui, -apple-system, sans-serif;
+            font-size: 13px;
+            line-height: 1.5;
+            height: 100vh;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            position: relative;
+        }
+
+        body::before {
+            content: " ";
+            display: block;
+            position: absolute;
+            top: 0; left: 0; bottom: 0; right: 0;
+            background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.25) 50%);
+            z-index: 999;
+            background-size: 100% 4px;
+            pointer-events: none;
+            opacity: 0.3;
+        }
+
+        header {
+            background-color: var(--panel-bg);
+            border-bottom: 1px solid var(--border-color);
+            padding: 12px 24px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            height: 60px;
+        }
+
+        .logo-area {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .logo-icon {
+            width: 14px;
+            height: 14px;
+            border-radius: 3px;
+            background: var(--primary);
+            box-shadow: 0 0 10px var(--primary-glow);
+            animation: pulse 2s infinite ease-in-out;
+        }
+
+        h1 {
+            font-family: var(--font-mono);
+            font-size: 15px;
+            font-weight: 700;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+        }
+
+        .sys-mode {
+            font-family: var(--font-mono);
+            font-size: 11px;
+            color: var(--primary);
+            border: 1px solid var(--primary);
+            background: var(--primary-glow);
+            padding: 2px 8px;
+            border-radius: 3px;
+        }
+
+        main {
+            display: grid;
+            grid-template-columns: 1fr;
+            grid-template-rows: 140px 1fr;
+            flex: 1;
+            height: calc(100vh - 60px);
+            overflow: hidden;
+            background: radial-gradient(circle at 50% 50%, #0d0f17 0%, #030303 100%);
+        }
+
+        /* Metrics Grid */
+        .metrics-bar {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 20px;
+            padding: 20px;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .metric-card {
+            background: rgba(12, 13, 18, 0.7);
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            padding: 16px 20px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+
+        .metric-label {
+            font-size: 11px;
+            color: var(--text-dim);
+            text-transform: uppercase;
+            font-family: var(--font-mono);
+            margin-bottom: 4px;
+        }
+
+        .metric-value {
+            font-family: var(--font-mono);
+            font-size: 26px;
+            font-weight: 700;
+        }
+
+        /* Lower workspace split */
+        .workspace-split {
+            display: grid;
+            grid-template-columns: 1fr 420px;
+            overflow: hidden;
+        }
+
+        /* Log view and filter controls */
+        .console-view {
+            display: flex;
+            flex-direction: column;
+            border-right: 1px solid var(--border-color);
+            overflow: hidden;
+        }
+
+        .toolbar {
+            padding: 12px 20px;
+            border-bottom: 1px solid var(--border-color);
+            background: rgba(12, 13, 18, 0.3);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .filter-buttons {
+            display: flex;
+            gap: 8px;
+        }
+
+        .btn-filter {
+            background: rgba(255, 255, 255, 0.02);
+            border: 1px solid var(--border-color);
+            color: var(--text-color);
+            padding: 4px 10px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-family: var(--font-mono);
+            font-size: 11px;
+        }
+
+        .btn-filter:hover, .btn-filter.active {
+            background: var(--primary);
+            border-color: var(--primary);
+            color: #fff;
+        }
+
+        .log-table-container {
+            flex: 1;
+            overflow-y: auto;
+            background: #050508;
+        }
+
+        .log-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-family: var(--font-mono);
+            font-size: 12px;
+        }
+
+        .log-table th, .log-table td {
+            padding: 10px 16px;
+            text-align: left;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.02);
+        }
+
+        .log-table th {
+            background: rgba(12, 13, 18, 0.6);
+            color: var(--text-dim);
+            font-size: 10px;
+            text-transform: uppercase;
+            position: sticky;
+            top: 0;
+            z-index: 10;
+        }
+
+        .log-row {
+            transition: background 0.15s ease;
+        }
+
+        .log-row:hover {
+            background: rgba(255, 255, 255, 0.02);
+        }
+
+        .severity-badge {
+            font-weight: bold;
+            padding: 2px 6px;
+            border-radius: 3px;
+            font-size: 10px;
+            text-transform: uppercase;
+        }
+
+        .sev-critical { background: var(--danger-glow); color: var(--danger); border: 1px solid var(--danger); }
+        .sev-warning { background: var(--warning-glow); color: var(--warning); border: 1px solid var(--warning); }
+        .sev-info { background: var(--primary-glow); color: var(--primary); border: 1px solid var(--primary); }
+
+        /* Right alerts and rules panel */
+        .alerts-panel {
+            background: rgba(12, 13, 18, 0.7);
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        .alert-list {
+            padding: 20px;
+            flex: 1;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .alert-card {
+            background: rgba(239, 68, 68, 0.03);
+            border: 1px solid rgba(239, 68, 68, 0.2);
+            border-radius: 6px;
+            padding: 14px;
+            border-left: 4px solid var(--danger);
+        }
+
+        .alert-card.warning {
+            background: rgba(245, 158, 11, 0.03);
+            border: 1px solid rgba(245, 158, 11, 0.2);
+            border-left-color: var(--warning);
+        }
+
+        .alert-header {
+            display: flex;
+            justify-content: space-between;
+            font-family: var(--font-mono);
+            font-size: 11px;
+            font-weight: bold;
+            margin-bottom: 4px;
+        }
+
+        .alert-title {
+            font-size: 13px;
+            font-weight: bold;
+            color: #fff;
+            margin-bottom: 6px;
+        }
+
+        .alert-desc {
+            font-size: 11px;
+            color: var(--text-dim);
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(1); opacity: 1; }
+            50% { transform: scale(1.2); opacity: 0.7; }
+            100% { transform: scale(1); opacity: 1; }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="logo-area">
+            <div class="logo-icon"></div>
+            <h1>Aegis SIEM Platform // Security Operations Center</h1>
+        </div>
+        <div class="sys-mode">MODE: REAL-TIME DEPLOY [OK]</div>
+    </header>
+
+    <main>
+        <!-- METRICS PANEL -->
+        <section class="metrics-bar">
+            <div class="metric-card">
+                <div class="metric-label">Eventos Ingeridos</div>
+                <div class="metric-value" id="count-events">0</div>
+            </div>
+            <div class="metric-card" style="border-left: 2px solid var(--danger);">
+                <div class="metric-label">Alertas Críticas</div>
+                <div class="metric-value" style="color: var(--danger);" id="count-critical">0</div>
+            </div>
+            <div class="metric-card" style="border-left: 2px solid var(--warning);">
+                <div class="metric-label">Advertencias</div>
+                <div class="metric-value" style="color: var(--warning);" id="count-warning">0</div>
+            </div>
+            <div class="metric-card" style="border-left: 2px solid var(--success);">
+                <div class="metric-label">Reglas Activas</div>
+                <div class="metric-value" style="color: var(--success);">14</div>
+            </div>
+        </section>
+
+        <!-- SPLIT WORKSPACE -->
+        <section class="workspace-split">
+            <!-- Left Console Log view -->
+            <div class="console-view">
+                <div class="toolbar">
+                    <span style="font-family: var(--font-mono); font-weight: bold;">CONSOLA DE EVENTOS</span>
+                    <div class="filter-buttons">
+                        <button class="btn-filter active" onclick="filterLogs('ALL')">TODOS</button>
+                        <button class="btn-filter" onclick="filterLogs('CRITICAL')">CRÍTICO</button>
+                        <button class="btn-filter" onclick="filterLogs('WARNING')">ADVERTENCIA</button>
+                        <button class="btn-filter" onclick="filterLogs('INFO')">INFO</button>
+                    </div>
+                </div>
+                <div class="log-table-container">
+                    <table class="log-table">
+                        <thead>
+                            <tr>
+                                <th style="width: 100px;">HORA</th>
+                                <th style="width: 120px;">SEVERIDAD</th>
+                                <th style="width: 140px;">ORIGEN</th>
+                                <th>MENSAJE DEL EVENTO</th>
+                            </tr>
+                        </thead>
+                        <tbody id="log-table-body">
+                            <!-- Streamed logs -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Right correlation alerts panel -->
+            <div class="alerts-panel">
+                <div class="toolbar" style="border-left: 1px solid var(--border-color);">
+                    <span style="font-family: var(--font-mono); font-weight: bold; color: var(--danger);">ALERTAS CORRELACIONADAS</span>
+                </div>
+                <div class="alert-list" id="alerts-container">
+                    <!-- Dynamic alerts -->
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <script>
+        let totalEvents = 0;
+        let criticalEvents = 0;
+        let warningEvents = 0;
+        let activeFilter = 'ALL';
+
+        const logs = [];
+        const alerts = [];
+
+        const logTableBody = document.getElementById('log-table-body');
+        const countEvents = document.getElementById('count-events');
+        const countCritical = document.getElementById('count-critical');
+        const countWarning = document.getElementById('count-warning');
+        const alertsContainer = document.getElementById('alerts-container');
+
+        const sources = ["192.168.1.15", "10.0.8.22", "172.16.50.4", "Firewall-ASA", "IIS-WebServer", "ActiveDirectory"];
+
+        const templates = [
+            { sev: "INFO", msg: "User login successful for domain administrator" },
+            { sev: "INFO", msg: "DHCP lease granted to workstation" },
+            { sev: "WARNING", msg: "Failed login attempt for user 'admin' on SSH port 22" },
+            { sev: "WARNING", msg: "Outbound port scan attempt detected on ports 80-100" },
+            { sev: "CRITICAL", msg: "Brute force attack signature matched on SSH service" },
+            { sev: "CRITICAL", msg: "SQL Injection query payload detected on GET /search" },
+            { sev: "INFO", msg: "Configuration backup generated successfully" },
+            { sev: "WARNING", msg: "CPU utilization exceeded 90% threshold" },
+            { sev: "CRITICAL", msg: "Potential data exfiltration - Large DNS payload outbound" }
+        ];
+
+        function addLog() {
+            const temp = templates[Math.floor(Math.random() * templates.length)];
+            const time = new Date().toLocaleTimeString();
+            const source = sources[Math.floor(Math.random() * sources.length)];
+            
+            const log = { time, sev: temp.sev, src: source, msg: temp.msg };
+            logs.unshift(log); // Add to beginning
+            
+            totalEvents++;
+            if (temp.sev === "CRITICAL") {
+                criticalEvents++;
+                triggerAlert(log);
+            } else if (temp.sev === "WARNING") {
+                warningEvents++;
+            }
+
+            if (logs.length > 50) logs.pop();
+
+            updateCounters();
+            renderLogs();
+        }
+
+        function updateCounters() {
+            countEvents.textContent = totalEvents;
+            countCritical.textContent = criticalEvents;
+            countWarning.textContent = warningEvents;
+        }
+
+        function renderLogs() {
+            logTableBody.innerHTML = '';
+            const filtered = logs.filter(log => {
+                if (activeFilter === 'ALL') return true;
+                return log.sev === activeFilter;
+            });
+
+            filtered.forEach(log => {
+                const tr = document.createElement('tr');
+                tr.className = 'log-row';
+                
+                let badgeClass = 'sev-info';
+                if (log.sev === 'CRITICAL') badgeClass = 'sev-critical';
+                if (log.sev === 'WARNING') badgeClass = 'sev-warning';
+
+                tr.innerHTML = `
+                    <td style="color: var(--text-dim);">${log.time}</td>
+                    <td><span class="severity-badge ${badgeClass}">${log.sev}</span></td>
+                    <td style="color: var(--primary); font-weight: bold;">${log.src}</td>
+                    <td style="color: #fff;">${log.msg}</td>
+                `;
+                logTableBody.appendChild(tr);
+            });
+        }
+
+        function filterLogs(filter) {
+            activeFilter = filter;
+            document.querySelectorAll('.btn-filter').forEach(btn => {
+                btn.classList.remove('active');
+                if (btn.textContent === filter || (filter === 'ALL' && btn.textContent === 'TODOS')) {
+                    btn.classList.add('active');
+                }
+            });
+            renderLogs();
+        }
+
+        function triggerAlert(log) {
+            const time = new Date().toLocaleTimeString();
+            let title = "Fuerza Bruta Detectada";
+            let desc = `Múltiples fallos de autenticación repetidos en el host ${log.src}.`;
+
+            if (log.msg.includes("SQL")) {
+                title = "SQL Injection Detectada";
+                desc = `El firewall de aplicación web (WAF) bloqueó peticiones maliciosas de ${log.src}.`;
+            } else if (log.msg.includes("exfiltration")) {
+                title = "Posible Fuga de Información";
+                desc = `Tráfico DNS anómalo excediendo los umbrales de seguridad en ${log.src}.`;
+            }
+
+            const alert = { time, title, desc, severity: 'CRITICAL' };
+            alerts.unshift(alert);
+
+            if (alerts.length > 10) alerts.pop();
+
+            renderAlerts();
+        }
+
+        function renderAlerts() {
+            alertsContainer.innerHTML = '';
+            alerts.forEach(alert => {
+                const card = document.createElement('div');
+                card.className = 'alert-card';
+                card.innerHTML = `
+                    <div class="alert-header">
+                        <span style="color: var(--danger);">[CRÍTICO]</span>
+                        <span style="color: var(--text-dim);">${alert.time}</span>
+                    </div>
+                    <div class="alert-title">${alert.title}</div>
+                    <div class="alert-desc">${alert.desc}</div>
+                `;
+                alertsContainer.appendChild(card);
+            });
+        }
+
+        // Auto feed logs
+        setInterval(addLog, 2000);
+        addLog();
+    </script>
+</body>
+</html>

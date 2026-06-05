@@ -1,0 +1,501 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PhishShield - Campaign Simulation Manager</title>
+    <style>
+        :root {
+            --bg-color: #050508;
+            --panel-bg: #0c0d12;
+            --border-color: #1b1e2a;
+            --text-color: #f1f5f9;
+            --text-dim: #64748b;
+            --primary: #f59e0b; /* Phishing Warning Amber */
+            --primary-glow: rgba(245, 158, 11, 0.15);
+            --danger: #ef4444; /* Captured Credentials Red */
+            --danger-glow: rgba(239, 68, 68, 0.15);
+            --success: #10b981; /* Sent status Green */
+            --success-glow: rgba(16, 185, 129, 0.15);
+            --font-mono: 'JetBrains Mono', 'Courier New', Courier, monospace;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            font-family: system-ui, -apple-system, sans-serif;
+            font-size: 13px;
+            line-height: 1.5;
+            height: 100vh;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            position: relative;
+        }
+
+        body::before {
+            content: " ";
+            display: block;
+            position: absolute;
+            top: 0; left: 0; bottom: 0; right: 0;
+            background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.2) 50%);
+            z-index: 999;
+            background-size: 100% 4px;
+            pointer-events: none;
+            opacity: 0.3;
+        }
+
+        header {
+            background-color: var(--panel-bg);
+            border-bottom: 1px solid var(--border-color);
+            padding: 12px 24px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            height: 60px;
+        }
+
+        .logo-area {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .logo-icon {
+            width: 14px;
+            height: 14px;
+            background: var(--primary);
+            box-shadow: 0 0 10px var(--primary-glow);
+            border-radius: 4px;
+            transform: rotate(45deg);
+            animation: pulse 2.5s infinite ease-in-out;
+        }
+
+        h1 {
+            font-family: var(--font-mono);
+            font-size: 15px;
+            font-weight: 700;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+        }
+
+        .sys-mode {
+            font-family: var(--font-mono);
+            font-size: 11px;
+            color: var(--primary);
+            border: 1px solid var(--primary);
+            background: var(--primary-glow);
+            padding: 2px 8px;
+            border-radius: 3px;
+        }
+
+        main {
+            display: grid;
+            grid-template-columns: 360px 1fr;
+            flex: 1;
+            height: calc(100vh - 60px);
+            overflow: hidden;
+            background: radial-gradient(circle at 50% 50%, #0c0e15 0%, #050508 100%);
+        }
+
+        .panel {
+            background-color: rgba(12, 13, 18, 0.85);
+            border-right: 1px solid var(--border-color);
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        .panel-header {
+            padding: 14px 20px;
+            border-bottom: 1px solid var(--border-color);
+            background: rgba(26, 28, 36, 0.2);
+        }
+
+        .panel-title {
+            font-family: var(--font-mono);
+            font-size: 11px;
+            font-weight: 700;
+            color: var(--primary);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .panel-content {
+            padding: 20px;
+            flex: 1;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        /* Form styling */
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+
+        .form-label {
+            font-family: var(--font-mono);
+            font-size: 10px;
+            color: var(--text-dim);
+            text-transform: uppercase;
+        }
+
+        .form-input, .form-select, .form-textarea {
+            background: #050508;
+            border: 1px solid var(--border-color);
+            border-radius: 4px;
+            color: #fff;
+            padding: 8px 12px;
+            font-family: var(--font-mono);
+            outline: none;
+            width: 100%;
+        }
+
+        .form-input:focus, .form-select:focus, .form-textarea:focus {
+            border-color: var(--primary);
+        }
+
+        .btn-action {
+            background: var(--primary);
+            color: #000;
+            border: none;
+            padding: 10px;
+            border-radius: 4px;
+            font-family: var(--font-mono);
+            font-weight: bold;
+            cursor: pointer;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            transition: opacity 0.2s ease;
+            margin-top: 10px;
+        }
+
+        .btn-action:hover {
+            opacity: 0.9;
+        }
+
+        /* Workspace split */
+        .workspace {
+            display: grid;
+            grid-template-rows: 140px 1fr;
+            overflow: hidden;
+        }
+
+        .stats-bar {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 20px;
+            padding: 20px;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .stat-card {
+            background: rgba(12, 13, 18, 0.7);
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            padding: 16px 20px;
+        }
+
+        /* Details split */
+        .details-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            overflow: hidden;
+        }
+
+        .section-view {
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            border-right: 1px solid var(--border-color);
+        }
+
+        .section-view.right {
+            border-right: none;
+        }
+
+        /* Template Preview Area */
+        .template-preview {
+            flex: 1;
+            background: #fff;
+            color: #000;
+            margin: 20px;
+            border-radius: 6px;
+            border: 1px solid var(--border-color);
+            padding: 20px;
+            overflow-y: auto;
+            font-family: Arial, sans-serif;
+        }
+
+        .phish-log-container {
+            flex: 1;
+            overflow-y: auto;
+            background: #050508;
+            padding: 16px;
+            font-family: var(--font-mono);
+            font-size: 11px;
+        }
+
+        .phish-log-entry {
+            border-left: 2px solid var(--border-color);
+            padding-left: 8px;
+            margin-bottom: 8px;
+        }
+
+        .phish-log-entry.click { border-color: var(--primary); }
+        .phish-log-entry.submit { border-color: var(--danger); }
+        .phish-log-entry.sent { border-color: var(--success); }
+
+        @keyframes pulse {
+            0% { transform: scale(1) rotate(45deg); opacity: 1; }
+            50% { transform: scale(1.15) rotate(45deg); opacity: 0.6; }
+            100% { transform: scale(1) rotate(45deg); opacity: 1; }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="logo-area">
+            <div class="logo-icon"></div>
+            <h1>PhishShield // Ethical Phishing Campaign Lab</h1>
+        </div>
+        <div class="sys-mode">EDUCATIONAL SIMULATOR</div>
+    </header>
+
+    <main>
+        <!-- LEFT PANEL: CAMPAIGN BUILDER -->
+        <section class="panel">
+            <div class="panel-header">
+                <h2 class="panel-title">NUEVA CAMPAÑA</h2>
+            </div>
+            <div class="panel-content">
+                <div class="form-group">
+                    <span class="form-label">Nombre de Campaña</span>
+                    <input type="text" class="form-input" id="camp-name" value="Auditoría Seguridad Q2">
+                </div>
+                <div class="form-group">
+                    <span class="form-label">Plantilla de Correo</span>
+                    <select class="form-select" id="camp-temp" onchange="updateTemplatePreview()">
+                        <option value="office365">Office365 - Restablecer Contraseña</option>
+                        <option value="google">Google - Alerta de Seguridad Crítica</option>
+                        <option value="dhl">DHL - Fallo en Entrega de Paquete</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <span class="form-label">Emails Objetivo (Separados por coma)</span>
+                    <textarea class="form-textarea" id="camp-targets" rows="4">empleado1@empresa.com, gerente@empresa.com, finanzas@empresa.com, admin@empresa.com</textarea>
+                </div>
+                <button class="btn-action" id="btn-start">Iniciar Simulación</button>
+            </div>
+        </section>
+
+        <!-- CENTER & RIGHT WORKSPACE -->
+        <section class="workspace">
+            <!-- STATS COUNTERS -->
+            <div class="stats-bar">
+                <div class="stat-card">
+                    <div class="stat-label">Correos Enviados</div>
+                    <div class="stat-value" id="stat-sent" style="color: var(--success);">0</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-label">Correos Abiertos</div>
+                    <div class="stat-value" id="stat-opened" style="color: var(--primary);">0</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-label">Clics en Enlace</div>
+                    <div class="stat-value" id="stat-clicked" style="color: var(--primary);">0</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-label">Credenciales Capturadas</div>
+                    <div class="stat-value" id="stat-captured" style="color: var(--danger);">0</div>
+                </div>
+            </div>
+
+            <!-- DETAILS GRID -->
+            <div class="details-grid">
+                <!-- Left: Template Preview -->
+                <div class="section-view">
+                    <div class="panel-header">
+                        <h2 class="panel-title" style="color: var(--text-color);">PREVISTA DE PLANTILLA</h2>
+                    </div>
+                    <div class="template-preview" id="temp-preview">
+                        <!-- Rendered by JS -->
+                    </div>
+                </div>
+
+                <!-- Right: Capture logs -->
+                <div class="section-view right">
+                    <div class="panel-header">
+                        <h2 class="panel-title" style="color: var(--danger);">LOGS DE ACCIONES (CAPTURAS)</h2>
+                    </div>
+                    <div class="phish-log-container" id="phish-logs">
+                        <span style="color: var(--text-dim); text-align: center; display: block; padding: 20px 0;">Pulse INICIAR SIMULACIÓN para lanzar la campaña.</span>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <script>
+        const tempPreviews = {
+            office365: `
+                <div style="background-color: #f3f2f1; padding: 15px; border-bottom: 3px solid #0078d4;">
+                    <img src="https://img.icons8.com/color/48/microsoft-office-2019.png" style="width: 24px; vertical-align: middle; margin-right: 8px;">
+                    <strong style="color: #323130;">Microsoft Office 365 Security</strong>
+                </div>
+                <div style="padding: 20px;">
+                    <p style="font-size: 14px; margin-bottom: 15px;">Estimado usuario,</p>
+                    <p style="font-size: 13px; color: #323130; margin-bottom: 20px;">
+                        Hemos detectado una solicitud para restablecer su contraseña desde una dirección IP inusual. Si no realizó esta solicitud, verifique su identidad de inmediato para evitar el bloqueo de su cuenta.
+                    </p>
+                    <a href="#" style="background-color: #0078d4; color: white; padding: 8px 16px; text-decoration: none; border-radius: 2px; font-weight: bold; font-size: 13px; display: inline-block;">Verificar Cuenta Ahora</a>
+                </div>
+            `,
+            google: `
+                <div style="background-color: #fff; padding: 15px; border-bottom: 1px solid #e0e0e0; display: flex; align-items: center;">
+                    <span style="font-size: 18px; font-weight: bold; color: #4285F4; margin-right: 4px;">G</span>
+                    <span style="font-size: 18px; font-weight: bold; color: #EA4335; margin-right: 4px;">o</span>
+                    <span style="font-size: 18px; font-weight: bold; color: #FBBC05; margin-right: 4px;">o</span>
+                    <span style="font-size: 18px; font-weight: bold; color: #34A853; margin-right: 4px;">g</span>
+                    <span style="font-size: 18px; font-weight: bold; color: #EA4335;">le</span>
+                </div>
+                <div style="padding: 20px;">
+                    <div style="background-color: #FADBD8; padding: 10px; border-radius: 4px; color: #78281F; font-size: 13px; margin-bottom: 15px; font-weight: bold;">
+                        ⚠️ Alerta de Seguridad Crítica: Acceso no autorizado
+                    </div>
+                    <p style="font-size: 13px; margin-bottom: 15px;">Alguien acaba de ingresar a tu cuenta de Gmail usando la contraseña correcta desde un dispositivo Linux en Rusia.</p>
+                    <a href="#" style="background-color: #EA4335; color: white; padding: 8px 16px; text-decoration: none; border-radius: 4px; font-weight: bold; font-size: 13px; display: inline-block;">Asegurar tu Cuenta</a>
+                </div>
+            `,
+            dhl: `
+                <div style="background-color: #ffcc00; padding: 15px;">
+                    <strong style="color: #d40000; font-size: 18px;">DHL EXPRESS DELIVERY</strong>
+                </div>
+                <div style="padding: 20px;">
+                    <p style="font-size: 13px; font-weight: bold; margin-bottom: 15px;">Su envío no pudo ser entregado debido a aranceles aduaneros pendientes.</p>
+                    <p style="font-size: 12px; color: #555; margin-bottom: 20px;">
+                        Número de Seguimiento: DHL-98327429<br>
+                        Monto Pendiente: 1.99 EUR
+                    </p>
+                    <a href="#" style="background-color: #d40000; color: white; padding: 8px 16px; text-decoration: none; border-radius: 3px; font-weight: bold; font-size: 13px; display: inline-block;">Pagar Aduana y Liberar Envío</a>
+                </div>
+            `
+        };
+
+        const tempPreview = document.getElementById('temp-preview');
+        const phishLogs = document.getElementById('phish-logs');
+        const btnStart = document.getElementById('btn-start');
+
+        const statSent = document.getElementById('stat-sent');
+        const statOpened = document.getElementById('stat-opened');
+        const statClicked = document.getElementById('stat-clicked');
+        const statCaptured = document.getElementById('stat-captured');
+
+        let sent = 0;
+        let opened = 0;
+        let clicked = 0;
+        let captured = 0;
+
+        function updateTemplatePreview() {
+            const select = document.getElementById('camp-temp');
+            tempPreview.innerHTML = tempPreviews[select.value];
+        }
+
+        btnStart.onclick = () => {
+            const targetsVal = document.getElementById('camp-targets').value;
+            const targetList = targetsVal.split(',').map(e => e.trim()).filter(e => e);
+
+            if (targetList.length === 0) {
+                alert("Por favor, introduzca al menos un correo objetivo.");
+                return;
+            }
+
+            phishLogs.innerHTML = '';
+            sent = 0; opened = 0; clicked = 0; captured = 0;
+            updateStats();
+
+            btnStart.setAttribute('disabled', 'true');
+            btnStart.textContent = "Simulación en Curso...";
+
+            let targetIdx = 0;
+            const campaignTimer = setInterval(() => {
+                if (targetIdx < targetList.length) {
+                    const target = targetList[targetIdx];
+                    simulateTargetFlow(target);
+                    targetIdx++;
+                } else {
+                    clearInterval(campaignTimer);
+                    setTimeout(() => {
+                        btnStart.removeAttribute('disabled');
+                        btnStart.textContent = "Iniciar Simulación";
+                    }, 8000);
+                }
+            }, 1500);
+        };
+
+        function simulateTargetFlow(email) {
+            // Step 1: Send
+            sent++;
+            updateStats();
+            addLog(`[ENVIADO] Correo electrónico enviado con éxito a: ${email}`, "sent");
+
+            // Step 2: Open (80% probability)
+            setTimeout(() => {
+                if (Math.random() > 0.2) {
+                    opened++;
+                    updateStats();
+                    addLog(`[ABIERTO] El usuario leyó el correo: ${email}`, "click");
+
+                    // Step 3: Click (60% probability)
+                    setTimeout(() => {
+                        if (Math.random() > 0.4) {
+                            clicked++;
+                            updateStats();
+                            addLog(`[CLIC] El usuario hizo clic en el enlace de suplantación: ${email}`, "click");
+
+                            // Step 4: Submit Credentials (50% probability)
+                            setTimeout(() => {
+                                if (Math.random() > 0.5) {
+                                    captured++;
+                                    updateStats();
+                                    const passwordSim = `Pass_${Math.floor(Math.random()*9000)+1000}!`;
+                                    addLog(`[CAPTURADO] ¡CREDENCIALES COMPROMETIDAS! ${email} -> contraseña: "${passwordSim}"`, "submit");
+                                }
+                            }, 2000);
+                        }
+                    }, 2000);
+                }
+            }, 1500);
+        }
+
+        function updateStats() {
+            statSent.textContent = sent;
+            statOpened.textContent = opened;
+            statClicked.textContent = clicked;
+            statCaptured.textContent = captured;
+        }
+
+        function addLog(msg, type) {
+            const time = new Date().toLocaleTimeString();
+            const div = document.createElement('div');
+            div.className = `phish-log-entry ${type}`;
+            div.innerHTML = `<span style="color: var(--text-dim)">[${time}]</span> ${msg}`;
+            phishLogs.appendChild(div);
+            phishLogs.scrollTop = phishLogs.scrollHeight;
+        }
+
+        // Init App
+        updateTemplatePreview();
+    </script>
+</body>
+</html>

@@ -1,0 +1,483 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Nexus Red Team Framework Console</title>
+    <style>
+        :root {
+            --bg-color: #040406;
+            --panel-bg: #0b0c10;
+            --border-color: #1a1c24;
+            --text-color: #e5e9f0;
+            --text-dim: #6c7a89;
+            --primary: #ff5555; /* Red team accent */
+            --primary-glow: rgba(255, 85, 85, 0.15);
+            --accent: #ffb86c; /* Orange / Amber code color */
+            --accent-glow: rgba(255, 184, 108, 0.15);
+            --success: #50fa7b; /* Green successful exploit */
+            --font-mono: 'JetBrains Mono', 'Courier New', Courier, monospace;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            font-family: system-ui, -apple-system, sans-serif;
+            font-size: 13px;
+            line-height: 1.5;
+            height: 100vh;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            position: relative;
+        }
+
+        body::before {
+            content: " ";
+            display: block;
+            position: absolute;
+            top: 0; left: 0; bottom: 0; right: 0;
+            background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.3) 50%);
+            z-index: 999;
+            background-size: 100% 4px;
+            pointer-events: none;
+            opacity: 0.35;
+        }
+
+        header {
+            background-color: var(--panel-bg);
+            border-bottom: 1px solid var(--border-color);
+            padding: 12px 24px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            height: 60px;
+        }
+
+        .logo-area {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .logo-icon {
+            width: 14px;
+            height: 14px;
+            background: radial-gradient(circle, var(--primary) 0%, transparent 70%);
+            border: 2px solid var(--primary);
+            box-shadow: 0 0 10px var(--primary-glow);
+            border-radius: 50%;
+            animation: pulse 2.5s infinite ease-in-out;
+        }
+
+        h1 {
+            font-family: var(--font-mono);
+            font-size: 15px;
+            font-weight: 700;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+        }
+
+        .db-status {
+            font-family: var(--font-mono);
+            font-size: 11px;
+            color: var(--primary);
+            border: 1px solid var(--primary);
+            background: var(--primary-glow);
+            padding: 2px 8px;
+            border-radius: 3px;
+        }
+
+        main {
+            display: grid;
+            grid-template-columns: 320px 1fr 340px;
+            flex: 1;
+            height: calc(100vh - 60px);
+            overflow: hidden;
+            background: radial-gradient(circle at 50% 50%, #11131a 0%, #040406 100%);
+        }
+
+        .panel {
+            background-color: rgba(11, 12, 16, 0.85);
+            border-right: 1px solid var(--border-color);
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        .panel.right {
+            border-right: none;
+            border-left: 1px solid var(--border-color);
+        }
+
+        .panel-header {
+            padding: 12px 20px;
+            border-bottom: 1px solid var(--border-color);
+            background: rgba(26, 28, 36, 0.2);
+        }
+
+        .panel-title {
+            font-family: var(--font-mono);
+            font-size: 11px;
+            font-weight: 700;
+            color: var(--primary);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .panel-content {
+            padding: 16px;
+            flex: 1;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        /* Modules list */
+        .module-item {
+            background: rgba(255, 255, 255, 0.02);
+            border: 1px solid var(--border-color);
+            border-radius: 5px;
+            padding: 10px 14px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            font-family: var(--font-mono);
+        }
+
+        .module-item:hover {
+            border-color: var(--primary);
+            background: rgba(255, 85, 85, 0.05);
+        }
+
+        .module-item.active {
+            border-color: var(--primary);
+            background: rgba(255, 85, 85, 0.08);
+            border-left: 3px solid var(--primary);
+        }
+
+        .module-path {
+            font-size: 10px;
+            color: var(--text-dim);
+            margin-bottom: 4px;
+        }
+
+        .module-name {
+            font-weight: bold;
+            color: var(--text-color);
+        }
+
+        /* Form Controls */
+        .option-group {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+
+        .option-label {
+            font-family: var(--font-mono);
+            font-size: 10px;
+            color: var(--text-dim);
+            text-transform: uppercase;
+        }
+
+        .option-input {
+            background: #040406;
+            border: 1px solid var(--border-color);
+            border-radius: 4px;
+            color: #fff;
+            padding: 8px 12px;
+            font-family: var(--font-mono);
+            outline: none;
+        }
+
+        .option-input:focus {
+            border-color: var(--primary);
+        }
+
+        /* Console Workspace */
+        .workspace {
+            display: grid;
+            grid-template-rows: 1fr 50px;
+            overflow: hidden;
+            background: #030305;
+        }
+
+        .terminal-display {
+            padding: 24px;
+            font-family: var(--font-mono);
+            color: #f8f8f2;
+            overflow-y: auto;
+            white-space: pre-wrap;
+            line-height: 1.6;
+        }
+
+        .input-row {
+            border-top: 1px solid var(--border-color);
+            background: var(--panel-bg);
+            display: flex;
+            align-items: center;
+            padding: 0 20px;
+        }
+
+        .prompt {
+            color: var(--primary);
+            font-weight: bold;
+            margin-right: 12px;
+        }
+
+        .cli-input {
+            flex: 1;
+            background: transparent;
+            border: none;
+            outline: none;
+            color: #fff;
+            font-family: var(--font-mono);
+            font-size: 13px;
+            height: 100%;
+        }
+
+        /* Exploitation Action Button */
+        .btn-launch {
+            background: var(--primary);
+            color: #fff;
+            border: none;
+            padding: 10px;
+            border-radius: 4px;
+            font-family: var(--font-mono);
+            font-weight: bold;
+            cursor: pointer;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            transition: opacity 0.2s ease;
+        }
+
+        .btn-launch:hover {
+            opacity: 0.9;
+        }
+
+        /* Sessions Tab list */
+        .session-item {
+            border-left: 2px solid var(--success);
+            background: rgba(80, 250, 123, 0.05);
+            padding: 10px;
+            border-radius: 0 4px 4px 0;
+            font-family: var(--font-mono);
+            font-size: 11px;
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(1); opacity: 1; }
+            50% { transform: scale(1.15); opacity: 0.6; }
+            100% { transform: scale(1); opacity: 1; }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="logo-area">
+            <div class="logo-icon"></div>
+            <h1>NEXUS EXPLOITATION FRAMEWORK // RED TEAM PLATFORM</h1>
+        </div>
+        <div class="db-status">DATABASE CONNECTED [124 EXPLOITS]</div>
+    </header>
+
+    <main>
+        <!-- LEFT PANEL: EXPLOIT SELECTOR -->
+        <section class="panel">
+            <div class="panel-header">
+                <h2 class="panel-title">MÓDULOS DE EXPLOTACIÓN</h2>
+            </div>
+            <div class="panel-content" id="module-list">
+                <!-- Modules generated dynamically by JS -->
+            </div>
+        </section>
+
+        <!-- CENTER PANEL: TERMINAL DISPLAY -->
+        <section class="workspace">
+            <div class="terminal-display" id="term-display">
+============================================================
+* NEXUS FRAMEWORK CONSOLE *
+============================================================
+Cargando módulos de post-explotación y payloads... Listo.
+Selecciona un exploit de la izquierda, configura las opciones y haz clic en LANZAR ATAQUE.
+            </div>
+            <div class="input-row">
+                <span class="prompt">nexus &gt;</span>
+                <input type="text" class="cli-input" id="cli-in" placeholder="Escribe comandos aquí (help, options, run, clear)...">
+            </div>
+        </section>
+
+        <!-- RIGHT PANEL: CONFIGURATION & SESSIONS -->
+        <section class="panel right">
+            <div class="panel-header">
+                <h2 class="panel-title">OPCIONES DEL MÓDULO</h2>
+            </div>
+            <div class="panel-content">
+                <div class="option-group">
+                    <span class="option-label">RHOST (Dirección IP Objetivo)</span>
+                    <input type="text" class="option-input" id="opt-rhost" value="192.168.10.45">
+                </div>
+                <div class="option-group">
+                    <span class="option-label">RPORT (Puerto Objetivo)</span>
+                    <input type="text" class="option-input" id="opt-rport" value="445">
+                </div>
+                <div class="option-group">
+                    <span class="option-label">Payload</span>
+                    <input type="text" class="option-input" id="opt-payload" value="windows/meterpreter/reverse_tcp">
+                </div>
+                <div class="option-group" style="margin-top: 10px;">
+                    <button class="btn-launch" id="btn-run">Lanzar Ataque</button>
+                </div>
+
+                <div class="panel-header" style="padding: 10px 0; border: none; margin-top: 15px;">
+                    <h2 class="panel-title" style="color: var(--success);">Sesiones Activas (Shells)</h2>
+                </div>
+                <div id="sessions-list" style="display: flex; flex-direction: column; gap: 8px;">
+                    <span style="color: var(--text-dim); text-align: center; display: block; padding: 10px 0;">Ninguna sesión activa</span>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <script>
+        const modules = [
+            { path: "exploit/windows/smb/ms17_010_eternalblue", name: "MS17-010 EternalBlue SMB", defaultPort: "445" },
+            { path: "exploit/linux/http/apache_activemq_rce", name: "Apache ActiveMQ RCE Exploit", defaultPort: "8161" },
+            { path: "exploit/multi/ssh/ssh_brute_login", name: "SSH Scanner and Brute Login", defaultPort: "22" },
+            { path: "exploit/windows/http/iis_webdav_bof", name: "Microsoft IIS WebDAV Buffer Overflow", defaultPort: "80" }
+        ];
+
+        let selectedModule = null;
+        let sessionsCount = 0;
+
+        const moduleList = document.getElementById('module-list');
+        const termDisplay = document.getElementById('term-display');
+        const cliIn = document.getElementById('cli-in');
+        const rhostIn = document.getElementById('opt-rhost');
+        const rportIn = document.getElementById('opt-rport');
+        const payloadIn = document.getElementById('opt-payload');
+        const btnRun = document.getElementById('btn-run');
+        const sessionsList = document.getElementById('sessions-list');
+
+        function initModules() {
+            moduleList.innerHTML = '';
+            modules.forEach((mod, idx) => {
+                const item = document.createElement('div');
+                item.className = 'module-item';
+                item.id = `mod-${idx}`;
+                item.innerHTML = `
+                    <div class="module-path">${mod.path}</div>
+                    <div class="module-name">${mod.name}</div>
+                `;
+                item.onclick = () => selectModule(idx);
+                moduleList.appendChild(item);
+            });
+        }
+
+        function selectModule(idx) {
+            document.querySelectorAll('.module-item').forEach(el => el.classList.remove('active'));
+            selectedModule = modules[idx];
+            document.getElementById(`mod-${idx}`).classList.add('active');
+
+            rportIn.value = selectedModule.defaultPort;
+            
+            termDisplay.innerText += `\n\n[nexus] Módulo cargado: ${selectedModule.path}\nnexus (exploit) > `;
+            termDisplay.scrollTop = termDisplay.scrollHeight;
+        }
+
+        btnRun.onclick = () => {
+            if (!selectedModule) {
+                termDisplay.innerText += "\n[!] Error: Seleccione un módulo de explotación primero.";
+                termDisplay.scrollTop = termDisplay.scrollHeight;
+                return;
+            }
+            launchExploit();
+        };
+
+        function launchExploit() {
+            const rhost = rhostIn.value;
+            const rport = rportIn.value;
+            const payload = payloadIn.value;
+
+            termDisplay.innerText += `\n\n[*] Iniciando explotación contra ${rhost}:${rport}...`;
+            termDisplay.innerText += `\n[*] Usando payload: ${payload}`;
+            termDisplay.scrollTop = termDisplay.scrollHeight;
+
+            const steps = [
+                `[*] Estableciendo conexión con el puerto objetivo ${rport}...`,
+                `[*] Enviando etapa de exploit (${selectedModule.name})...`,
+                `[*] Inyectando shellcode en memoria...`,
+                `[*] Esperando respuesta del payload reverse connection...`,
+            ];
+
+            let stepIdx = 0;
+            const runTimer = setInterval(() => {
+                if (stepIdx < steps.length) {
+                    termDisplay.innerText += `\n${steps[stepIdx]}`;
+                    termDisplay.scrollTop = termDisplay.scrollHeight;
+                    stepIdx++;
+                } else {
+                    clearInterval(runTimer);
+                    // Determine success
+                    const isSuccess = Math.random() > 0.15; // 85% success rate for simulation
+                    if (isSuccess) {
+                        sessionsCount++;
+                        termDisplay.innerText += `\n[+] \x1b[32m¡Explotación completada con éxito!\x1b[0m`;
+                        termDisplay.innerText += `\n[+] Meterpreter session ${sessionsCount} abierta (192.168.10.150:4444 -> ${rhost}:${rport})`;
+                        
+                        // Add to Active Sessions List
+                        if (sessionsCount === 1) sessionsList.innerHTML = '';
+                        const sess = document.createElement('div');
+                        sess.className = 'session-item';
+                        sess.innerHTML = `
+                            <strong>Session #${sessionsCount}</strong><br>
+                            Type: Meterpreter TCP<br>
+                            Target: ${rhost}:${rport}
+                        `;
+                        sessionsList.appendChild(sess);
+                    } else {
+                        termDisplay.innerText += `\n[-] \x1b[31mFallo en la explotación:\x1b[0m Conexión rechazada o parche instalado.`;
+                    }
+                    termDisplay.innerText += "\nnexus (exploit) > ";
+                    termDisplay.scrollTop = termDisplay.scrollHeight;
+                }
+            }, 800);
+        }
+
+        cliIn.onkeydown = (e) => {
+            if (e.key === 'Enter') {
+                const cmd = cliIn.value.trim();
+                if (!cmd) return;
+                cliIn.value = '';
+
+                termDisplay.innerText += `\n${cmd}`;
+                
+                if (cmd === 'clear') {
+                    termDisplay.innerText = "nexus > ";
+                } else if (cmd === 'help') {
+                    termDisplay.innerText += "\nComandos de consola:\n  help    - Muestra este menú\n  options - Muestra configuraciones del exploit\n  run     - Lanza el exploit seleccionado\n  clear   - Limpia la pantalla";
+                } else if (cmd === 'options') {
+                    termDisplay.innerText += `\nConfiguraciones actuales:\n  RHOST   = ${rhostIn.value}\n  RPORT   = ${rportIn.value}\n  PAYLOAD = ${payloadIn.value}`;
+                } else if (cmd === 'run') {
+                    btnRun.click();
+                } else {
+                    termDisplay.innerText += `\nComando no reconocido: ${cmd}`;
+                }
+                
+                termDisplay.innerText += "\nnexus > ";
+                termDisplay.scrollTop = termDisplay.scrollHeight;
+            }
+        };
+
+        // Init App
+        initModules();
+    </script>
+</body>
+</html>
