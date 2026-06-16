@@ -35,3 +35,7 @@
 *   [[Ransomware Simulator|Ransomware-Simulator]]
 *   [[Threat Hunting Lab|Threat-Hunting-Lab]]
 *   [[Red Team Lab Simulation|Red-Team-Lab-Simulation]]
+
+#### 🛸 Proyecto Principal
+*   [[SentinelX SOC Dashboard|SentinelX]]
+

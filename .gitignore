@@ -29,3 +29,9 @@ baseline.json
 
 # Pruebas aisladas (privado)
 ciberseguridad/pruebas_claude/
+
+# Allow SentinelX files
+!SentinelX/**
+!SentinelX/**/*.json
+!SentinelX/**/*.env.example
+

@@ -1,0 +1,14 @@
+# Dev compose runs the Next.js dev server with hot reload.
+services:
+  app:
+    image: node:20-alpine
+    working_dir: /app
+    command: sh -c "npm install && npx prisma migrate deploy && npx next dev -p 3000"
+    ports:
+      - "3000:3000"
+    environment:
+      - NEXTAUTH_URL=http://localhost:3000
+      - NEXTAUTH_SECRET=dev-secret-change-me
+      - DATABASE_URL=file:/app/prisma/dev.db
+    volumes:
+      - .:/app

@@ -1,0 +1,11 @@
+{
+  "root": true,
+  "extends": ["next/core-web-vitals", "prettier", "plugin:security/recommended-legacy"],
+  "plugins": ["security"],
+  "rules": {
+    "no-console": ["warn", { "allow": ["warn", "error", "info"] }],
+    "@next/next/no-img-element": "off",
+    "security/detect-object-injection": "warn",
+    "security/detect-non-literal-regexp": "warn"
+  }
+}

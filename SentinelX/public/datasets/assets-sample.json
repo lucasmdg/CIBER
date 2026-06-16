@@ -1,0 +1,5 @@
+[
+  { "name": "edge-fw-01",  "type": "network", "criticality": "critical", "riskScore": 86 },
+  { "name": "db-pii-01",   "type": "server",  "criticality": "critical", "riskScore": 91 },
+  { "name": "ws-eng-42",   "type": "workstation", "criticality": "medium", "riskScore": 41 }
+]

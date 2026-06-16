@@ -1,0 +1,29 @@
+services:
+  app:
+    build: .
+    image: sentinelx:latest
+    ports:
+      - "3000:3000"
+    environment:
+      - NODE_ENV=production
+      - NEXTAUTH_URL=${NEXTAUTH_URL:-http://localhost:3000}
+      - NEXTAUTH_SECRET=${NEXTAUTH_SECRET:-replace-me-32-bytes-base64}
+      - DATABASE_URL=file:/data/dev.db
+    volumes:
+      - sentinelx-data:/data
+    restart: unless-stopped
+  postgres:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_USER: sentinelx
+      POSTGRES_PASSWORD: sentinelx
+      POSTGRES_DB: sentinelx
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    profiles: ["postgres"]
+
+volumes:
+  sentinelx-data:
+  pgdata:

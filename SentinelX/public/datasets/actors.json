@@ -1,0 +1,20 @@
+[
+  {
+    "name": "Volt Typhoon",
+    "origin": "PRC-aligned",
+    "motivation": "Espionage / OT pre-positioning",
+    "mitre": ["T1078", "T1190", "T0855"]
+  },
+  {
+    "name": "Scattered Spider",
+    "origin": "Western",
+    "motivation": "Financial / data extortion",
+    "mitre": ["T1566", "T1078.004", "T1530"]
+  },
+  {
+    "name": "Lazarus Group",
+    "origin": "DPRK-aligned",
+    "motivation": "Espionage / crypto theft",
+    "mitre": ["T1566", "T1195", "T1059"]
+  }
+]

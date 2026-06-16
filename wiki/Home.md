@@ -84,6 +84,12 @@ Este repositorio está diseñado para seguirse de forma progresiva. Cada nivel a
 | [[Threat Hunting Lab\|Threat-Hunting-Lab]] | Caza proactiva con MITRE ATT&CK | ⭐⭐⭐⭐⭐ |
 | [[Red Team Lab Simulation\|Red-Team-Lab-Simulation]] | Ciclo completo de intrusión | ⭐⭐⭐⭐⭐ |
 
+### 🛸 Proyecto Principal / Capstone
+
+| Proyecto | Concepto Central | Dificultad |
+|----------|-----------------|------------|
+| [[SentinelX SOC Dashboard\|SentinelX]] | Panel de Control de Ciberseguridad (SOC Dashboard) con Next.js | ⭐⭐⭐⭐⭐ |
+
 ---
 
 ## 🔑 Conceptos Fundamentales de Ciberseguridad

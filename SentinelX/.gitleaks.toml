@@ -1,0 +1,7 @@
+title = "SentinelX secret scan"
+[allowlist]
+description = "Demo dataset placeholders"
+paths = [
+  '''(.*/)?public/datasets/.*''',
+  '''(.*/)?\.env\.example$'''
+]
