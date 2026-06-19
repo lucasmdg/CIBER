@@ -1,0 +1,11 @@
+# SENTINEL — Known Bad Hashes Database
+# Add MD5 or SHA256 hashes of known malware samples here.
+# Lines starting with # are ignored.
+# One hash per line.
+
+# EICAR test file (harmless, used for AV testing)
+44d88612fea8a8f36de82e1278abb02f
+# Example hashes for testing (these are NOT real malware — replace with actual threat intel feeds)
+5d41402abc4b2a76b9719d911017c592
+e99a18c428cb38d5f260853678922e03
+098f6bcd4621d373cade4e832627b4f6

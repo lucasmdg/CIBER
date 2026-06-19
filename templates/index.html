@@ -1,0 +1,893 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SENTINEL — Local Malware Analyzer</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500;600;700&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+:root {
+  --bg: #0a0a0f;
+  --surface: #111118;
+  --surface-hover: #1a1a24;
+  --border: #1e1e2e;
+  --accent: #00ff88;
+  --accent-dim: rgba(0,255,136,0.15);
+  --danger: #ff3355;
+  --danger-dim: rgba(255,51,85,0.15);
+  --warning: #ffaa00;
+  --warning-dim: rgba(255,170,0,0.15);
+  --text: #e8e8f0;
+  --text-muted: #666688;
+  --text-dim: #444466;
+  --radius: 10px;
+  --radius-sm: 6px;
+  --shadow: 0 4px 24px rgba(0,0,0,0.4);
+  --transition: 200ms ease;
+}
+html { font-size: 14px; scroll-behavior: smooth; }
+body {
+  font-family: 'Inter', system-ui, sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+::-webkit-scrollbar { width: 6px; }
+::-webkit-scrollbar-track { background: var(--bg); }
+::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+::-webkit-scrollbar-thumb:hover { background: var(--text-dim); }
+
+/* ── Navbar ── */
+.navbar {
+  position: fixed; top: 0; left: 0; right: 0;
+  height: 56px; z-index: 100;
+  background: rgba(10,10,15,0.92);
+  backdrop-filter: blur(12px);
+  border-bottom: 1px solid var(--border);
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 0 24px;
+}
+.navbar-brand {
+  display: flex; align-items: center; gap: 12px;
+  font-family: 'JetBrains Mono', monospace;
+  font-weight: 700; font-size: 1.3rem;
+  letter-spacing: 2px;
+  color: var(--accent);
+  text-transform: uppercase;
+}
+.status-dot {
+  width: 10px; height: 10px; border-radius: 50%;
+  background: var(--accent);
+  animation: pulse-dot 2s ease-in-out infinite;
+  box-shadow: 0 0 8px var(--accent);
+}
+@keyframes pulse-dot {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50% { opacity: 0.6; transform: scale(0.8); }
+}
+.navbar-right {
+  display: flex; align-items: center; gap: 16px;
+  font-size: 0.85rem; color: var(--text-muted);
+}
+.disclaimer-tag {
+  background: var(--accent-dim);
+  color: var(--accent);
+  padding: 4px 12px; border-radius: 20px;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.7rem;
+  border: 1px solid rgba(0,255,136,0.2);
+}
+
+/* ── Layout ── */
+.layout { display: flex; padding-top: 56px; min-height: 100vh; }
+.sidebar {
+  width: 220px; min-height: calc(100vh - 56px);
+  background: var(--surface);
+  border-right: 1px solid var(--border);
+  padding: 16px 0; flex-shrink: 0;
+}
+.sidebar-link {
+  display: flex; align-items: center; gap: 10px;
+  padding: 12px 20px; cursor: pointer;
+  color: var(--text-muted); text-decoration: none;
+  border-left: 3px solid transparent;
+  transition: var(--transition);
+  font-size: 0.9rem;
+}
+.sidebar-link:hover { color: var(--text); background: var(--surface-hover); }
+.sidebar-link.active {
+  color: var(--accent); border-left-color: var(--accent);
+  background: var(--accent-dim);
+}
+.sidebar-link .icon { font-size: 1.1rem; }
+.main {
+  flex: 1; padding: 24px 32px;
+  overflow-y: auto; max-height: calc(100vh - 56px);
+}
+
+/* ── Cards ── */
+.card {
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: var(--radius); padding: 24px;
+  margin-bottom: 20px;
+  transition: var(--transition);
+}
+.card:hover { border-color: rgba(30,30,46,0.8); }
+.card-header {
+  display: flex; align-items: center; justify-content: space-between;
+  margin-bottom: 16px;
+}
+.card-title {
+  font-family: 'JetBrains Mono', monospace;
+  font-weight: 600; font-size: 1rem;
+  color: var(--text);
+}
+
+/* ── Dropzone ── */
+.dropzone {
+  border: 2px dashed var(--border);
+  border-radius: var(--radius);
+  padding: 60px 20px; text-align: center;
+  cursor: pointer; transition: var(--transition);
+  background: rgba(17,17,24,0.5);
+}
+.dropzone:hover, .dropzone.drag-over {
+  border-color: var(--accent);
+  background: var(--accent-dim);
+  box-shadow: 0 0 40px rgba(0,255,136,0.08);
+}
+.dropzone-icon { font-size: 3rem; margin-bottom: 12px; }
+.dropzone-text { color: var(--text-muted); font-size: 0.95rem; }
+.dropzone-text strong { color: var(--accent); }
+.dropzone-hint { color: var(--text-dim); font-size: 0.8rem; margin-top: 8px; }
+
+/* ── Buttons ── */
+.btn {
+  display: inline-flex; align-items: center; gap: 6px;
+  padding: 8px 16px; border-radius: var(--radius-sm);
+  border: 1px solid var(--border);
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.8rem; font-weight: 500;
+  cursor: pointer; transition: var(--transition);
+  background: var(--surface); color: var(--text);
+}
+.btn:hover { background: var(--surface-hover); }
+.btn-primary { background: var(--accent-dim); color: var(--accent); border-color: var(--accent); }
+.btn-primary:hover { background: rgba(0,255,136,0.25); }
+.btn-danger { background: var(--danger-dim); color: var(--danger); border-color: var(--danger); }
+.btn-danger:hover { background: rgba(255,51,85,0.25); }
+.btn-warning { background: var(--warning-dim); color: var(--warning); border-color: var(--warning); }
+.btn-warning:hover { background: rgba(255,170,0,0.25); }
+.btn-sm { padding: 4px 10px; font-size: 0.75rem; }
+.btn-lg { padding: 12px 24px; font-size: 0.9rem; }
+
+/* ── Tables ── */
+.table-wrap { overflow-x: auto; }
+table { width: 100%; border-collapse: collapse; }
+th { text-align: left; padding: 10px 12px;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.75rem; font-weight: 600;
+  color: var(--text-muted); text-transform: uppercase;
+  letter-spacing: 0.5px;
+  border-bottom: 1px solid var(--border);
+}
+td { padding: 10px 12px; border-bottom: 1px solid rgba(30,30,46,0.5);
+  font-size: 0.85rem; vertical-align: middle; }
+tr:hover td { background: var(--surface-hover); }
+tr.row-threat { border-left: 3px solid var(--danger); }
+tr.row-suspicious { border-left: 3px solid var(--warning); }
+tr.row-warning { border-left: 3px solid var(--warning); }
+tr.row-clean { border-left: 3px solid var(--accent); }
+
+/* ── Risk Badge ── */
+.risk-badge {
+  display: inline-flex; align-items: center; gap: 4px;
+  padding: 2px 10px; border-radius: 20px;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.7rem; font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+.risk-badge.clean { background: var(--accent-dim); color: var(--accent); border: 1px solid rgba(0,255,136,0.3); }
+.risk-badge.suspicious { background: var(--warning-dim); color: var(--warning); border: 1px solid rgba(255,170,0,0.3); }
+.risk-badge.threat { background: var(--danger-dim); color: var(--danger); border: 1px solid rgba(255,51,85,0.3); }
+.risk-badge.warning { background: var(--warning-dim); color: var(--warning); border: 1px solid rgba(255,170,0,0.3); }
+
+/* ── Risk Gauge ── */
+.gauge-wrap { display: flex; flex-direction: column; align-items: center; gap: 12px; }
+.gauge-svg { width: 160px; height: 160px; }
+.gauge-value {
+  font-family: 'JetBrains Mono', monospace;
+  font-weight: 700; font-size: 2.2rem;
+}
+.gauge-label { font-size: 0.85rem; color: var(--text-muted); }
+
+/* ── Radar ── */
+.radar-wrap {
+  position: relative; width: 120px; height: 120px;
+}
+.radar-svg { width: 100%; height: 100%; }
+.radar-sweep {
+  animation: radar-spin 3s linear infinite;
+  transform-origin: 60px 60px;
+}
+@keyframes radar-spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+.radar-dot {
+  animation: radar-blink 1.5s ease-in-out infinite;
+}
+@keyframes radar-blink {
+  0%, 100% { opacity: 0.3; }
+  50% { opacity: 1; }
+}
+
+/* ── Progress ── */
+.progress-bar {
+  height: 6px; background: var(--border); border-radius: 3px;
+  overflow: hidden; margin: 12px 0;
+}
+.progress-fill {
+  height: 100%; border-radius: 3px;
+  background: linear-gradient(90deg, var(--accent), #00cc6a);
+  transition: width 0.5s ease;
+  position: relative;
+}
+.progress-fill::after {
+  content: ''; position: absolute; top: 0; left: 0; right: 0; bottom: 0;
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.15), transparent);
+  animation: shimmer 1.5s infinite;
+}
+@keyframes shimmer {
+  0% { transform: translateX(-100%); }
+  100% { transform: translateX(100%); }
+}
+
+/* ── Expandable rows ── */
+.expand-toggle { cursor: pointer; user-select: none; }
+.expand-detail {
+  display: none; padding: 12px; margin: 8px 0;
+  background: rgba(0,0,0,0.3); border-radius: var(--radius-sm);
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.75rem; color: var(--text-muted);
+  white-space: pre-wrap; line-height: 1.6;
+}
+.expand-detail.open { display: block; }
+.actions-row { display: flex; gap: 6px; flex-wrap: wrap; margin-top: 8px; }
+
+/* ── Toast ── */
+.toast-container {
+  position: fixed; bottom: 24px; right: 24px;
+  z-index: 9999; display: flex; flex-direction: column; gap: 8px;
+}
+.toast {
+  padding: 12px 20px; border-radius: var(--radius-sm);
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.8rem;
+  background: var(--surface); border: 1px solid var(--border);
+  color: var(--text);
+  box-shadow: var(--shadow);
+  animation: toast-in 0.3s ease;
+  display: flex; align-items: center; gap: 10px;
+  min-width: 280px;
+}
+.toast.success { border-color: var(--accent); }
+.toast.error { border-color: var(--danger); }
+.toast.info { border-color: var(--warning); }
+@keyframes toast-in {
+  from { transform: translateX(100%); opacity: 0; }
+  to { transform: translateX(0); opacity: 1; }
+}
+
+/* ── Modal ── */
+.modal-overlay {
+  position: fixed; inset: 0; z-index: 5000;
+  background: rgba(0,0,0,0.7);
+  display: flex; align-items: center; justify-content: center;
+  opacity: 0; pointer-events: none; transition: opacity 0.2s;
+}
+.modal-overlay.open { opacity: 1; pointer-events: auto; }
+.modal {
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: var(--radius); padding: 28px;
+  max-width: 480px; width: 90%;
+  box-shadow: 0 20px 60px rgba(0,0,0,0.6);
+}
+.modal-title { font-family: 'JetBrains Mono', monospace; font-weight: 600; margin-bottom: 12px; }
+.modal-body { color: var(--text-muted); font-size: 0.9rem; line-height: 1.6; margin-bottom: 20px; }
+.modal-actions { display: flex; gap: 10px; justify-content: flex-end; }
+
+/* ── Disclaimer banner ── */
+.disclaimer-banner {
+  background: linear-gradient(135deg, var(--accent-dim), transparent);
+  border: 1px solid rgba(0,255,136,0.2);
+  border-radius: var(--radius);
+  padding: 14px 20px; margin-bottom: 20px;
+  font-size: 0.85rem; color: var(--accent);
+  display: flex; align-items: center; gap: 12px;
+}
+.disclaimer-banner .shield { font-size: 1.3rem; }
+
+/* ── Info grid ── */
+.info-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px; }
+.info-item {
+  background: rgba(0,0,0,0.3); padding: 16px; border-radius: var(--radius-sm);
+}
+.info-item .label { font-size: 0.7rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 4px; }
+.info-item .value { font-family: 'JetBrains Mono', monospace; font-size: 0.95rem; color: var(--text); }
+
+/* ── Empty state ── */
+.empty-state { text-align: center; padding: 60px 20px; }
+.empty-state .icon { font-size: 3rem; margin-bottom: 12px; opacity: 0.4; }
+.empty-state .msg { color: var(--text-muted); font-size: 0.95rem; }
+
+/* ── Tab content ── */
+.tab-content { display: none; }
+.tab-content.active { display: block; }
+
+/* ── Scan button ── */
+.scan-btn-wrap { text-align: center; margin: 20px 0; }
+
+/* ── Recipe / steps ── */
+.steps { list-style: none; padding: 0; }
+.steps li {
+  padding: 8px 0 8px 24px;
+  position: relative;
+  color: var(--text-muted);
+  font-size: 0.85rem;
+  line-height: 1.5;
+}
+.steps li::before {
+  content: '>';
+  position: absolute; left: 0;
+  color: var(--accent);
+  font-family: 'JetBrains Mono', monospace;
+}
+
+/* ── Responsive ── */
+@media (max-width: 1024px) {
+  .sidebar { width: 60px; }
+  .sidebar-link span:not(.icon) { display: none; }
+  .main { padding: 16px; }
+}
+</style>
+</head>
+<body>
+
+<div class="navbar">
+  <div class="navbar-brand">
+    <span class="status-dot"></span>
+    SENTINEL
+  </div>
+  <div class="navbar-right">
+    <span class="disclaimer-tag">&#x1F512; OFFLINE · NO DATA LEAVES</span>
+    <span>v1.0</span>
+  </div>
+</div>
+
+<div class="layout">
+  <nav class="sidebar">
+    <a class="sidebar-link active" data-tab="file-scan">
+      <span class="icon">&#x1F4C1;</span> <span>File Scan</span>
+    </a>
+    <a class="sidebar-link" data-tab="system-scan">
+      <span class="icon">&#x1F50D;</span> <span>System Scan</span>
+    </a>
+    <a class="sidebar-link" data-tab="results">
+      <span class="icon">&#x1F4CA;</span> <span>Results</span>
+    </a>
+    <a class="sidebar-link" data-tab="about">
+      <span class="icon">&#x2139;</span> <span>About</span>
+    </a>
+  </nav>
+
+  <main class="main">
+
+    <!-- ── FILE SCAN ── -->
+    <div id="tab-file-scan" class="tab-content active">
+      <div class="disclaimer-banner">
+        <span class="shield">&#x1F6E1;</span>
+        This tool runs entirely offline. No file content is stored. No data leaves your computer.
+      </div>
+
+      <div class="card">
+        <div class="card-header">
+          <span class="card-title">&#x1F4C2; File Upload</span>
+          <span style="font-size:0.75rem;color:var(--text-muted);">Max 50MB</span>
+        </div>
+        <div class="dropzone" id="dropzone">
+          <div class="dropzone-icon">&#x1F4E5;</div>
+          <div class="dropzone-text">Drag &amp; drop a file here, or <strong>browse</strong></div>
+          <div class="dropzone-hint">Supports any file type · Analysis is 100% local</div>
+        </div>
+        <input type="file" id="file-input" style="display:none">
+      </div>
+
+      <div id="file-result" style="display:none;">
+        <div class="card">
+          <div class="card-header">
+            <span class="card-title">&#x1F50D; Analysis Results</span>
+            <span id="file-risk-badge" class="risk-badge"></span>
+          </div>
+          <div class="info-grid" id="file-info-grid"></div>
+        </div>
+        <div class="card">
+          <div class="card-title" style="margin-bottom:12px;">&#x26A0; Findings</div>
+          <div id="file-findings"></div>
+          <div id="file-findings-empty" class="empty-state" style="display:none;">
+            <div class="icon">&#x2705;</div>
+            <div class="msg">No suspicious findings detected.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── SYSTEM SCAN ── -->
+    <div id="tab-system-scan" class="tab-content">
+      <div class="card">
+        <div class="card-header">
+          <span class="card-title">&#x1F50D; System Scan</span>
+          <div class="radar-wrap" id="radar">
+            <svg class="radar-svg" viewBox="0 0 120 120">
+              <circle cx="60" cy="60" r="55" fill="none" stroke="var(--border)" stroke-width="0.5"/>
+              <circle cx="60" cy="60" r="40" fill="none" stroke="var(--border)" stroke-width="0.5"/>
+              <circle cx="60" cy="60" r="25" fill="none" stroke="var(--border)" stroke-width="0.5"/>
+              <circle cx="60" cy="60" r="10" fill="none" stroke="var(--border)" stroke-width="0.5"/>
+              <line x1="5" y1="60" x2="115" y2="60" stroke="var(--border)" stroke-width="0.3"/>
+              <line x1="60" y1="5" x2="60" y2="115" stroke="var(--border)" stroke-width="0.3"/>
+              <polygon class="radar-sweep" points="60,60 60,5 85,20" fill="rgba(0,255,136,0.12)"/>
+              <circle class="radar-dot" cx="80" cy="30" r="2.5" fill="var(--accent)"/>
+              <circle class="radar-dot" cx="40" cy="70" r="2" fill="var(--warning)" style="animation-delay:0.5s"/>
+              <circle class="radar-dot" cx="95" cy="80" r="1.5" fill="var(--danger)" style="animation-delay:1s"/>
+            </svg>
+          </div>
+        </div>
+        <p style="color:var(--text-muted);font-size:0.85rem;margin-bottom:16px;">
+          Scans running processes, startup entries, persistence paths, network connections, and recently modified files.
+        </p>
+        <div class="scan-btn-wrap">
+          <button class="btn btn-primary btn-lg" id="start-system-scan">&#x25B6; Start System Scan</button>
+        </div>
+        <div class="progress-bar" id="scan-progress" style="display:none;">
+          <div class="progress-fill" id="scan-progress-fill" style="width:0%"></div>
+        </div>
+      </div>
+
+      <div id="system-result" style="display:none;">
+        <div class="card">
+          <div class="card-header">
+            <span class="card-title">&#x1F4CA; System Risk Score</span>
+            <span id="sys-risk-badge" class="risk-badge"></span>
+          </div>
+          <div class="gauge-wrap">
+            <svg class="gauge-svg" viewBox="0 0 160 160">
+              <circle cx="80" cy="80" r="68" fill="none" stroke="var(--border)" stroke-width="10"/>
+              <circle cx="80" cy="80" r="68" fill="none" stroke="var(--accent)" stroke-width="10"
+                stroke-dasharray="427" stroke-dashoffset="0"
+                id="gauge-circle"
+                transform="rotate(-90 80 80)"
+                stroke-linecap="round"/>
+              <text x="80" y="80" text-anchor="middle" dominant-baseline="central"
+                class="gauge-value" id="gauge-text" fill="var(--text)">0</text>
+            </svg>
+            <span class="gauge-label">Overall Risk Score</span>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-title" style="margin-bottom:12px;">&#x1F4CB; Findings</div>
+          <div id="sys-findings"></div>
+          <div id="sys-findings-empty" class="empty-state" style="display:none;">
+            <div class="icon">&#x2705;</div>
+            <div class="msg">No issues found. System looks clean.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── RESULTS ── -->
+    <div id="tab-results" class="tab-content">
+      <div class="card">
+        <div class="card-header">
+          <span class="card-title">&#x1F4CA; Scan History</span>
+          <button class="btn btn-sm" id="clear-history" style="display:none;">Clear History</button>
+        </div>
+        <div id="history-empty" class="empty-state">
+          <div class="icon">&#x1F4AD;</div>
+          <div class="msg">No scans performed yet. Run a file or system scan to see results here.</div>
+        </div>
+        <div id="history-list"></div>
+      </div>
+    </div>
+
+    <!-- ── ABOUT ── -->
+    <div id="tab-about" class="tab-content">
+      <div class="card">
+        <div class="card-title" style="margin-bottom:16px;">&#x2139; About SENTINEL</div>
+        <p style="color:var(--text-muted);line-height:1.7;margin-bottom:12px;">
+          SENTINEL is a <strong style="color:var(--text);">local-first malware analysis tool</strong>.
+          It performs file and system analysis entirely on your machine.
+          <strong style="color:var(--accent);">Zero data leaves your computer.</strong>
+        </p>
+        <p style="color:var(--text-muted);line-height:1.7;margin-bottom:20px;">
+          No cloud APIs, no telemetry, no external requests. Every scan runs locally.
+          Optional VirusTotal hash lookup opens in your browser — no API key needed.
+        </p>
+        <div class="info-grid" style="margin-bottom:20px;">
+          <div class="info-item">
+            <div class="label">Version</div>
+            <div class="value">1.0.0</div>
+          </div>
+          <div class="info-item">
+            <div class="label">Engine</div>
+            <div class="value">Flask + Python</div>
+          </div>
+          <div class="info-item">
+            <div class="label">Method</div>
+            <div class="value">Signature + Heuristic</div>
+          </div>
+          <div class="info-item">
+            <div class="label">Privacy</div>
+            <div class="value" style="color:var(--accent);">100% Offline</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-title" style="margin-bottom:16px;">&#x1F6E1; Privacy Guarantee</div>
+        <ul class="steps">
+          <li>No file content is stored after analysis — analyzed in memory only</li>
+          <li>No logging of file paths or system data to disk</li>
+          <li>Zero external network requests from the analysis engine</li>
+          <li>VirusTotal lookup opens in your browser — no API key, no data sent by this tool</li>
+          <li>All deletion and process kill actions require explicit confirmation</li>
+        </ul>
+      </div>
+
+      <div class="card">
+        <div class="card-title" style="margin-bottom:16px;">&#x1F4A1; How It Works</div>
+        <ul class="steps">
+          <li><strong style="color:var(--accent);">File Analysis:</strong> Computes hashes, checks signatures, calculates entropy, scans for suspicious strings, detects macros, analyzes scripts</li>
+          <li><strong style="color:var(--accent);">System Scan:</strong> Inspects running processes, startup entries, persistence paths, network connections, and recently modified files</li>
+          <li><strong style="color:var(--accent);">Risk Scoring:</strong> Each finding is scored, then aggregated into an overall 0&ndash;100 risk score</li>
+          <li><strong style="color:var(--accent);">Actionable Results:</strong> Every finding has clear next steps — delete, kill, disable, or investigate further</li>
+        </ul>
+      </div>
+    </div>
+
+  </main>
+</div>
+
+<div class="toast-container" id="toast-container"></div>
+<div class="modal-overlay" id="modal">
+  <div class="modal">
+    <div class="modal-title" id="modal-title">Confirm Action</div>
+    <div class="modal-body" id="modal-body">Are you sure?</div>
+    <div class="modal-actions">
+      <button class="btn btn-sm" id="modal-cancel">Cancel</button>
+      <button class="btn btn-sm btn-danger" id="modal-confirm">Confirm</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// ── Tabs ──
+document.querySelectorAll('.sidebar-link').forEach(link => {
+  link.addEventListener('click', () => {
+    document.querySelectorAll('.sidebar-link').forEach(l => l.classList.remove('active'));
+    document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
+    link.classList.add('active');
+    document.getElementById('tab-' + link.dataset.tab).classList.add('active');
+  });
+});
+
+// ── Toast ──
+function toast(message, type = 'info') {
+  const container = document.getElementById('toast-container');
+  const el = document.createElement('div');
+  el.className = 'toast ' + type;
+  el.textContent = message;
+  container.appendChild(el);
+  setTimeout(() => { el.style.opacity = '0'; el.style.transition = 'opacity 0.3s'; setTimeout(() => el.remove(), 300); }, 3500);
+}
+
+// ── Modal ──
+let modalResolve = null;
+function showModal(title, body) {
+  return new Promise((resolve) => {
+    document.getElementById('modal-title').textContent = title;
+    document.getElementById('modal-body').textContent = body;
+    document.getElementById('modal').classList.add('open');
+    modalResolve = resolve;
+  });
+}
+document.getElementById('modal-cancel').addEventListener('click', () => {
+  document.getElementById('modal').classList.remove('open');
+  if (modalResolve) modalResolve(false);
+});
+document.getElementById('modal-confirm').addEventListener('click', () => {
+  document.getElementById('modal').classList.remove('open');
+  if (modalResolve) modalResolve(true);
+});
+document.getElementById('modal').addEventListener('click', (e) => {
+  if (e.target === e.currentTarget) {
+    document.getElementById('modal').classList.remove('open');
+    if (modalResolve) modalResolve(false);
+  }
+});
+
+// ── Dropzone ──
+const dropzone = document.getElementById('dropzone');
+const fileInput = document.getElementById('file-input');
+dropzone.addEventListener('click', () => fileInput.click());
+dropzone.addEventListener('dragover', (e) => { e.preventDefault(); dropzone.classList.add('drag-over'); });
+dropzone.addEventListener('dragleave', () => dropzone.classList.remove('drag-over'));
+dropzone.addEventListener('drop', (e) => {
+  e.preventDefault(); dropzone.classList.remove('drag-over');
+  if (e.dataTransfer.files.length) handleFile(e.dataTransfer.files[0]);
+});
+fileInput.addEventListener('change', () => { if (fileInput.files.length) handleFile(fileInput.files[0]); });
+
+async function handleFile(file) {
+  const formData = new FormData();
+  formData.append('file', file);
+  document.getElementById('file-result').style.display = 'none';
+  toast('Analyzing ' + file.name + '...', 'info');
+  try {
+    const res = await fetch('/api/analyze-file', { method: 'POST', body: formData });
+    const data = await res.json();
+    if (data.error) { toast('Error: ' + data.error, 'error'); return; }
+    displayFileResult(data);
+  } catch (e) {
+    toast('Request failed: ' + e.message, 'error');
+  }
+}
+
+function displayFileResult(data) {
+  const result = document.getElementById('file-result');
+  result.style.display = 'block';
+
+  const badge = document.getElementById('file-risk-badge');
+  badge.className = 'risk-badge ' + data.risk_label;
+  badge.textContent = data.risk_label + ' (' + data.risk_score + '/100)';
+
+  const grid = document.getElementById('file-info-grid');
+  grid.innerHTML = '';
+  const items = [
+    ['File', data.filename],
+    ['Size', (data.size / 1024).toFixed(1) + ' KB'],
+    ['MD5', data.md5],
+    ['SHA256', data.sha256.substring(0, 64)],
+    ['Entropy', data.entropy],
+  ];
+  items.forEach(([label, value]) => {
+    const div = document.createElement('div'); div.className = 'info-item';
+    div.innerHTML = '<div class="label">' + label + '</div><div class="value" style="word-break:break-all;font-size:0.75rem;">' + value + '</div>';
+    grid.appendChild(div);
+  });
+
+  const container = document.getElementById('file-findings');
+  const empty = document.getElementById('file-findings-empty');
+  container.innerHTML = '';
+  if (!data.findings || data.findings.length === 0) {
+    empty.style.display = 'block';
+    return;
+  }
+  empty.style.display = 'none';
+  data.findings.forEach((f, i) => {
+    const row = document.createElement('div');
+    row.style.cssText = 'border:1px solid var(--border);border-radius:var(--radius-sm);margin-bottom:8px;overflow:hidden;';
+    const badgeColor = f.risk === 'threat' ? 'var(--danger)' : f.risk === 'suspicious' ? 'var(--warning)' : 'var(--accent)';
+    const badgeClass = 'risk-badge ' + f.risk;
+    row.innerHTML = `
+      <div class="expand-toggle" data-index="${i}" style="display:flex;align-items:center;justify-content:space-between;padding:12px 14px;cursor:pointer;">
+        <div style="display:flex;align-items:center;gap:10px;">
+          <span style="color:${badgeColor};">${f.risk === 'threat' ? '&#9888;' : f.risk === 'suspicious' ? '&#9888;' : '&#9432;'}</span>
+          <span style="font-family:'JetBrains Mono',monospace;font-size:0.8rem;">${f.type}</span>
+        </div>
+        <span class="${badgeClass}">${f.risk}</span>
+      </div>
+      <div class="expand-detail" id="fd-${i}">
+        ${escapeHtml(f.detail)}
+        <div class="actions-row">
+          ${f.action === 'delete' ? '<button class="btn btn-sm btn-danger" onclick="deleteFilePath(\'' + escapeHtml(f.detail) + '\')">&#x1F5D1; Delete</button>' : ''}
+          ${f.action === 'check_vt' ? '<button class="btn btn-sm btn-warning" onclick="openVT(\'' + data.md5 + '\')">&#x1F310; VirusTotal</button>' : ''}
+        </div>
+      </div>
+    `;
+    row.querySelector('.expand-toggle').addEventListener('click', () => {
+      const detail = document.getElementById('fd-' + i);
+      detail.classList.toggle('open');
+    });
+    container.appendChild(row);
+  });
+
+  toast('Analysis complete — ' + data.findings.length + ' finding(s)', data.risk_label === 'threat' ? 'error' : data.risk_label === 'suspicious' ? 'info' : 'success');
+  addHistory('file', data);
+}
+
+// ── System Scan ──
+document.getElementById('start-system-scan').addEventListener('click', async () => {
+  const btn = document.getElementById('start-system-scan');
+  btn.disabled = true; btn.innerHTML = '&#x23F3; Scanning...';
+  const prog = document.getElementById('scan-progress');
+  const fill = document.getElementById('scan-progress-fill');
+  prog.style.display = 'block'; fill.style.width = '0%';
+
+  const radar = document.getElementById('radar');
+  radar.style.animation = 'none';
+  void radar.offsetHeight;
+  radar.style.animation = '';
+
+  let progress = 0;
+  const interval = setInterval(() => {
+    progress = Math.min(progress + 5, 85);
+    fill.style.width = progress + '%';
+  }, 400);
+
+  try {
+    const res = await fetch('/api/scan-system', { method: 'POST' });
+    const data = await res.json();
+    clearInterval(interval);
+    fill.style.width = '100%';
+    setTimeout(() => { prog.style.display = 'none'; }, 600);
+    if (data.error) { toast('Error: ' + data.error, 'error'); return; }
+    displaySystemResult(data);
+  } catch (e) {
+    clearInterval(interval);
+    prog.style.display = 'none';
+    toast('Scan failed: ' + e.message, 'error');
+  } finally {
+    btn.disabled = false; btn.innerHTML = '&#x25B6; Start System Scan';
+  }
+});
+
+function displaySystemResult(data) {
+  const result = document.getElementById('system-result');
+  result.style.display = 'block';
+
+  const badge = document.getElementById('sys-risk-badge');
+  badge.className = 'risk-badge ' + data.risk_label;
+  badge.textContent = data.risk_label + ' (' + data.risk_score + '/100)';
+
+  const gaugeCircle = document.getElementById('gauge-circle');
+  const gaugeText = document.getElementById('gauge-text');
+  const circumference = 2 * Math.PI * 68;
+  const offset = circumference - (data.risk_score / 100) * circumference;
+  gaugeCircle.style.strokeDasharray = circumference;
+  gaugeCircle.style.strokeDashoffset = offset;
+  const color = data.risk_score >= 70 ? '#ff3355' : data.risk_score >= 30 ? '#ffaa00' : '#00ff88';
+  gaugeCircle.style.stroke = color;
+  gaugeText.textContent = data.risk_score;
+  gaugeText.style.fill = color;
+
+  const container = document.getElementById('sys-findings');
+  const empty = document.getElementById('sys-findings-empty');
+  container.innerHTML = '';
+  if (!data.findings || data.findings.length === 0) {
+    empty.style.display = 'block';
+    return;
+  }
+  empty.style.display = 'none';
+  data.findings.forEach((f, i) => {
+    const row = document.createElement('div');
+    row.style.cssText = 'border:1px solid var(--border);border-radius:var(--radius-sm);margin-bottom:8px;overflow:hidden;';
+    const badgeClass = 'risk-badge ' + f.risk;
+    const color = f.risk === 'threat' ? 'var(--danger)' : f.risk === 'suspicious' ? 'var(--warning)' : 'var(--accent)';
+    let actionsHtml = '';
+    if (f.action === 'kill_process') {
+      actionsHtml += `<button class="btn btn-sm btn-danger" onclick="killProcess(${f.pid})">&#x26D4; Kill Process</button>`;
+    } else if (f.action === 'delete') {
+      actionsHtml += `<button class="btn btn-sm btn-danger" onclick="deleteFilePath('${escapeJs(f.detail)}')">&#x1F5D1; Delete</button>`;
+    } else if (f.action === 'manual_review') {
+      actionsHtml += `<span style="font-size:0.75rem;color:var(--text-muted);">&#x1F50D; Manual review recommended</span>`;
+    }
+    row.innerHTML = `
+      <div class="expand-toggle" data-sysidx="${i}" style="display:flex;align-items:center;justify-content:space-between;padding:12px 14px;cursor:pointer;">
+        <div style="display:flex;align-items:center;gap:10px;">
+          <span style="color:${color};">${f.risk === 'threat' || f.risk === 'suspicious' ? '&#9888;' : '&#9432;'}</span>
+          <span style="font-family:'JetBrains Mono',monospace;font-size:0.8rem;">${escapeHtml(f.type)}</span>
+        </div>
+        <span class="${badgeClass}">${f.risk}</span>
+      </div>
+      <div class="expand-detail" id="sd-${i}">
+        ${escapeHtml(f.detail)}
+        <div class="actions-row">${actionsHtml}</div>
+      </div>
+    `;
+    row.querySelector('.expand-toggle').addEventListener('click', () => {
+      document.getElementById('sd-' + i).classList.toggle('open');
+    });
+    container.appendChild(row);
+  });
+
+  toast('System scan complete — ' + data.findings.length + ' finding(s)', data.risk_label === 'threat' ? 'error' : data.risk_label === 'suspicious' ? 'info' : 'success');
+  addHistory('system', data);
+}
+
+// ── Actions ──
+async function killProcess(pid) {
+  const ok = await showModal('Confirm: Terminate Process', 'Are you sure you want to kill process PID ' + pid + '?');
+  if (!ok) return;
+  try {
+    const res = await fetch('/api/kill-process', { method: 'POST', headers: {'Content-Type':'application/json'}, body: JSON.stringify({pid}) });
+    const data = await res.json();
+    if (data.success) toast(data.message, 'success'); else toast('Error: ' + data.error, 'error');
+  } catch (e) { toast('Failed: ' + e.message, 'error'); }
+}
+
+async function deleteFilePath(path) {
+  const ok = await showModal('Confirm: Delete File', 'Are you sure you want to delete this file?\n' + path);
+  if (!ok) return;
+  try {
+    const res = await fetch('/api/delete-file', { method: 'POST', headers: {'Content-Type':'application/json'}, body: JSON.stringify({path: extractPath(path)}) });
+    const data = await res.json();
+    if (data.success) toast(data.message, 'success'); else toast('Error: ' + data.error, 'error');
+  } catch (e) { toast('Failed: ' + e.message, 'error'); }
+}
+
+function extractPath(str) {
+  const m = str.match(/[A-Z]:\\(?:[^\\\n]+\\)*[^\\\n]+/i);
+  return m ? m[0] : str;
+}
+
+function openVT(hash) {
+  window.open('https://www.virustotal.com/gui/file/' + hash, '_blank');
+  toast('Opening VirusTotal in new tab', 'info');
+}
+
+// ── History ──
+let scanHistory = [];
+
+function addHistory(type, data) {
+  scanHistory.unshift({ type, data, time: new Date().toLocaleTimeString() });
+  renderHistory();
+}
+
+function renderHistory() {
+  const list = document.getElementById('history-list');
+  const empty = document.getElementById('history-empty');
+  const clearBtn = document.getElementById('clear-history');
+  if (scanHistory.length === 0) {
+    empty.style.display = 'block';
+    list.innerHTML = '';
+    clearBtn.style.display = 'none';
+    return;
+  }
+  empty.style.display = 'none';
+  clearBtn.style.display = 'inline-flex';
+  list.innerHTML = scanHistory.map((h, i) => {
+    const label = h.type === 'file' ? 'File Scan: ' + h.data.filename : 'System Scan';
+    const badgeClass = 'risk-badge ' + h.data.risk_label;
+    return `<div style="display:flex;align-items:center;justify-content:space-between;padding:10px 14px;border:1px solid var(--border);border-radius:var(--radius-sm);margin-bottom:6px;">
+      <div>
+        <span style="font-family:'JetBrains Mono',monospace;font-size:0.8rem;">${label}</span>
+        <span style="font-size:0.75rem;color:var(--text-muted);margin-left:10px;">${h.time}</span>
+      </div>
+      <span class="${badgeClass}">${h.data.risk_label} (${h.data.risk_score})</span>
+    </div>`;
+  }).join('');
+}
+
+document.getElementById('clear-history').addEventListener('click', () => {
+  scanHistory = []; renderHistory();
+  toast('History cleared', 'info');
+});
+
+// ── Helpers ──
+function escapeHtml(str) {
+  if (!str) return '';
+  const div = document.createElement('div');
+  div.textContent = str;
+  return div.innerHTML;
+}
+function escapeJs(str) {
+  if (!str) return '';
+  return str.replace(/\\/g, '\\\\').replace(/'/g, "\\'").replace(/"/g, '\\"').replace(/\n/g, '\\n');
+}
+</script>
+</body>
+</html>
