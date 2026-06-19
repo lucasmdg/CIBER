@@ -3,891 +3,525 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>SENTINEL — Local Malware Analyzer</title>
+<title>SENTINEL - Local Malware Analyzer</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500;600;700&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500;600;700&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
 <style>
-*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-:root {
-  --bg: #0a0a0f;
-  --surface: #111118;
-  --surface-hover: #1a1a24;
-  --border: #1e1e2e;
-  --accent: #00ff88;
-  --accent-dim: rgba(0,255,136,0.15);
-  --danger: #ff3355;
-  --danger-dim: rgba(255,51,85,0.15);
-  --warning: #ffaa00;
-  --warning-dim: rgba(255,170,0,0.15);
-  --text: #e8e8f0;
-  --text-muted: #666688;
-  --text-dim: #444466;
-  --radius: 10px;
-  --radius-sm: 6px;
-  --shadow: 0 4px 24px rgba(0,0,0,0.4);
-  --transition: 200ms ease;
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+--bg:#09090e;
+--surface:#0f0f16;
+--surface2:#14141e;
+--border:#1c1c2a;
+--green:#00ff88;
+--green-dim:rgba(0,255,136,0.08);
+--red:#ff3355;
+--red-dim:rgba(255,51,85,0.1);
+--amber:#ffaa00;
+--amber-dim:rgba(255,170,0,0.1);
+--text:#d0d0dc;
+--text-dim:#555570;
+--text-dark:#33334a;
+--radius:6px;
+--transition:150ms ease;
 }
-html { font-size: 14px; scroll-behavior: smooth; }
-body {
-  font-family: 'Inter', system-ui, sans-serif;
-  background: var(--bg);
-  color: var(--text);
-  min-height: 100vh;
-  overflow-x: hidden;
+html{font-size:13px}
+body{
+font-family:'Inter',system-ui,sans-serif;
+background:var(--bg);
+color:var(--text);
+min-height:100vh;overflow-x:hidden;
+-webkit-font-smoothing:antialiased;
 }
-::-webkit-scrollbar { width: 6px; }
-::-webkit-scrollbar-track { background: var(--bg); }
-::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
-::-webkit-scrollbar-thumb:hover { background: var(--text-dim); }
+code,.mono{font-family:'JetBrains Mono',monospace}
+::-webkit-scrollbar{width:5px}
+::-webkit-scrollbar-track{background:var(--bg)}
+::-webkit-scrollbar-thumb{background:var(--border);border-radius:2px}
 
-/* ── Navbar ── */
-.navbar {
-  position: fixed; top: 0; left: 0; right: 0;
-  height: 56px; z-index: 100;
-  background: rgba(10,10,15,0.92);
-  backdrop-filter: blur(12px);
-  border-bottom: 1px solid var(--border);
-  display: flex; align-items: center; justify-content: space-between;
-  padding: 0 24px;
+/* navbar */
+.navbar{
+position:fixed;top:0;left:0;right:0;height:48px;z-index:100;
+background:rgba(9,9,14,.95);border-bottom:1px solid var(--border);
+display:flex;align-items:center;justify-content:space-between;padding:0 20px;
 }
-.navbar-brand {
-  display: flex; align-items: center; gap: 12px;
-  font-family: 'JetBrains Mono', monospace;
-  font-weight: 700; font-size: 1.3rem;
-  letter-spacing: 2px;
-  color: var(--accent);
-  text-transform: uppercase;
+.navbar-brand{
+font-family:'JetBrains Mono',monospace;
+font-weight:700;font-size:1.1rem;letter-spacing:3px;
+color:var(--green);text-transform:uppercase;
+display:flex;align-items:center;gap:10px;
 }
-.status-dot {
-  width: 10px; height: 10px; border-radius: 50%;
-  background: var(--accent);
-  animation: pulse-dot 2s ease-in-out infinite;
-  box-shadow: 0 0 8px var(--accent);
+.dot{
+width:7px;height:7px;border-radius:50%;background:var(--green);
+animation:pulse 2s ease-in-out infinite;
+box-shadow:0 0 6px var(--green);
 }
-@keyframes pulse-dot {
-  0%, 100% { opacity: 1; transform: scale(1); }
-  50% { opacity: 0.6; transform: scale(0.8); }
-}
-.navbar-right {
-  display: flex; align-items: center; gap: 16px;
-  font-size: 0.85rem; color: var(--text-muted);
-}
-.disclaimer-tag {
-  background: var(--accent-dim);
-  color: var(--accent);
-  padding: 4px 12px; border-radius: 20px;
-  font-family: 'JetBrains Mono', monospace;
-  font-size: 0.7rem;
-  border: 1px solid rgba(0,255,136,0.2);
-}
+@keyframes pulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.5;transform:scale(.8)}}
+.nav-right{display:flex;align-items:center;gap:12px;font-size:.75rem;color:var(--text-dim)}
+.nav-tag{background:var(--green-dim);color:var(--green);padding:2px 10px;border-radius:2px;border:1px solid rgba(0,255,136,.15);font-size:.65rem;font-family:'JetBrains Mono',monospace}
 
-/* ── Layout ── */
-.layout { display: flex; padding-top: 56px; min-height: 100vh; }
-.sidebar {
-  width: 220px; min-height: calc(100vh - 56px);
-  background: var(--surface);
-  border-right: 1px solid var(--border);
-  padding: 16px 0; flex-shrink: 0;
+/* layout */
+.layout{display:flex;padding-top:48px;min-height:100vh}
+.sidebar{width:200px;background:var(--surface);border-right:1px solid var(--border);padding:12px 0;flex-shrink:0}
+.sidebar a{
+display:flex;align-items:center;gap:8px;padding:10px 16px;cursor:pointer;
+color:var(--text-dim);text-decoration:none;border-left:2px solid transparent;
+font-size:.8rem;font-family:'JetBrains Mono',monospace;transition:var(--transition)
 }
-.sidebar-link {
-  display: flex; align-items: center; gap: 10px;
-  padding: 12px 20px; cursor: pointer;
-  color: var(--text-muted); text-decoration: none;
-  border-left: 3px solid transparent;
-  transition: var(--transition);
-  font-size: 0.9rem;
-}
-.sidebar-link:hover { color: var(--text); background: var(--surface-hover); }
-.sidebar-link.active {
-  color: var(--accent); border-left-color: var(--accent);
-  background: var(--accent-dim);
-}
-.sidebar-link .icon { font-size: 1.1rem; }
-.main {
-  flex: 1; padding: 24px 32px;
-  overflow-y: auto; max-height: calc(100vh - 56px);
-}
+.sidebar a:hover{color:var(--text);background:var(--surface2)}
+.sidebar a.active{color:var(--green);border-left-color:var(--green);background:var(--green-dim)}
+.main{flex:1;padding:20px 28px;overflow-y:auto;max-height:calc(100vh - 48px)}
 
-/* ── Cards ── */
-.card {
-  background: var(--surface); border: 1px solid var(--border);
-  border-radius: var(--radius); padding: 24px;
-  margin-bottom: 20px;
-  transition: var(--transition);
-}
-.card:hover { border-color: rgba(30,30,46,0.8); }
-.card-header {
-  display: flex; align-items: center; justify-content: space-between;
-  margin-bottom: 16px;
-}
-.card-title {
-  font-family: 'JetBrains Mono', monospace;
-  font-weight: 600; font-size: 1rem;
-  color: var(--text);
-}
+/* cards */
+.card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:20px;margin-bottom:16px}
+.card-hd{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px}
+.card-ttl{font-family:'JetBrains Mono',monospace;font-weight:600;font-size:.85rem;color:var(--text);text-transform:uppercase;letter-spacing:.5px}
 
-/* ── Dropzone ── */
-.dropzone {
-  border: 2px dashed var(--border);
-  border-radius: var(--radius);
-  padding: 60px 20px; text-align: center;
-  cursor: pointer; transition: var(--transition);
-  background: rgba(17,17,24,0.5);
+/* dropzone */
+.dz{
+border:1px dashed var(--border);border-radius:var(--radius);
+padding:50px 20px;text-align:center;cursor:pointer;
+background:rgba(15,15,22,.6);transition:var(--transition);
 }
-.dropzone:hover, .dropzone.drag-over {
-  border-color: var(--accent);
-  background: var(--accent-dim);
-  box-shadow: 0 0 40px rgba(0,255,136,0.08);
-}
-.dropzone-icon { font-size: 3rem; margin-bottom: 12px; }
-.dropzone-text { color: var(--text-muted); font-size: 0.95rem; }
-.dropzone-text strong { color: var(--accent); }
-.dropzone-hint { color: var(--text-dim); font-size: 0.8rem; margin-top: 8px; }
+.dz:hover,.dz.drag{border-color:var(--green);background:var(--green-dim);box-shadow:0 0 30px rgba(0,255,136,.05)}
+.dz-icon{font-size:.7rem;color:var(--text-dim);margin-bottom:8px;font-family:'JetBrains Mono',monospace}
+.dz-text{color:var(--text-dim);font-size:.85rem}
+.dz-text strong{color:var(--green);font-weight:500}
+.dz-hint{color:var(--text-dark);font-size:.7rem;margin-top:6px}
 
-/* ── Buttons ── */
-.btn {
-  display: inline-flex; align-items: center; gap: 6px;
-  padding: 8px 16px; border-radius: var(--radius-sm);
-  border: 1px solid var(--border);
-  font-family: 'JetBrains Mono', monospace;
-  font-size: 0.8rem; font-weight: 500;
-  cursor: pointer; transition: var(--transition);
-  background: var(--surface); color: var(--text);
+/* buttons */
+.btn{
+display:inline-flex;align-items:center;gap:4px;padding:6px 14px;border-radius:2px;
+border:1px solid var(--border);font-family:'JetBrains Mono',monospace;
+font-size:.75rem;cursor:pointer;transition:var(--transition);
+background:var(--surface);color:var(--text);text-transform:uppercase;letter-spacing:.3px
 }
-.btn:hover { background: var(--surface-hover); }
-.btn-primary { background: var(--accent-dim); color: var(--accent); border-color: var(--accent); }
-.btn-primary:hover { background: rgba(0,255,136,0.25); }
-.btn-danger { background: var(--danger-dim); color: var(--danger); border-color: var(--danger); }
-.btn-danger:hover { background: rgba(255,51,85,0.25); }
-.btn-warning { background: var(--warning-dim); color: var(--warning); border-color: var(--warning); }
-.btn-warning:hover { background: rgba(255,170,0,0.25); }
-.btn-sm { padding: 4px 10px; font-size: 0.75rem; }
-.btn-lg { padding: 12px 24px; font-size: 0.9rem; }
+.btn:hover{background:var(--surface2)}
+.btn-primary{background:var(--green-dim);color:var(--green);border-color:rgba(0,255,136,.25)}
+.btn-primary:hover{background:rgba(0,255,136,.15)}
+.btn-danger{background:var(--red-dim);color:var(--red);border-color:rgba(255,51,85,.25)}
+.btn-danger:hover{background:rgba(255,51,85,.15)}
+.btn-warning{background:var(--amber-dim);color:var(--amber);border-color:rgba(255,170,0,.25)}
+.btn-sm{padding:3px 10px;font-size:.7rem}
+.btn-lg{padding:10px 24px;font-size:.8rem}
 
-/* ── Tables ── */
-.table-wrap { overflow-x: auto; }
-table { width: 100%; border-collapse: collapse; }
-th { text-align: left; padding: 10px 12px;
-  font-family: 'JetBrains Mono', monospace;
-  font-size: 0.75rem; font-weight: 600;
-  color: var(--text-muted); text-transform: uppercase;
-  letter-spacing: 0.5px;
-  border-bottom: 1px solid var(--border);
-}
-td { padding: 10px 12px; border-bottom: 1px solid rgba(30,30,46,0.5);
-  font-size: 0.85rem; vertical-align: middle; }
-tr:hover td { background: var(--surface-hover); }
-tr.row-threat { border-left: 3px solid var(--danger); }
-tr.row-suspicious { border-left: 3px solid var(--warning); }
-tr.row-warning { border-left: 3px solid var(--warning); }
-tr.row-clean { border-left: 3px solid var(--accent); }
+/* badge */
+.bdg{display:inline-flex;padding:1px 8px;border-radius:2px;font-family:'JetBrains Mono',monospace;font-size:.65rem;font-weight:600;text-transform:uppercase}
+.bdg.clean{background:var(--green-dim);color:var(--green);border:1px solid rgba(0,255,136,.2)}
+.bdg.warning{background:var(--amber-dim);color:var(--amber);border:1px solid rgba(255,170,0,.2)}
+.bdg.suspicious{background:var(--amber-dim);color:var(--amber);border:1px solid rgba(255,170,0,.2)}
+.bdg.threat{background:var(--red-dim);color:var(--red);border:1px solid rgba(255,51,85,.2)}
 
-/* ── Risk Badge ── */
-.risk-badge {
-  display: inline-flex; align-items: center; gap: 4px;
-  padding: 2px 10px; border-radius: 20px;
-  font-family: 'JetBrains Mono', monospace;
-  font-size: 0.7rem; font-weight: 600;
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
-}
-.risk-badge.clean { background: var(--accent-dim); color: var(--accent); border: 1px solid rgba(0,255,136,0.3); }
-.risk-badge.suspicious { background: var(--warning-dim); color: var(--warning); border: 1px solid rgba(255,170,0,0.3); }
-.risk-badge.threat { background: var(--danger-dim); color: var(--danger); border: 1px solid rgba(255,51,85,0.3); }
-.risk-badge.warning { background: var(--warning-dim); color: var(--warning); border: 1px solid rgba(255,170,0,0.3); }
+/* gauge */
+.gauge-wrap{display:flex;flex-direction:column;align-items:center;gap:8px}
+.gauge-svg{width:140px;height:140px}
+.gauge-val{font-family:'JetBrains Mono',monospace;font-weight:700;font-size:1.8rem}
+.gauge-lbl{font-size:.75rem;color:var(--text-dim);text-transform:uppercase;letter-spacing:1px}
 
-/* ── Risk Gauge ── */
-.gauge-wrap { display: flex; flex-direction: column; align-items: center; gap: 12px; }
-.gauge-svg { width: 160px; height: 160px; }
-.gauge-value {
-  font-family: 'JetBrains Mono', monospace;
-  font-weight: 700; font-size: 2.2rem;
-}
-.gauge-label { font-size: 0.85rem; color: var(--text-muted); }
+/* radar */
+.radar{width:100px;height:100px;position:relative}
+.radar svg{width:100%;height:100%}
+.sweep{animation:spin 3s linear infinite;transform-origin:50px 50px}
+@keyframes spin{from{transform:rotate(0)}to{transform:rotate(360deg)}}
+.rblink{animation:blink 1.5s ease-in-out infinite}
+@keyframes blink{0%,100%{opacity:.3}50%{opacity:1}}
 
-/* ── Radar ── */
-.radar-wrap {
-  position: relative; width: 120px; height: 120px;
-}
-.radar-svg { width: 100%; height: 100%; }
-.radar-sweep {
-  animation: radar-spin 3s linear infinite;
-  transform-origin: 60px 60px;
-}
-@keyframes radar-spin {
-  from { transform: rotate(0deg); }
-  to { transform: rotate(360deg); }
-}
-.radar-dot {
-  animation: radar-blink 1.5s ease-in-out infinite;
-}
-@keyframes radar-blink {
-  0%, 100% { opacity: 0.3; }
-  50% { opacity: 1; }
-}
+/* progress */
+.progress{height:4px;background:var(--border);border-radius:2px;overflow:hidden;margin:10px 0}
+.progress-fill{height:100%;background:linear-gradient(90deg,var(--green),#00cc6a);transition:width .4s}
+.progress-fill::after{content:'';position:absolute;top:0;left:0;right:0;bottom:0;background:linear-gradient(90deg,transparent,rgba(255,255,255,.08),transparent);animation:shimmer 1.5s infinite}
+@keyframes shimmer{0%{transform:translateX(-100%)}100%{transform:translateX(100%)}}
 
-/* ── Progress ── */
-.progress-bar {
-  height: 6px; background: var(--border); border-radius: 3px;
-  overflow: hidden; margin: 12px 0;
-}
-.progress-fill {
-  height: 100%; border-radius: 3px;
-  background: linear-gradient(90deg, var(--accent), #00cc6a);
-  transition: width 0.5s ease;
-  position: relative;
-}
-.progress-fill::after {
-  content: ''; position: absolute; top: 0; left: 0; right: 0; bottom: 0;
-  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.15), transparent);
-  animation: shimmer 1.5s infinite;
-}
-@keyframes shimmer {
-  0% { transform: translateX(-100%); }
-  100% { transform: translateX(100%); }
-}
+/* findings list */
+.f-item{border:1px solid var(--border);border-radius:2px;margin-bottom:6px;overflow:hidden}
+.f-hd{display:flex;align-items:center;justify-content:space-between;padding:10px 14px;cursor:pointer;transition:var(--transition)}
+.f-hd:hover{background:var(--surface2)}
+.f-hd .left{display:flex;align-items:center;gap:8px}
+.f-hd .left .mark{font-family:'JetBrains Mono',monospace;font-size:.7rem}
+.f-detail{display:none;padding:12px 14px;background:rgba(0,0,0,.3);font-family:'JetBrains Mono',monospace;font-size:.7rem;color:var(--text-dim);white-space:pre-wrap;line-height:1.6;border-top:1px solid var(--border)}
+.f-detail.open{display:block}
+.f-actions{display:flex;gap:6px;flex-wrap:wrap;margin-top:8px}
 
-/* ── Expandable rows ── */
-.expand-toggle { cursor: pointer; user-select: none; }
-.expand-detail {
-  display: none; padding: 12px; margin: 8px 0;
-  background: rgba(0,0,0,0.3); border-radius: var(--radius-sm);
-  font-family: 'JetBrains Mono', monospace;
-  font-size: 0.75rem; color: var(--text-muted);
-  white-space: pre-wrap; line-height: 1.6;
-}
-.expand-detail.open { display: block; }
-.actions-row { display: flex; gap: 6px; flex-wrap: wrap; margin-top: 8px; }
+/* info grid */
+.info-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:10px}
+.info-box{background:rgba(0,0,0,.2);padding:12px;border-radius:2px;border:1px solid var(--border)}
+.info-box .lbl{font-size:.65rem;color:var(--text-dim);text-transform:uppercase;letter-spacing:.5px;margin-bottom:3px}
+.info-box .val{font-family:'JetBrains Mono',monospace;font-size:.8rem;color:var(--text);word-break:break-all}
 
-/* ── Toast ── */
-.toast-container {
-  position: fixed; bottom: 24px; right: 24px;
-  z-index: 9999; display: flex; flex-direction: column; gap: 8px;
-}
-.toast {
-  padding: 12px 20px; border-radius: var(--radius-sm);
-  font-family: 'JetBrains Mono', monospace;
-  font-size: 0.8rem;
-  background: var(--surface); border: 1px solid var(--border);
-  color: var(--text);
-  box-shadow: var(--shadow);
-  animation: toast-in 0.3s ease;
-  display: flex; align-items: center; gap: 10px;
-  min-width: 280px;
-}
-.toast.success { border-color: var(--accent); }
-.toast.error { border-color: var(--danger); }
-.toast.info { border-color: var(--warning); }
-@keyframes toast-in {
-  from { transform: translateX(100%); opacity: 0; }
-  to { transform: translateX(0); opacity: 1; }
-}
+/* banner */
+.banner{background:var(--green-dim);border:1px solid rgba(0,255,136,.12);border-radius:2px;padding:10px 16px;margin-bottom:16px;font-size:.75rem;color:var(--green);font-family:'JetBrains Mono',monospace}
 
-/* ── Modal ── */
-.modal-overlay {
-  position: fixed; inset: 0; z-index: 5000;
-  background: rgba(0,0,0,0.7);
-  display: flex; align-items: center; justify-content: center;
-  opacity: 0; pointer-events: none; transition: opacity 0.2s;
-}
-.modal-overlay.open { opacity: 1; pointer-events: auto; }
-.modal {
-  background: var(--surface); border: 1px solid var(--border);
-  border-radius: var(--radius); padding: 28px;
-  max-width: 480px; width: 90%;
-  box-shadow: 0 20px 60px rgba(0,0,0,0.6);
-}
-.modal-title { font-family: 'JetBrains Mono', monospace; font-weight: 600; margin-bottom: 12px; }
-.modal-body { color: var(--text-muted); font-size: 0.9rem; line-height: 1.6; margin-bottom: 20px; }
-.modal-actions { display: flex; gap: 10px; justify-content: flex-end; }
+/* tabs */
+.tab-pane{display:none}
+.tab-pane.active{display:block}
 
-/* ── Disclaimer banner ── */
-.disclaimer-banner {
-  background: linear-gradient(135deg, var(--accent-dim), transparent);
-  border: 1px solid rgba(0,255,136,0.2);
-  border-radius: var(--radius);
-  padding: 14px 20px; margin-bottom: 20px;
-  font-size: 0.85rem; color: var(--accent);
-  display: flex; align-items: center; gap: 12px;
-}
-.disclaimer-banner .shield { font-size: 1.3rem; }
+/* empty */
+.empty{text-align:center;padding:40px 20px;color:var(--text-dark);font-family:'JetBrains Mono',monospace;font-size:.8rem}
+.empty .big{font-size:1rem;margin-bottom:8px;color:var(--text-dim)}
 
-/* ── Info grid ── */
-.info-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px; }
-.info-item {
-  background: rgba(0,0,0,0.3); padding: 16px; border-radius: var(--radius-sm);
-}
-.info-item .label { font-size: 0.7rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 4px; }
-.info-item .value { font-family: 'JetBrains Mono', monospace; font-size: 0.95rem; color: var(--text); }
+/* toast */
+.toasts{position:fixed;bottom:16px;right:16px;z-index:9999;display:flex;flex-direction:column;gap:6px}
+.toast{padding:10px 16px;border-radius:2px;font-family:'JetBrains Mono',monospace;font-size:.75rem;background:var(--surface);border:1px solid var(--border);color:var(--text);box-shadow:0 4px 20px rgba(0,0,0,.5);animation:tin .25s ease;display:flex;align-items:center;gap:8px;min-width:240px}
+.toast.ok{border-color:var(--green)}
+.toast.err{border-color:var(--red)}
+.toast.info{border-color:var(--amber)}
+@keyframes tin{from{transform:translateX(80px);opacity:0}to{transform:translateX(0);opacity:1}}
 
-/* ── Empty state ── */
-.empty-state { text-align: center; padding: 60px 20px; }
-.empty-state .icon { font-size: 3rem; margin-bottom: 12px; opacity: 0.4; }
-.empty-state .msg { color: var(--text-muted); font-size: 0.95rem; }
+/* modal */
+.modal-bg{position:fixed;inset:0;z-index:5000;background:rgba(0,0,0,.75);display:flex;align-items:center;justify-content:center;opacity:0;pointer-events:none;transition:opacity .15s}
+.modal-bg.open{opacity:1;pointer-events:auto}
+.modal-box{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:24px;max-width:440px;width:90%;box-shadow:0 20px 60px rgba(0,0,0,.6)}
+.modal-ttl{font-family:'JetBrains Mono',monospace;font-weight:600;font-size:.9rem;margin-bottom:10px}
+.modal-body{color:var(--text-dim);font-size:.8rem;line-height:1.6;margin-bottom:18px;white-space:pre-wrap}
+.modal-acts{display:flex;gap:8px;justify-content:flex-end}
 
-/* ── Tab content ── */
-.tab-content { display: none; }
-.tab-content.active { display: block; }
+/* table */
+.table-wrap{overflow-x:auto}
+table{width:100%;border-collapse:collapse}
+th{text-align:left;padding:8px 10px;font-family:'JetBrains Mono',monospace;font-size:.65rem;font-weight:600;color:var(--text-dim);text-transform:uppercase;letter-spacing:.5px;border-bottom:1px solid var(--border)}
+td{padding:8px 10px;border-bottom:1px solid rgba(28,28,42,.5);font-size:.8rem}
+tr:hover td{background:var(--surface2)}
 
-/* ── Scan button ── */
-.scan-btn-wrap { text-align: center; margin: 20px 0; }
-
-/* ── Recipe / steps ── */
-.steps { list-style: none; padding: 0; }
-.steps li {
-  padding: 8px 0 8px 24px;
-  position: relative;
-  color: var(--text-muted);
-  font-size: 0.85rem;
-  line-height: 1.5;
-}
-.steps li::before {
-  content: '>';
-  position: absolute; left: 0;
-  color: var(--accent);
-  font-family: 'JetBrains Mono', monospace;
-}
-
-/* ── Responsive ── */
-@media (max-width: 1024px) {
-  .sidebar { width: 60px; }
-  .sidebar-link span:not(.icon) { display: none; }
-  .main { padding: 16px; }
-}
+/* history item */
+.h-item{display:flex;align-items:center;justify-content:space-between;padding:8px 12px;border:1px solid var(--border);border-radius:2px;margin-bottom:4px}
+.h-item .left{font-size:.75rem;font-family:'JetBrains Mono',monospace}
+.h-item .time{font-size:.65rem;color:var(--text-dark);margin-left:8px}
 </style>
 </head>
 <body>
 
 <div class="navbar">
-  <div class="navbar-brand">
-    <span class="status-dot"></span>
-    SENTINEL
-  </div>
-  <div class="navbar-right">
-    <span class="disclaimer-tag">&#x1F512; OFFLINE · NO DATA LEAVES</span>
+  <div class="navbar-brand"><span class="dot"></span>SENTINEL</div>
+  <div class="nav-right">
+    <span class="nav-tag">OFFLINE</span>
     <span>v1.0</span>
   </div>
 </div>
 
 <div class="layout">
   <nav class="sidebar">
-    <a class="sidebar-link active" data-tab="file-scan">
-      <span class="icon">&#x1F4C1;</span> <span>File Scan</span>
-    </a>
-    <a class="sidebar-link" data-tab="system-scan">
-      <span class="icon">&#x1F50D;</span> <span>System Scan</span>
-    </a>
-    <a class="sidebar-link" data-tab="results">
-      <span class="icon">&#x1F4CA;</span> <span>Results</span>
-    </a>
-    <a class="sidebar-link" data-tab="about">
-      <span class="icon">&#x2139;</span> <span>About</span>
-    </a>
+    <a class="active" data-tab="file-scan">[F] FILE SCAN</a>
+    <a data-tab="system-scan">[S] SYSTEM SCAN</a>
+    <a data-tab="results">[R] RESULTS</a>
+    <a data-tab="about">[I] ABOUT</a>
   </nav>
 
   <main class="main">
-
-    <!-- ── FILE SCAN ── -->
-    <div id="tab-file-scan" class="tab-content active">
-      <div class="disclaimer-banner">
-        <span class="shield">&#x1F6E1;</span>
-        This tool runs entirely offline. No file content is stored. No data leaves your computer.
-      </div>
-
+    <!-- FILE SCAN -->
+    <div id="tab-file-scan" class="tab-pane active">
+      <div class="banner">&gt; SENTINEL runs entirely offline. No data leaves your machine. All analysis is local.</div>
       <div class="card">
-        <div class="card-header">
-          <span class="card-title">&#x1F4C2; File Upload</span>
-          <span style="font-size:0.75rem;color:var(--text-muted);">Max 50MB</span>
-        </div>
-        <div class="dropzone" id="dropzone">
-          <div class="dropzone-icon">&#x1F4E5;</div>
-          <div class="dropzone-text">Drag &amp; drop a file here, or <strong>browse</strong></div>
-          <div class="dropzone-hint">Supports any file type · Analysis is 100% local</div>
+        <div class="card-hd"><span class="card-ttl">file upload</span><span style="font-size:.7rem;color:var(--text-dim)">max 50 MB</span></div>
+        <div class="dz" id="dropzone">
+          <div class="dz-icon">[ DROP FILE HERE ]</div>
+          <div class="dz-text">drag & drop or <strong>select file</strong></div>
+          <div class="dz-hint">any file type - local analysis only</div>
         </div>
         <input type="file" id="file-input" style="display:none">
       </div>
-
-      <div id="file-result" style="display:none;">
+      <div id="file-result" style="display:none">
         <div class="card">
-          <div class="card-header">
-            <span class="card-title">&#x1F50D; Analysis Results</span>
-            <span id="file-risk-badge" class="risk-badge"></span>
-          </div>
-          <div class="info-grid" id="file-info-grid"></div>
+          <div class="card-hd"><span class="card-ttl">analysis results</span><span id="file-badge" class="bdg"></span></div>
+          <div class="info-grid" id="file-grid"></div>
         </div>
         <div class="card">
-          <div class="card-title" style="margin-bottom:12px;">&#x26A0; Findings</div>
+          <div class="card-ttl" style="margin-bottom:10px">findings</div>
           <div id="file-findings"></div>
-          <div id="file-findings-empty" class="empty-state" style="display:none;">
-            <div class="icon">&#x2705;</div>
-            <div class="msg">No suspicious findings detected.</div>
-          </div>
+          <div id="file-empty" class="empty" style="display:none"><div class="big">[ CLEAN ]</div><div>no suspicious indicators detected</div></div>
         </div>
       </div>
     </div>
 
-    <!-- ── SYSTEM SCAN ── -->
-    <div id="tab-system-scan" class="tab-content">
+    <!-- SYSTEM SCAN -->
+    <div id="tab-system-scan" class="tab-pane">
       <div class="card">
-        <div class="card-header">
-          <span class="card-title">&#x1F50D; System Scan</span>
-          <div class="radar-wrap" id="radar">
-            <svg class="radar-svg" viewBox="0 0 120 120">
-              <circle cx="60" cy="60" r="55" fill="none" stroke="var(--border)" stroke-width="0.5"/>
-              <circle cx="60" cy="60" r="40" fill="none" stroke="var(--border)" stroke-width="0.5"/>
-              <circle cx="60" cy="60" r="25" fill="none" stroke="var(--border)" stroke-width="0.5"/>
-              <circle cx="60" cy="60" r="10" fill="none" stroke="var(--border)" stroke-width="0.5"/>
-              <line x1="5" y1="60" x2="115" y2="60" stroke="var(--border)" stroke-width="0.3"/>
-              <line x1="60" y1="5" x2="60" y2="115" stroke="var(--border)" stroke-width="0.3"/>
-              <polygon class="radar-sweep" points="60,60 60,5 85,20" fill="rgba(0,255,136,0.12)"/>
-              <circle class="radar-dot" cx="80" cy="30" r="2.5" fill="var(--accent)"/>
-              <circle class="radar-dot" cx="40" cy="70" r="2" fill="var(--warning)" style="animation-delay:0.5s"/>
-              <circle class="radar-dot" cx="95" cy="80" r="1.5" fill="var(--danger)" style="animation-delay:1s"/>
+        <div class="card-hd">
+          <span class="card-ttl">system scan</span>
+          <div class="radar">
+            <svg viewBox="0 0 100 100">
+              <circle cx="50" cy="50" r="45" fill="none" stroke="var(--border)" stroke-width=".4"/>
+              <circle cx="50" cy="50" r="32" fill="none" stroke="var(--border)" stroke-width=".4"/>
+              <circle cx="50" cy="50" r="19" fill="none" stroke="var(--border)" stroke-width=".4"/>
+              <circle cx="50" cy="50" r="8" fill="none" stroke="var(--border)" stroke-width=".4"/>
+              <line x1="5" y1="50" x2="95" y2="50" stroke="var(--border)" stroke-width=".2"/>
+              <line x1="50" y1="5" x2="50" y2="95" stroke="var(--border)" stroke-width=".2"/>
+              <polygon class="sweep" points="50,50 50,5 70,18" fill="rgba(0,255,136,.1)"/>
+              <circle class="rblink" cx="70" cy="25" r="2" fill="var(--green)"/>
+              <circle class="rblink" cx="35" cy="60" r="1.5" fill="var(--amber)" style="animation-delay:.5s"/>
+              <circle class="rblink" cx="80" cy="70" r="1.5" fill="var(--red)" style="animation-delay:1s"/>
             </svg>
           </div>
         </div>
-        <p style="color:var(--text-muted);font-size:0.85rem;margin-bottom:16px;">
-          Scans running processes, startup entries, persistence paths, network connections, and recently modified files.
-        </p>
-        <div class="scan-btn-wrap">
-          <button class="btn btn-primary btn-lg" id="start-system-scan">&#x25B6; Start System Scan</button>
+        <p style="color:var(--text-dim);font-size:.8rem;margin-bottom:12px">scans processes, startup entries, persistence paths, network connections, recent files</p>
+        <div style="text-align:center;margin:16px 0">
+          <button class="btn btn-primary btn-lg" id="btn-scan">scan system</button>
         </div>
-        <div class="progress-bar" id="scan-progress" style="display:none;">
-          <div class="progress-fill" id="scan-progress-fill" style="width:0%"></div>
-        </div>
+        <div class="progress" id="scan-prog" style="display:none"><div class="progress-fill" id="scan-fill" style="width:0%"></div></div>
       </div>
-
-      <div id="system-result" style="display:none;">
+      <div id="sys-result" style="display:none">
         <div class="card">
-          <div class="card-header">
-            <span class="card-title">&#x1F4CA; System Risk Score</span>
-            <span id="sys-risk-badge" class="risk-badge"></span>
-          </div>
+          <div class="card-hd"><span class="card-ttl">risk assessment</span><span id="sys-badge" class="bdg"></span></div>
           <div class="gauge-wrap">
-            <svg class="gauge-svg" viewBox="0 0 160 160">
-              <circle cx="80" cy="80" r="68" fill="none" stroke="var(--border)" stroke-width="10"/>
-              <circle cx="80" cy="80" r="68" fill="none" stroke="var(--accent)" stroke-width="10"
-                stroke-dasharray="427" stroke-dashoffset="0"
-                id="gauge-circle"
-                transform="rotate(-90 80 80)"
-                stroke-linecap="round"/>
-              <text x="80" y="80" text-anchor="middle" dominant-baseline="central"
-                class="gauge-value" id="gauge-text" fill="var(--text)">0</text>
+            <svg class="gauge-svg" viewBox="0 0 140 140">
+              <circle cx="70" cy="70" r="58" fill="none" stroke="var(--border)" stroke-width="8"/>
+              <circle cx="70" cy="70" r="58" fill="none" stroke="var(--green)" stroke-width="8"
+                stroke-dasharray="364" stroke-dashoffset="0" id="gauge-ring"
+                transform="rotate(-90 70 70)" stroke-linecap="round"/>
+              <text x="70" y="70" text-anchor="middle" dominant-baseline="central" class="gauge-val" id="gauge-txt" fill="var(--text)">0</text>
             </svg>
-            <span class="gauge-label">Overall Risk Score</span>
+            <span class="gauge-lbl">risk score 0-100</span>
           </div>
         </div>
         <div class="card">
-          <div class="card-title" style="margin-bottom:12px;">&#x1F4CB; Findings</div>
+          <div class="card-ttl" style="margin-bottom:10px">findings</div>
           <div id="sys-findings"></div>
-          <div id="sys-findings-empty" class="empty-state" style="display:none;">
-            <div class="icon">&#x2705;</div>
-            <div class="msg">No issues found. System looks clean.</div>
-          </div>
+          <div id="sys-empty" class="empty" style="display:none"><div class="big">[ CLEAN ]</div><div>no issues detected</div></div>
         </div>
       </div>
     </div>
 
-    <!-- ── RESULTS ── -->
-    <div id="tab-results" class="tab-content">
+    <!-- RESULTS -->
+    <div id="tab-results" class="tab-pane">
       <div class="card">
-        <div class="card-header">
-          <span class="card-title">&#x1F4CA; Scan History</span>
-          <button class="btn btn-sm" id="clear-history" style="display:none;">Clear History</button>
-        </div>
-        <div id="history-empty" class="empty-state">
-          <div class="icon">&#x1F4AD;</div>
-          <div class="msg">No scans performed yet. Run a file or system scan to see results here.</div>
-        </div>
-        <div id="history-list"></div>
+        <div class="card-hd"><span class="card-ttl">scan history</span><button class="btn btn-sm" id="clear-hist" style="display:none">clear</button></div>
+        <div id="hist-empty" class="empty"><div class="big">[ NO DATA ]</div><div>run a scan to see results here</div></div>
+        <div id="hist-list"></div>
       </div>
     </div>
 
-    <!-- ── ABOUT ── -->
-    <div id="tab-about" class="tab-content">
+    <!-- ABOUT -->
+    <div id="tab-about" class="tab-pane">
       <div class="card">
-        <div class="card-title" style="margin-bottom:16px;">&#x2139; About SENTINEL</div>
-        <p style="color:var(--text-muted);line-height:1.7;margin-bottom:12px;">
-          SENTINEL is a <strong style="color:var(--text);">local-first malware analysis tool</strong>.
-          It performs file and system analysis entirely on your machine.
-          <strong style="color:var(--accent);">Zero data leaves your computer.</strong>
+        <div class="card-ttl" style="margin-bottom:12px">about sentinel</div>
+        <p style="color:var(--text-dim);line-height:1.7;margin-bottom:10px;font-size:.8rem">
+          SENTINEL is a <strong style="color:var(--text)">local-first malware analysis tool</strong>.
+          All processing is done on your machine. <strong style="color:var(--green)">Zero data leaves your computer.</strong>
+          No cloud APIs, no telemetry, no external requests.
         </p>
-        <p style="color:var(--text-muted);line-height:1.7;margin-bottom:20px;">
-          No cloud APIs, no telemetry, no external requests. Every scan runs locally.
-          Optional VirusTotal hash lookup opens in your browser — no API key needed.
-        </p>
-        <div class="info-grid" style="margin-bottom:20px;">
-          <div class="info-item">
-            <div class="label">Version</div>
-            <div class="value">1.0.0</div>
-          </div>
-          <div class="info-item">
-            <div class="label">Engine</div>
-            <div class="value">Flask + Python</div>
-          </div>
-          <div class="info-item">
-            <div class="label">Method</div>
-            <div class="value">Signature + Heuristic</div>
-          </div>
-          <div class="info-item">
-            <div class="label">Privacy</div>
-            <div class="value" style="color:var(--accent);">100% Offline</div>
-          </div>
+        <div class="info-grid" style="margin-bottom:16px">
+          <div class="info-box"><div class="lbl">version</div><div class="val">1.0.0</div></div>
+          <div class="info-box"><div class="lbl">engine</div><div class="val">flask + python 3</div></div>
+          <div class="info-box"><div class="lbl">method</div><div class="val">signature + heuristic</div></div>
+          <div class="info-box"><div class="lbl">privacy</div><div class="val" style="color:var(--green)">100% offline</div></div>
         </div>
       </div>
-
       <div class="card">
-        <div class="card-title" style="margin-bottom:16px;">&#x1F6E1; Privacy Guarantee</div>
-        <ul class="steps">
-          <li>No file content is stored after analysis — analyzed in memory only</li>
-          <li>No logging of file paths or system data to disk</li>
-          <li>Zero external network requests from the analysis engine</li>
-          <li>VirusTotal lookup opens in your browser — no API key, no data sent by this tool</li>
-          <li>All deletion and process kill actions require explicit confirmation</li>
-        </ul>
+        <div class="card-ttl" style="margin-bottom:12px">privacy guarantee</div>
+        <div style="color:var(--text-dim);font-size:.8rem;line-height:1.8">
+          > no file content stored after analysis - memory only<br>
+          > no logging of file paths or system data to disk<br>
+          > zero external network requests from the engine<br>
+          > virustotal lookup opens in your browser - no api key needed<br>
+          > delete and kill actions require explicit confirmation
+        </div>
       </div>
-
       <div class="card">
-        <div class="card-title" style="margin-bottom:16px;">&#x1F4A1; How It Works</div>
-        <ul class="steps">
-          <li><strong style="color:var(--accent);">File Analysis:</strong> Computes hashes, checks signatures, calculates entropy, scans for suspicious strings, detects macros, analyzes scripts</li>
-          <li><strong style="color:var(--accent);">System Scan:</strong> Inspects running processes, startup entries, persistence paths, network connections, and recently modified files</li>
-          <li><strong style="color:var(--accent);">Risk Scoring:</strong> Each finding is scored, then aggregated into an overall 0&ndash;100 risk score</li>
-          <li><strong style="color:var(--accent);">Actionable Results:</strong> Every finding has clear next steps — delete, kill, disable, or investigate further</li>
-        </ul>
+        <div class="card-ttl" style="margin-bottom:12px">capabilities</div>
+        <div style="color:var(--text-dim);font-size:.8rem;line-height:1.8">
+          > <strong style="color:var(--text)">file analysis:</strong> hash matching, signature detection, entropy calculation, string scanning, macro detection, script analysis<br>
+          > <strong style="color:var(--text)">system scan:</strong> process inspection, startup entries, persistence paths, network connections, recent files<br>
+          > <strong style="color:var(--text)">risk scoring:</strong> 0-100 score with per-finding severity levels<br>
+          > <strong style="color:var(--text)">actions:</strong> delete files, kill processes, disable startup entries, virustotal lookup
+        </div>
       </div>
     </div>
-
   </main>
 </div>
 
-<div class="toast-container" id="toast-container"></div>
-<div class="modal-overlay" id="modal">
-  <div class="modal">
-    <div class="modal-title" id="modal-title">Confirm Action</div>
-    <div class="modal-body" id="modal-body">Are you sure?</div>
-    <div class="modal-actions">
-      <button class="btn btn-sm" id="modal-cancel">Cancel</button>
-      <button class="btn btn-sm btn-danger" id="modal-confirm">Confirm</button>
+<div class="toasts" id="toasts"></div>
+<div class="modal-bg" id="modal">
+  <div class="modal-box">
+    <div class="modal-ttl" id="modal-ttl">confirm action</div>
+    <div class="modal-body" id="modal-body">proceed?</div>
+    <div class="modal-acts">
+      <button class="btn btn-sm" id="modal-no">cancel</button>
+      <button class="btn btn-sm btn-danger" id="modal-yes">confirm</button>
     </div>
   </div>
 </div>
 
 <script>
-// ── Tabs ──
-document.querySelectorAll('.sidebar-link').forEach(link => {
-  link.addEventListener('click', () => {
-    document.querySelectorAll('.sidebar-link').forEach(l => l.classList.remove('active'));
-    document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
-    link.classList.add('active');
-    document.getElementById('tab-' + link.dataset.tab).classList.add('active');
-  });
-});
+// tabs
+document.querySelectorAll('.sidebar a').forEach(a=>{
+  a.addEventListener('click',()=>{
+    document.querySelectorAll('.sidebar a').forEach(x=>x.classList.remove('active'))
+    document.querySelectorAll('.tab-pane').forEach(x=>x.classList.remove('active'))
+    a.classList.add('active')
+    document.getElementById('tab-'+a.dataset.tab).classList.add('active')
+  })
+})
 
-// ── Toast ──
-function toast(message, type = 'info') {
-  const container = document.getElementById('toast-container');
-  const el = document.createElement('div');
-  el.className = 'toast ' + type;
-  el.textContent = message;
-  container.appendChild(el);
-  setTimeout(() => { el.style.opacity = '0'; el.style.transition = 'opacity 0.3s'; setTimeout(() => el.remove(), 300); }, 3500);
+// toast
+function toast(msg,type='info'){
+  const c=document.getElementById('toasts')
+  const e=document.createElement('div')
+  e.className='toast '+type
+  e.textContent='> '+msg
+  c.appendChild(e)
+  setTimeout(()=>{e.style.opacity='0';e.style.transition='opacity .25s';setTimeout(()=>e.remove(),250)},3500)
 }
 
-// ── Modal ──
-let modalResolve = null;
-function showModal(title, body) {
-  return new Promise((resolve) => {
-    document.getElementById('modal-title').textContent = title;
-    document.getElementById('modal-body').textContent = body;
-    document.getElementById('modal').classList.add('open');
-    modalResolve = resolve;
-  });
-}
-document.getElementById('modal-cancel').addEventListener('click', () => {
-  document.getElementById('modal').classList.remove('open');
-  if (modalResolve) modalResolve(false);
-});
-document.getElementById('modal-confirm').addEventListener('click', () => {
-  document.getElementById('modal').classList.remove('open');
-  if (modalResolve) modalResolve(true);
-});
-document.getElementById('modal').addEventListener('click', (e) => {
-  if (e.target === e.currentTarget) {
-    document.getElementById('modal').classList.remove('open');
-    if (modalResolve) modalResolve(false);
-  }
-});
+// modal
+let mres=null
+function showModal(title,body){return new Promise(r=>{
+  document.getElementById('modal-ttl').textContent=title
+  document.getElementById('modal-body').textContent=body
+  document.getElementById('modal').classList.add('open')
+  mres=r
+})}
+document.getElementById('modal-no').addEventListener('click',()=>{document.getElementById('modal').classList.remove('open');if(mres)mres(false)})
+document.getElementById('modal-yes').addEventListener('click',()=>{document.getElementById('modal').classList.remove('open');if(mres)mres(true)})
+document.getElementById('modal').addEventListener('click',e=>{if(e.target===e.currentTarget){document.getElementById('modal').classList.remove('open');if(mres)mres(false)}})
 
-// ── Dropzone ──
-const dropzone = document.getElementById('dropzone');
-const fileInput = document.getElementById('file-input');
-dropzone.addEventListener('click', () => fileInput.click());
-dropzone.addEventListener('dragover', (e) => { e.preventDefault(); dropzone.classList.add('drag-over'); });
-dropzone.addEventListener('dragleave', () => dropzone.classList.remove('drag-over'));
-dropzone.addEventListener('drop', (e) => {
-  e.preventDefault(); dropzone.classList.remove('drag-over');
-  if (e.dataTransfer.files.length) handleFile(e.dataTransfer.files[0]);
-});
-fileInput.addEventListener('change', () => { if (fileInput.files.length) handleFile(fileInput.files[0]); });
+// dropzone
+const dz=document.getElementById('dropzone'),fi=document.getElementById('file-input')
+dz.addEventListener('click',()=>fi.click())
+dz.addEventListener('dragover',e=>{e.preventDefault();dz.classList.add('drag')})
+dz.addEventListener('dragleave',()=>dz.classList.remove('drag'))
+dz.addEventListener('drop',e=>{e.preventDefault();dz.classList.remove('drag');if(e.dataTransfer.files.length)handleFile(e.dataTransfer.files[0])})
+fi.addEventListener('change',()=>{if(fi.files.length)handleFile(fi.files[0])})
 
-async function handleFile(file) {
-  const formData = new FormData();
-  formData.append('file', file);
-  document.getElementById('file-result').style.display = 'none';
-  toast('Analyzing ' + file.name + '...', 'info');
-  try {
-    const res = await fetch('/api/analyze-file', { method: 'POST', body: formData });
-    const data = await res.json();
-    if (data.error) { toast('Error: ' + data.error, 'error'); return; }
-    displayFileResult(data);
-  } catch (e) {
-    toast('Request failed: ' + e.message, 'error');
-  }
+async function handleFile(file){
+  const fd=new FormData();fd.append('file',file)
+  document.getElementById('file-result').style.display='none'
+  toast('analyzing '+file.name+'...','info')
+  try{
+    const r=await fetch('/api/analyze-file',{method:'POST',body:fd})
+    const d=await r.json()
+    if(d.error){toast('error: '+d.error,'err');return}
+    showFileResult(d)
+  }catch(e){toast('request failed: '+e.message,'err')}
 }
 
-function displayFileResult(data) {
-  const result = document.getElementById('file-result');
-  result.style.display = 'block';
-
-  const badge = document.getElementById('file-risk-badge');
-  badge.className = 'risk-badge ' + data.risk_label;
-  badge.textContent = data.risk_label + ' (' + data.risk_score + '/100)';
-
-  const grid = document.getElementById('file-info-grid');
-  grid.innerHTML = '';
-  const items = [
-    ['File', data.filename],
-    ['Size', (data.size / 1024).toFixed(1) + ' KB'],
-    ['MD5', data.md5],
-    ['SHA256', data.sha256.substring(0, 64)],
-    ['Entropy', data.entropy],
-  ];
-  items.forEach(([label, value]) => {
-    const div = document.createElement('div'); div.className = 'info-item';
-    div.innerHTML = '<div class="label">' + label + '</div><div class="value" style="word-break:break-all;font-size:0.75rem;">' + value + '</div>';
-    grid.appendChild(div);
-  });
-
-  const container = document.getElementById('file-findings');
-  const empty = document.getElementById('file-findings-empty');
-  container.innerHTML = '';
-  if (!data.findings || data.findings.length === 0) {
-    empty.style.display = 'block';
-    return;
-  }
-  empty.style.display = 'none';
-  data.findings.forEach((f, i) => {
-    const row = document.createElement('div');
-    row.style.cssText = 'border:1px solid var(--border);border-radius:var(--radius-sm);margin-bottom:8px;overflow:hidden;';
-    const badgeColor = f.risk === 'threat' ? 'var(--danger)' : f.risk === 'suspicious' ? 'var(--warning)' : 'var(--accent)';
-    const badgeClass = 'risk-badge ' + f.risk;
-    row.innerHTML = `
-      <div class="expand-toggle" data-index="${i}" style="display:flex;align-items:center;justify-content:space-between;padding:12px 14px;cursor:pointer;">
-        <div style="display:flex;align-items:center;gap:10px;">
-          <span style="color:${badgeColor};">${f.risk === 'threat' ? '&#9888;' : f.risk === 'suspicious' ? '&#9888;' : '&#9432;'}</span>
-          <span style="font-family:'JetBrains Mono',monospace;font-size:0.8rem;">${f.type}</span>
-        </div>
-        <span class="${badgeClass}">${f.risk}</span>
-      </div>
-      <div class="expand-detail" id="fd-${i}">
-        ${escapeHtml(f.detail)}
-        <div class="actions-row">
-          ${f.action === 'delete' ? '<button class="btn btn-sm btn-danger" onclick="deleteFilePath(\'' + escapeHtml(f.detail) + '\')">&#x1F5D1; Delete</button>' : ''}
-          ${f.action === 'check_vt' ? '<button class="btn btn-sm btn-warning" onclick="openVT(\'' + data.md5 + '\')">&#x1F310; VirusTotal</button>' : ''}
-        </div>
-      </div>
-    `;
-    row.querySelector('.expand-toggle').addEventListener('click', () => {
-      const detail = document.getElementById('fd-' + i);
-      detail.classList.toggle('open');
-    });
-    container.appendChild(row);
-  });
-
-  toast('Analysis complete — ' + data.findings.length + ' finding(s)', data.risk_label === 'threat' ? 'error' : data.risk_label === 'suspicious' ? 'info' : 'success');
-  addHistory('file', data);
+function showFileResult(d){
+  const el=document.getElementById('file-result');el.style.display='block'
+  const b=document.getElementById('file-badge');b.className='bdg '+d.risk_label;b.textContent=d.risk_label+' ('+d.risk_score+')'
+  const g=document.getElementById('file-grid');g.innerHTML=''
+  ;[['filename',d.filename],['size',(d.size/1024).toFixed(1)+' KB'],['md5',d.md5],['sha256',d.sha256],['entropy',d.entropy]].forEach(([l,v])=>{
+    const di=document.createElement('div');di.className='info-box'
+    di.innerHTML='<div class="lbl">'+l+'</div><div class="val">'+esc(v)+'</div>'
+    g.appendChild(di)
+  })
+  const fc=document.getElementById('file-findings'),fe=document.getElementById('file-empty')
+  fc.innerHTML=''
+  if(!d.findings||!d.findings.length){fe.style.display='block';return}
+  fe.style.display='none'
+  d.findings.forEach((f,i)=>{
+    const c=f.risk==='threat'?'var(--red)':f.risk==='suspicious'?'var(--amber)':'var(--amber)'
+    const div=document.createElement('div');div.className='f-item'
+    div.innerHTML='<div class="f-hd" data-i="'+i+'"><div class="left"><span class="mark" style="color:'+c+'">['+(f.risk==='threat'?'!':f.risk==='suspicious'?'?':'-')+']</span><span>'+f.type+'</span></div><span class="bdg '+f.risk+'">'+f.risk+'</span></div><div class="f-detail" id="fd-'+i+'">'+esc(f.detail)+'<div class="f-actions">'+(f.action==='vt'?'<button class="btn btn-sm btn-warning" onclick="openVT(\''+d.md5+'\')">VIRUSTOTAL</button>':'')+'</div></div>'
+    div.querySelector('.f-hd').addEventListener('click',()=>document.getElementById('fd-'+i).classList.toggle('open'))
+    fc.appendChild(div)
+  })
+  toast('analysis complete - '+d.findings.length+' finding(s)',d.risk_label==='threat'?'err':d.risk_label==='suspicious'?'info':'ok')
+  addHist('file',d)
 }
 
-// ── System Scan ──
-document.getElementById('start-system-scan').addEventListener('click', async () => {
-  const btn = document.getElementById('start-system-scan');
-  btn.disabled = true; btn.innerHTML = '&#x23F3; Scanning...';
-  const prog = document.getElementById('scan-progress');
-  const fill = document.getElementById('scan-progress-fill');
-  prog.style.display = 'block'; fill.style.width = '0%';
+// system scan
+document.getElementById('btn-scan').addEventListener('click',async()=>{
+  const btn=document.getElementById('btn-scan');btn.disabled=true;btn.textContent='[ SCANNING ]'
+  const p=document.getElementById('scan-prog'),f=document.getElementById('scan-fill')
+  p.style.display='block';f.style.width='0%'
+  let pr=0;const iv=setInterval(()=>{pr=Math.min(pr+5,85);f.style.width=pr+'%'},400)
+  try{
+    const r=await fetch('/api/scan-system',{method:'POST'});const d=await r.json()
+    clearInterval(iv);f.style.width='100%';setTimeout(()=>{p.style.display='none'},500)
+    if(d.error){toast('error: '+d.error,'err');return}
+    showSysResult(d)
+  }catch(e){clearInterval(iv);p.style.display='none';toast('scan failed: '+e.message,'err')}
+  finally{btn.disabled=false;btn.textContent='SCAN SYSTEM'}
+})
 
-  const radar = document.getElementById('radar');
-  radar.style.animation = 'none';
-  void radar.offsetHeight;
-  radar.style.animation = '';
-
-  let progress = 0;
-  const interval = setInterval(() => {
-    progress = Math.min(progress + 5, 85);
-    fill.style.width = progress + '%';
-  }, 400);
-
-  try {
-    const res = await fetch('/api/scan-system', { method: 'POST' });
-    const data = await res.json();
-    clearInterval(interval);
-    fill.style.width = '100%';
-    setTimeout(() => { prog.style.display = 'none'; }, 600);
-    if (data.error) { toast('Error: ' + data.error, 'error'); return; }
-    displaySystemResult(data);
-  } catch (e) {
-    clearInterval(interval);
-    prog.style.display = 'none';
-    toast('Scan failed: ' + e.message, 'error');
-  } finally {
-    btn.disabled = false; btn.innerHTML = '&#x25B6; Start System Scan';
-  }
-});
-
-function displaySystemResult(data) {
-  const result = document.getElementById('system-result');
-  result.style.display = 'block';
-
-  const badge = document.getElementById('sys-risk-badge');
-  badge.className = 'risk-badge ' + data.risk_label;
-  badge.textContent = data.risk_label + ' (' + data.risk_score + '/100)';
-
-  const gaugeCircle = document.getElementById('gauge-circle');
-  const gaugeText = document.getElementById('gauge-text');
-  const circumference = 2 * Math.PI * 68;
-  const offset = circumference - (data.risk_score / 100) * circumference;
-  gaugeCircle.style.strokeDasharray = circumference;
-  gaugeCircle.style.strokeDashoffset = offset;
-  const color = data.risk_score >= 70 ? '#ff3355' : data.risk_score >= 30 ? '#ffaa00' : '#00ff88';
-  gaugeCircle.style.stroke = color;
-  gaugeText.textContent = data.risk_score;
-  gaugeText.style.fill = color;
-
-  const container = document.getElementById('sys-findings');
-  const empty = document.getElementById('sys-findings-empty');
-  container.innerHTML = '';
-  if (!data.findings || data.findings.length === 0) {
-    empty.style.display = 'block';
-    return;
-  }
-  empty.style.display = 'none';
-  data.findings.forEach((f, i) => {
-    const row = document.createElement('div');
-    row.style.cssText = 'border:1px solid var(--border);border-radius:var(--radius-sm);margin-bottom:8px;overflow:hidden;';
-    const badgeClass = 'risk-badge ' + f.risk;
-    const color = f.risk === 'threat' ? 'var(--danger)' : f.risk === 'suspicious' ? 'var(--warning)' : 'var(--accent)';
-    let actionsHtml = '';
-    if (f.action === 'kill_process') {
-      actionsHtml += `<button class="btn btn-sm btn-danger" onclick="killProcess(${f.pid})">&#x26D4; Kill Process</button>`;
-    } else if (f.action === 'delete') {
-      actionsHtml += `<button class="btn btn-sm btn-danger" onclick="deleteFilePath('${escapeJs(f.detail)}')">&#x1F5D1; Delete</button>`;
-    } else if (f.action === 'manual_review') {
-      actionsHtml += `<span style="font-size:0.75rem;color:var(--text-muted);">&#x1F50D; Manual review recommended</span>`;
-    }
-    row.innerHTML = `
-      <div class="expand-toggle" data-sysidx="${i}" style="display:flex;align-items:center;justify-content:space-between;padding:12px 14px;cursor:pointer;">
-        <div style="display:flex;align-items:center;gap:10px;">
-          <span style="color:${color};">${f.risk === 'threat' || f.risk === 'suspicious' ? '&#9888;' : '&#9432;'}</span>
-          <span style="font-family:'JetBrains Mono',monospace;font-size:0.8rem;">${escapeHtml(f.type)}</span>
-        </div>
-        <span class="${badgeClass}">${f.risk}</span>
-      </div>
-      <div class="expand-detail" id="sd-${i}">
-        ${escapeHtml(f.detail)}
-        <div class="actions-row">${actionsHtml}</div>
-      </div>
-    `;
-    row.querySelector('.expand-toggle').addEventListener('click', () => {
-      document.getElementById('sd-' + i).classList.toggle('open');
-    });
-    container.appendChild(row);
-  });
-
-  toast('System scan complete — ' + data.findings.length + ' finding(s)', data.risk_label === 'threat' ? 'error' : data.risk_label === 'suspicious' ? 'info' : 'success');
-  addHistory('system', data);
+function showSysResult(d){
+  const el=document.getElementById('sys-result');el.style.display='block'
+  const b=document.getElementById('sys-badge');b.className='bdg '+d.risk_label;b.textContent=d.risk_label+' ('+d.risk_score+')'
+  const ring=document.getElementById('gauge-ring'),txt=document.getElementById('gauge-txt')
+  const circ=2*Math.PI*58,off=circ-(d.risk_score/100)*circ
+  ring.style.strokeDasharray=circ;ring.style.strokeDashoffset=off
+  const cl=d.risk_score>=70?'var(--red)':d.risk_score>=35?'var(--amber)':'var(--green)'
+  ring.style.stroke=cl;txt.textContent=d.risk_score;txt.style.fill=cl
+  const fc=document.getElementById('sys-findings'),fe=document.getElementById('sys-empty')
+  fc.innerHTML=''
+  if(!d.findings||!d.findings.length){fe.style.display='block';return}
+  fe.style.display='none'
+  d.findings.forEach((f,i)=>{
+    const c=f.risk==='threat'?'var(--red)':f.risk==='suspicious'?'var(--amber)':'var(--amber)'
+    let acts=''
+    if(f.action==='kill') acts+='<button class="btn btn-sm btn-danger" onclick="killProc('+f.pid+')">KILL</button>'
+    else if(f.action==='delete') acts+='<button class="btn btn-sm btn-danger" onclick="delFile(\''+escJs(f.detail)+'\')">DELETE</button>'
+    else if(f.action==='disable_startup') acts+='<button class="btn btn-sm btn-warning" onclick="disableStartup(\''+escJs(f.reg_path||'')+'\',\''+escJs(f.entry||'')+'\')">DISABLE</button>'
+    else acts+='<span style="font-size:.7rem;color:var(--text-dark)">[ manual review recommended ]</span>'
+    const div=document.createElement('div');div.className='f-item'
+    div.innerHTML='<div class="f-hd" data-si="'+i+'"><div class="left"><span class="mark" style="color:'+c+'">['+(f.risk==='threat'?'!':f.risk==='suspicious'?'?':'-')+']</span><span>'+esc(f.type)+'</span></div><span class="bdg '+f.risk+'">'+f.risk+'</span></div><div class="f-detail" id="sd-'+i+'">'+esc(f.detail)+'<div class="f-actions">'+acts+'</div></div>'
+    div.querySelector('.f-hd').addEventListener('click',()=>document.getElementById('sd-'+i).classList.toggle('open'))
+    fc.appendChild(div)
+  })
+  toast('system scan complete - '+d.findings.length+' finding(s)',d.risk_label==='threat'?'err':d.risk_label==='suspicious'?'info':'ok')
+  addHist('system',d)
 }
 
-// ── Actions ──
-async function killProcess(pid) {
-  const ok = await showModal('Confirm: Terminate Process', 'Are you sure you want to kill process PID ' + pid + '?');
-  if (!ok) return;
-  try {
-    const res = await fetch('/api/kill-process', { method: 'POST', headers: {'Content-Type':'application/json'}, body: JSON.stringify({pid}) });
-    const data = await res.json();
-    if (data.success) toast(data.message, 'success'); else toast('Error: ' + data.error, 'error');
-  } catch (e) { toast('Failed: ' + e.message, 'error'); }
+// actions
+async function killProc(pid){
+  const ok=await showModal('terminate process','kill process PID '+pid+'?')
+  if(!ok)return
+  try{
+    const r=await fetch('/api/kill-process',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({pid})})
+    const d=await r.json()
+    if(d.success)toast(d.message,'ok');else toast('error: '+d.error,'err')
+  }catch(e){toast('failed: '+e.message,'err')}
 }
 
-async function deleteFilePath(path) {
-  const ok = await showModal('Confirm: Delete File', 'Are you sure you want to delete this file?\n' + path);
-  if (!ok) return;
-  try {
-    const res = await fetch('/api/delete-file', { method: 'POST', headers: {'Content-Type':'application/json'}, body: JSON.stringify({path: extractPath(path)}) });
-    const data = await res.json();
-    if (data.success) toast(data.message, 'success'); else toast('Error: ' + data.error, 'error');
-  } catch (e) { toast('Failed: ' + e.message, 'error'); }
+async function delFile(p){
+  const ok=await showModal('delete file','permanently delete this file?\n'+p)
+  if(!ok)return
+  const path=extractPath(p)
+  try{
+    const r=await fetch('/api/delete-file',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({path})})
+    const d=await r.json()
+    if(d.success)toast(d.message,'ok');else toast('error: '+d.error,'err')
+  }catch(e){toast('failed: '+e.message,'err')}
 }
 
-function extractPath(str) {
-  const m = str.match(/[A-Z]:\\(?:[^\\\n]+\\)*[^\\\n]+/i);
-  return m ? m[0] : str;
+async function disableStartup(rp,en){
+  if(!rp||!en){toast('invalid startup entry data','err');return}
+  const ok=await showModal('disable startup entry','remove this startup entry?\n'+en)
+  if(!ok)return
+  try{
+    const r=await fetch('/api/disable-startup',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({reg_path:rp,entry:en})})
+    const d=await r.json()
+    if(d.success)toast(d.message,'ok');else toast('error: '+d.error,'err')
+  }catch(e){toast('failed: '+e.message,'err')}
 }
 
-function openVT(hash) {
-  window.open('https://www.virustotal.com/gui/file/' + hash, '_blank');
-  toast('Opening VirusTotal in new tab', 'info');
+function extractPath(s){
+  const m=s.match(/[A-Z]:\\(?:[^\\\n]+\\)*[^\\\n]+/i)
+  return m?m[0]:s
 }
 
-// ── History ──
-let scanHistory = [];
-
-function addHistory(type, data) {
-  scanHistory.unshift({ type, data, time: new Date().toLocaleTimeString() });
-  renderHistory();
+function openVT(hash){
+  window.open('https://www.virustotal.com/gui/file/'+hash,'_blank')
+  toast('opening virustotal in new tab','info')
 }
 
-function renderHistory() {
-  const list = document.getElementById('history-list');
-  const empty = document.getElementById('history-empty');
-  const clearBtn = document.getElementById('clear-history');
-  if (scanHistory.length === 0) {
-    empty.style.display = 'block';
-    list.innerHTML = '';
-    clearBtn.style.display = 'none';
-    return;
-  }
-  empty.style.display = 'none';
-  clearBtn.style.display = 'inline-flex';
-  list.innerHTML = scanHistory.map((h, i) => {
-    const label = h.type === 'file' ? 'File Scan: ' + h.data.filename : 'System Scan';
-    const badgeClass = 'risk-badge ' + h.data.risk_label;
-    return `<div style="display:flex;align-items:center;justify-content:space-between;padding:10px 14px;border:1px solid var(--border);border-radius:var(--radius-sm);margin-bottom:6px;">
-      <div>
-        <span style="font-family:'JetBrains Mono',monospace;font-size:0.8rem;">${label}</span>
-        <span style="font-size:0.75rem;color:var(--text-muted);margin-left:10px;">${h.time}</span>
-      </div>
-      <span class="${badgeClass}">${h.data.risk_label} (${h.data.risk_score})</span>
-    </div>`;
-  }).join('');
+// history
+let history=[]
+function addHist(type,d){
+  history.unshift({type,data:d,time:new Date().toLocaleTimeString()})
+  renderHist()
 }
+function renderHist(){
+  const list=document.getElementById('hist-list'),empty=document.getElementById('hist-empty'),btn=document.getElementById('clear-hist')
+  if(!history.length){empty.style.display='block';list.innerHTML='';btn.style.display='none';return}
+  empty.style.display='none';btn.style.display='inline-flex'
+  list.innerHTML=history.map((h,i)=>{
+    const label=h.type==='file'?'FILE: '+h.data.filename:'SYSTEM SCAN'
+    return '<div class="h-item"><div class="left">'+label+'<span class="time">'+h.time+'</span></div><span class="bdg '+h.data.risk_label+'">'+h.data.risk_label+' ('+h.data.risk_score+')</span></div>'
+  }).join('')
+}
+document.getElementById('clear-hist').addEventListener('click',()=>{history=[];renderHist();toast('history cleared','info')})
 
-document.getElementById('clear-history').addEventListener('click', () => {
-  scanHistory = []; renderHistory();
-  toast('History cleared', 'info');
-});
-
-// ── Helpers ──
-function escapeHtml(str) {
-  if (!str) return '';
-  const div = document.createElement('div');
-  div.textContent = str;
-  return div.innerHTML;
-}
-function escapeJs(str) {
-  if (!str) return '';
-  return str.replace(/\\/g, '\\\\').replace(/'/g, "\\'").replace(/"/g, '\\"').replace(/\n/g, '\\n');
-}
+// helpers
+function esc(s){if(!s)return '';const d=document.createElement('div');d.textContent=s;return d.innerHTML}
+function escJs(s){if(!s)return '';return s.replace(/\\/g,'\\\\').replace(/'/g,"\\'").replace(/"/g,'\\"').replace(/\n/g,'\\n')}
 </script>
 </body>
 </html>
