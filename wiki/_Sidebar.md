@@ -36,6 +36,12 @@
 *   [[Threat Hunting Lab|Threat-Hunting-Lab]]
 *   [[Red Team Lab Simulation|Red-Team-Lab-Simulation]]
 
-#### 🛸 Proyecto Principal
-*   [[SentinelX SOC Dashboard|SentinelX]]
+#### 🛸 Proyecto Principal (SentinelX)
+*   [[Home / Introducción|SentinelX]]
+*   [[Arquitectura y Datos|SentinelX-Arquitectura]]
+*   [[Guía de Instalación|SentinelX-Instalacion]]
+*   [[Módulos Funcionales|SentinelX-Modulos]]
+*   [[Seguridad y Hardening|SentinelX-Seguridad]]
+*   [[Integración DevSecOps|SentinelX-DevSecOps]]
+*   [[Roadmap Técnico|SentinelX-Roadmap]]
 

@@ -10,12 +10,13 @@ async function main() {
     await prisma.asset.upsert({ where: { name: a.name }, create: a, update: a });
   }
   for (const v of sampleVulns) {
+    const { affectedNames, ...vulnData } = v;
     const vuln = await prisma.vulnerability.upsert({
       where: { cve: v.cve },
-      create: v,
-      update: v
+      create: vulnData,
+      update: vulnData
     });
-    const targets = v.affectedNames ?? [];
+    const targets = affectedNames ?? [];
     for (const assetName of targets) {
       const asset = await prisma.asset.findUnique({ where: { name: assetName } });
       if (!asset) continue;
@@ -52,6 +53,7 @@ async function main() {
       });
     }
   }
+  await prisma.postureCheck.deleteMany({});
   for (const p of samplePosture) {
     await prisma.postureCheck.create({ data: p });
   }

@@ -16,11 +16,11 @@ const config: Config = {
     extend: {
       colors: {
         ink: {
-          950: "#05070d",
-          900: "#0a0f1c",
-          800: "#0f1626",
-          700: "#142036",
-          600: "#1c2a47"
+          950: "#08090d", // background
+          900: "#0e1117", // surface
+          800: "#1c2030", // border
+          700: "#222a3f",
+          600: "#2d3854"
         },
         cyber: {
           50: "#e6fbff",
@@ -28,21 +28,22 @@ const config: Config = {
           200: "#80e6ff",
           300: "#4ddcff",
           400: "#1ad2ff",
-          500: "#00b4e6",
-          600: "#008cb4",
-          700: "#006583",
-          800: "#003e51",
+          500: "#00d4ff", // accent principal
+          600: "#00b4e6",
+          700: "#008cb4",
+          800: "#006583",
           900: "#00171f"
         },
         threat: {
-          low: "#22d3ee",
-          medium: "#facc15",
-          high: "#fb923c",
-          critical: "#ef4444"
+          low: "#2ed573",
+          medium: "#ffa502",
+          high: "#ff4757",
+          critical: "#ff4757"
         },
-        success: "#10b981",
-        warning: "#f59e0b",
-        danger: "#ef4444"
+        success: "#2ed573",
+        warning: "#ffa502",
+        danger: "#ff4757",
+        muted: "#4a5568"
       },
       fontFamily: {
         sans: ["Inter", "ui-sans-serif", "system-ui", "sans-serif"],

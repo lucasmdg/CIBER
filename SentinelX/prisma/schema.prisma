@@ -162,3 +162,23 @@ model AuditLog {
   userId    String?
   user      User?    @relation("actorEvents", fields: [userId], references: [id], onDelete: SetNull)
 }
+
+model FileAnalysis {
+  id                String   @id @default(cuid())
+  filename          String
+  sha256            String
+  md5               String
+  fileType          String
+  sizeBytes         Int
+  entropy           Float
+  verdict           String   // clean | suspicious | likely_malicious
+  score             Int
+  suspiciousStrings String   // JSON string list
+  createdAt         DateTime @default(now())
+}
+
+model ExternalCache {
+  key       String   @id
+  data      String   // JSON stringified payload
+  updatedAt DateTime @default(now())
+}
