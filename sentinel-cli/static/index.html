@@ -1,0 +1,773 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SENTINEL-CLI · LIVE</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:#050508;color:#e0e0e0;font-family:'JetBrains Mono',monospace;font-size:12px;min-height:100vh;overflow:hidden}
+::-webkit-scrollbar{width:4px;height:4px}
+::-webkit-scrollbar-track{background:#050508}
+::-webkit-scrollbar-thumb{background:#00ff884d;border-radius:2px}
+::-webkit-scrollbar-thumb:hover{background:#00ff88}
+
+/* LOGIN */
+#login-overlay{position:fixed;inset:0;background:#050508;z-index:9999;display:flex;align-items:center;justify-content:center;flex-direction:column}
+#login-overlay.hidden{display:none}
+.login-box{background:#0d0d14;border:1px solid #1a1a2e;padding:48px 40px 36px;width:400px;text-align:center;position:relative}
+.login-box::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,#00ff88,#00aa55)}
+.login-logo{font-size:20px;font-weight:700;letter-spacing:4px;margin-bottom:2px;color:#e0e0e0}
+.login-logo span{color:#00ff88}
+.login-sub{color:#555566;font-size:10px;letter-spacing:2px;margin-bottom:28px;text-transform:uppercase}
+.login-box input{width:100%;background:#0a0a12;border:1px solid #1a1a2e;padding:12px 16px;color:#e0e0e0;font-family:'JetBrains Mono',monospace;font-size:13px;outline:none;margin-bottom:16px;text-align:center;letter-spacing:8px;transition:border-color .3s}
+.login-box input:focus{border-color:#00ff88}
+.login-box input::placeholder{letter-spacing:0;color:#333}
+.login-box button{width:100%;background:#00ff88;color:#050508;border:none;padding:14px;font-family:'JetBrains Mono',monospace;font-weight:700;font-size:11px;cursor:pointer;text-transform:uppercase;letter-spacing:3px;transition:background .2s}
+.login-box button:hover{background:#00cc66}
+.login-error{color:#ff3355;font-size:11px;margin-top:12px;min-height:20px}
+
+/* TOPBAR */
+.topbar{display:flex;align-items:center;height:44px;background:#0d0d14;border-bottom:1px solid #1a1a2e;flex-shrink:0;padding:0}
+.topbar-brand{display:flex;align-items:center;gap:10px;padding:0 18px;height:100%;border-right:1px solid #1a1a2e;font-weight:700;font-size:13px;color:#e0e0e0;letter-spacing:2px}
+.topbar-brand .dot{display:inline-block;width:8px;height:8px;border-radius:50%;background:#00ff88;animation:pulse 2s infinite}
+@keyframes pulse{0%{opacity:1;box-shadow:0 0 0 0 #00ff8844}50%{opacity:.8;box-shadow:0 0 0 6px #00ff8800}100%{opacity:1;box-shadow:0 0 0 0 #00ff8844}}
+.topbar-stats{display:flex;align-items:center;height:100%;flex:1;overflow:hidden}
+.topbar-stat{display:flex;align-items:center;gap:6px;padding:0 14px;height:100%;border-right:1px solid #1a1a2e;font-size:9px;color:#555566;text-transform:uppercase;letter-spacing:.8px;white-space:nowrap}
+.topbar-stat .val{color:#00ff88;font-weight:600;font-size:10px}
+.topbar-stat .val.danger{color:#ff3355}
+.topbar-stat .val.warn{color:#ffaa00}
+.topbar-right{display:flex;align-items:center;gap:8px;padding:0 14px;height:100%}
+.mode-badge{font-size:9px;font-weight:700;padding:2px 10px;border-radius:2px;text-transform:uppercase;letter-spacing:1px}
+.mode-live{background:#00ff8818;color:#00ff88;border:1px solid #00ff8844}
+.mode-demo{background:#ffaa0018;color:#ffaa00;border:1px solid #ffaa0044}
+.mode-toggle{background:transparent;border:1px solid #1a1a2e;color:#555566;padding:2px 10px;font-family:'JetBrains Mono',monospace;font-size:9px;cursor:pointer;text-transform:uppercase;letter-spacing:.5px;transition:all .15s}
+.mode-toggle:hover{border-color:#00ff88;color:#00ff88}
+.help-btn{background:transparent;border:1px solid #1a1a2e;color:#555566;width:22px;height:22px;border-radius:50%;font-size:11px;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .15s;font-family:'JetBrains Mono',monospace}
+.help-btn:hover{border-color:#00ff88;color:#00ff88}
+
+/* DEMO BANNER */
+.demo-banner{display:none;align-items:center;justify-content:center;gap:8px;background:#ffaa0010;border-bottom:1px solid #ffaa0044;padding:6px;font-size:10px;color:#ffaa00;flex-shrink:0;text-transform:uppercase;letter-spacing:2px}
+.demo-banner.active{display:flex}
+
+/* DASHBOARD */
+.dashboard{display:grid;grid-template-columns:38% 62%;height:calc(100vh - 44px);overflow:hidden}
+.dashboard.demomode{height:calc(100vh - 68px)}
+.panel{background:#0d0d14;border-right:1px solid #1a1a2e;overflow:hidden;display:flex;flex-direction:column}
+.panel:last-child{border-right:none}
+.panel-header{display:flex;align-items:center;justify-content:space-between;padding:8px 14px;background:#0d0d14;border-bottom:1px solid #1a1a2e;font-weight:600;font-size:10px;color:#555566;text-transform:uppercase;letter-spacing:1.5px;flex-shrink:0;min-height:32px}
+.panel-header .badge{color:#00ff88;font-size:9px;background:#00ff8808;padding:1px 7px;border-radius:8px;border:1px solid #00ff8822}
+.panel-body{flex:1;overflow-y:auto;padding:0}
+
+/* RECOMMENDATIONS BANNER */
+rec-banner{display:none;flex-direction:column;border-bottom:1px solid #1a1a2e;background:#0d0d14;flex-shrink:0}
+rec-banner.active{display:flex}
+rec-header{display:flex;align-items:center;justify-content:space-between;padding:6px 14px;font-size:9px;color:#555566;text-transform:uppercase;letter-spacing:1px;cursor:pointer}
+rec-header:hover{color:#e0e0e0}
+rec-body{padding:6px 14px 10px;display:flex;flex-direction:column;gap:6px}
+rec-card{display:flex;align-items:center;gap:10px;padding:8px 10px;background:#0a0a12;border:1px solid #1a1a2e;font-size:10px}
+rec-badge{font-weight:700;padding:2px 7px;border-radius:2px;font-size:8px;text-transform:uppercase;letter-spacing:.5px;flex-shrink:0}
+rec-severity-HIGH{background:#ff335518;color:#ff3355;border:1px solid #ff335544}
+rec-severity-MEDIUM{background:#ffaa0018;color:#ffaa00;border:1px solid #ffaa0044}
+rec-severity-LOW{background:#00aaff18;color:#00aaff;border:1px solid #00aaff44}
+rec-text{flex:1}
+rec-title{color:#e0e0e0;font-weight:500}
+rec-desc{color:#555566;margin-top:2px}
+rec-action{background:transparent;border:1px solid #1a1a2e;color:#555566;padding:3px 10px;font-family:'JetBrains Mono',monospace;font-size:8px;cursor:pointer;text-transform:uppercase;letter-spacing:.5px;white-space:nowrap;transition:all .15s}
+rec-action:hover{border-color:#00ff88;color:#00ff88}
+
+/* TABLES */
+table{width:100%;border-collapse:collapse;font-size:11px}
+th{text-align:left;padding:6px 10px;color:#555566;font-weight:500;text-transform:uppercase;letter-spacing:.8px;border-bottom:1px solid #1a1a2e;position:sticky;top:0;background:#0d0d14;z-index:2;font-size:9px}
+td{padding:5px 10px;border-bottom:1px solid #0e0e1a;font-size:10px;vertical-align:middle;color:#888899;transition:background .12s}
+tr:hover td{background:#0f0f1e}
+tr.highlight-row td{border-left:3px solid #ff3355}
+tr.highlight-row{background:#ff335508}
+tr.critical td{color:#ff3355}
+tr.critical:hover td{background:#ff335510}
+
+.score-cell{display:flex;align-items:center;gap:6px;font-weight:700}
+.score-bar{width:40px;height:4px;border-radius:2px;overflow:hidden;background:#1a1a2e}
+.score-bar-fill{height:100%;border-radius:2px;transition:width .3s}
+.sb-green{background:#00ff88}
+.sb-amber{background:#ffaa00}
+.sb-red{background:#ff3355}
+
+.origin-tag{display:inline-block;padding:1px 6px;border-radius:2px;font-size:8px;font-weight:600;text-transform:uppercase;letter-spacing:.5px}
+.ot-system{background:#00aaff12;color:#00aaff;border:1px solid #00aaff22}
+.ot-application{background:#8866ff12;color:#8866ff;border:1px solid #8866ff22}
+.ot-user{background:#ffaa0012;color:#ffaa00;border:1px solid #ffaa0022}
+.ot-temp{background:#ff335512;color:#ff3355;border:1px solid #ff335522}
+.ot-desktop{background:#ff335518;color:#ff3355;border:1px solid #ff335533}
+.ot-other{background:#55556612;color:#555566;border:1px solid #55556622}
+.ot-unknown{background:#55556612;color:#555566;border:1px solid #55556622}
+
+.analyze-btn{background:transparent;border:1px solid #1a1a2e;color:#555566;padding:1px 8px;font-family:'JetBrains Mono',monospace;font-size:8px;cursor:pointer;border-radius:2px;text-transform:uppercase;letter-spacing:.5px;transition:all .12s}
+.analyze-btn:hover{border-color:#00ff88;color:#00ff88}
+.analyze-btn.danger:hover{border-color:#ff3355;color:#ff3355}
+
+/* TABS */
+.tabs{display:flex;background:#0d0d14;border-bottom:1px solid #1a1a2e;flex-shrink:0}
+.tab{position:relative;padding:7px 14px;cursor:pointer;font-size:9px;font-weight:500;color:#555566;text-transform:uppercase;letter-spacing:1.2px;border-bottom:2px solid transparent;transition:all .2s}
+.tab:hover{color:#888899}
+.tab.active{color:#00ff88;border-bottom-color:#00ff88;background:linear-gradient(0deg,#00ff8806,transparent)}
+.tab .tab-badge{display:inline-block;background:#1a1a2e;color:#555566;font-size:8px;padding:0 5px;border-radius:6px;margin-left:4px;vertical-align:middle;line-height:14px}
+.tab.active .tab-badge{background:#00ff8818;color:#00ff88}
+.tab-content{display:none;flex:1;overflow-y:auto}
+.tab-content.active{display:block}
+
+/* STATUS BADGES */
+.status-badge{display:inline-block;padding:1px 5px;border-radius:2px;font-size:8px;font-weight:600;text-transform:uppercase}
+.s-ESTABLISHED{color:#00ff88;border:1px solid #00ff8822}
+.s-TIME_WAIT{color:#ffaa00;border:1px solid #ffaa0022}
+.s-LISTEN{color:#00aaff;border:1px solid #00aaff22}
+.s-NONE{color:#555566;border:1px solid #55556622}
+.s-CLOSE_WAIT{color:#ffaa00;border:1px solid #ffaa0022}
+
+/* FLAG */
+.flag-badge{display:inline-block;padding:1px 5px;border-radius:2px;font-size:8px;font-weight:600}
+.flag-malicious{background:#ff335515;color:#ff3355;border:1px solid #ff335544}
+.flag-clean{background:#00ff8808;color:#00ff88;border:1px solid #00ff8822}
+
+/* TAGS */
+.tag{display:inline-block;padding:1px 5px;border-radius:2px;font-size:8px;font-weight:600;text-transform:uppercase;letter-spacing:.3px}
+.tag-auth_failure{background:#ff335518;color:#ff3355;border:1px solid #ff335544}
+.tag-auth_success{background:#00ff8808;color:#00ff88;border:1px solid #00ff8822}
+.tag-service_start{background:#00aaff10;color:#00aaff;border:1px solid #00aaff22}
+.tag-privilege_escalation{background:#ffaa0015;color:#ffaa00;border:1px solid #ffaa0044;animation:pulse-badge 2s infinite}
+@keyframes pulse-badge{0%{opacity:1}50%{opacity:.6}100%{opacity:1}}
+.tag-unknown{background:#55556610;color:#555566;border:1px solid #55556622}
+
+/* EVENT ICONS */
+.evt-icon{font-size:11px;margin-right:4px}
+.evt-create{color:#00aaff}
+.evt-modify{color:#ffaa00}
+.evt-delete{color:#ff3355}
+.evt-move{color:#555566}
+
+/* IOC */
+.ioc-box{display:flex;gap:8px;padding:12px 14px;border-bottom:1px solid #1a1a2e}
+.ioc-box input{flex:1;background:#08080e;border:1px solid #1a1a2e;padding:10px 14px;color:#e0e0e0;font-family:'JetBrains Mono',monospace;font-size:12px;outline:none;transition:border-color .2s}
+.ioc-box input:focus{border-color:#00ff88}
+.ioc-box button{background:#00ff88;color:#050508;border:none;padding:10px 20px;font-family:'JetBrains Mono',monospace;font-weight:700;font-size:10px;cursor:pointer;text-transform:uppercase;letter-spacing:2px;transition:background .15s}
+.ioc-box button:hover{background:#00cc66}
+.ioc-result{padding:12px 14px 4px;font-size:11px}
+.ioc-card{background:#0a0a12;border:1px solid #1a1a2e;padding:12px 14px;margin:0 14px 8px;font-size:10px}
+.ioc-card.threat{border-color:#ff335544;background:#ff335508}
+.ioc-card.clean{border-color:#00ff8822;background:#00ff8808}
+.ioc-meta{display:grid;grid-template-columns:1fr 1fr;gap:4px 16px;margin-top:8px;font-size:9px}
+.ioc-meta .l{color:#555566}
+.ioc-meta .v{color:#e0e0e0}
+.ioc-link{color:#00aaff;text-decoration:none;font-size:9px;margin-top:6px;display:inline-block}
+.ioc-link:hover{text-decoration:underline}
+.ioc-history{padding:8px 14px;border-top:1px solid #1a1a2e;font-size:9px}
+.ioc-history span{cursor:pointer;color:#555566;margin-right:10px;transition:color .15s}
+.ioc-history span:hover{color:#00ff88}
+
+/* LOG FILTER BAR */
+.filter-bar{display:flex;gap:4px;padding:6px 10px;border-bottom:1px solid #1a1a2e;flex-wrap:wrap}
+.filter-btn{background:transparent;border:1px solid #1a1a2e;color:#555566;padding:2px 8px;font-family:'JetBrains Mono',monospace;font-size:8px;cursor:pointer;text-transform:uppercase;letter-spacing:.5px;transition:all .12s;border-radius:2px}
+.filter-btn:hover{border-color:#555566;color:#888899}
+.filter-btn.active{border-color:#00ff88;color:#00ff88;background:#00ff8808}
+.filter-btn.export-btn{margin-left:auto;color:#00aaff;border-color:#00aaff22}
+.filter-btn.export-btn:hover{border-color:#00aaff;color:#00aaff}
+
+/* SLIDE PANEL */
+#slide-overlay{position:fixed;inset:0;z-index:8000;display:none;background:#000000aa}
+#slide-overlay.active{display:block}
+#slide-panel{position:fixed;top:0;right:-480px;width:480px;max-width:90vw;height:100vh;background:#0d0d14;border-left:1px solid #1a1a2e;z-index:8001;transition:right .3s cubic-bezier(.4,0,.2,1);display:flex;flex-direction:column;overflow:hidden}
+#slide-panel.open{right:0}
+.slide-header{display:flex;align-items:center;justify-content:space-between;padding:14px 18px;border-bottom:1px solid #1a1a2e;flex-shrink:0}
+.slide-header h2{font-size:13px;font-weight:600;color:#e0e0e0}
+.slide-close{cursor:pointer;color:#555566;font-size:20px;line-height:1;padding:0 4px;transition:color .15s}
+.slide-close:hover{color:#ff3355}
+.slide-body{flex:1;overflow-y:auto;padding:18px}
+.slide-section{margin-bottom:18px}
+.slide-section:last-child{margin-bottom:0}
+.slide-section h3{font-size:9px;text-transform:uppercase;letter-spacing:1.2px;color:#555566;margin-bottom:8px;padding-bottom:5px;border-bottom:1px solid #1a1a2e}
+.slide-grid{display:grid;grid-template-columns:1fr 1fr;gap:6px 20px;font-size:11px}
+.slide-grid .l{color:#555566}
+.slide-grid .v{color:#e0e0e0;word-break:break-all}
+.slide-grid .v.danger{color:#ff3355;font-weight:700}
+.slide-grid .v.warn{color:#ffaa00}
+.slide-grid .v.safe{color:#00ff88}
+.slide-action{margin-top:14px;display:inline-block;padding:8px 18px;font-family:'JetBrains Mono',monospace;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:1.5px;border:none;cursor:pointer;transition:all .15s}
+.slide-action.monitor{background:#00aaff;color:#050508}
+.slide-action.investigate{background:#ffaa00;color:#050508}
+.slide-action.terminate{background:#ff3355;color:#fff}
+.slide-action:hover{opacity:.85}
+.slide-flag{display:inline-block;padding:2px 8px;border-radius:2px;font-size:8px;font-weight:600;text-transform:uppercase;letter-spacing:.5px;margin:2px 0;background:#ff335515;color:#ff3355;border:1px solid #ff335544}
+.slide-table{width:100%;border-collapse:collapse;font-size:10px;margin-top:4px}
+.slide-table th{padding:4px 8px;color:#555566;font-size:8px;border-bottom:1px solid #1a1a2e;background:#0d0d14;position:sticky;top:0}
+.slide-table td{padding:3px 8px;border-bottom:1px solid #0e0e1a;color:#888899;font-size:9px}
+
+/* GAUGE */
+.gauge-wrap{display:flex;align-items:center;gap:14px;margin-bottom:8px}
+.gauge-svg{width:80px;height:50px}
+.gauge-label{font-size:22px;font-weight:700}
+
+/* TIMESTAMP */
+.timestamp{color:#333344;font-size:8px;padding:3px 14px;text-align:right;border-top:1px solid #0e0e1a;background:#0d0d14;flex-shrink:0}
+
+/* KEYBOARD HELP MODAL */
+#kb-overlay{position:fixed;inset:0;background:#000000aa;z-index:9998;display:none;align-items:center;justify-content:center;backdrop-filter:blur(4px)}
+#kb-overlay.active{display:flex}
+.kb-modal{background:#0d0d14;border:1px solid #1a1a2e;padding:28px 32px;max-width:440px;width:90%;position:relative}
+.kb-modal::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,#00ff88,#00aa55)}
+.kb-modal h2{font-size:13px;margin-bottom:18px;color:#e0e0e0;letter-spacing:2px;text-transform:uppercase}
+.kb-grid{display:grid;grid-template-columns:auto 1fr;gap:8px 20px;font-size:11px;align-items:center}
+.kb-key{display:inline-block;background:#0a0a12;border:1px solid #1a1a2e;padding:2px 10px;font-size:10px;font-weight:600;color:#00ff88;text-align:center;border-radius:3px;min-width:30px}
+.kb-desc{color:#888899}
+.kb-close{margin-top:20px;text-align:center;color:#555566;font-size:10px;cursor:pointer}
+.kb-close:hover{color:#00ff88}
+
+@media(max-width:900px){.dashboard{grid-template-columns:1fr}.topbar-stats{flex-wrap:wrap}.topbar-stat{padding:0 8px}}
+</style>
+</head>
+<body>
+
+<!-- LOGIN -->
+<div id="login-overlay">
+  <div class="login-box">
+    <div class="login-logo">SENTINEL<span>·</span>CLI</div>
+    <div class="login-sub">Security Operations Center</div>
+    <input type="password" id="login-pass" placeholder="ACCESS CODE" maxlength="20" autofocus>
+    <button id="login-btn">Authenticate</button>
+    <div class="login-error" id="login-error"></div>
+  </div>
+</div>
+
+<!-- SLIDE PANEL -->
+<div id="slide-overlay"></div>
+<div id="slide-panel">
+  <div class="slide-header">
+    <h2 id="slide-title">Process Analysis</h2>
+    <span class="slide-close" id="slide-close">&times;</span>
+  </div>
+  <div class="slide-body" id="slide-body"></div>
+</div>
+
+<!-- KEYBOARD HELP -->
+<div id="kb-overlay">
+  <div class="kb-modal">
+    <h2>Keyboard Shortcuts</h2>
+    <div class="kb-grid">
+      <span class="kb-key">D</span><span class="kb-desc">Toggle LIVE / DEMO mode</span>
+      <span class="kb-key">R</span><span class="kb-desc">Force refresh all panels</span>
+      <span class="kb-key">1</span><span class="kb-desc">Network tab</span>
+      <span class="kb-key">2</span><span class="kb-desc">Events tab</span>
+      <span class="kb-key">3</span><span class="kb-desc">IOC Lookup tab</span>
+      <span class="kb-key">4</span><span class="kb-desc">Logs tab</span>
+      <span class="kb-key">?</span><span class="kb-desc">Show this help</span>
+    </div>
+    <div class="kb-close" onclick="document.getElementById('kb-overlay').classList.remove('active')">CLOSE</div>
+  </div>
+</div>
+
+<!-- TOPBAR -->
+<div class="topbar">
+  <div class="topbar-brand"><span class="dot"></span>SENTINEL·CLI</div>
+  <div class="topbar-stats">
+    <div class="topbar-stat">HOST <span class="val" id="s-hostname">--</span></div>
+    <div class="topbar-stat">IP <span class="val" id="s-ip">--</span></div>
+    <div class="topbar-stat">NET <span class="val" id="s-network">--</span></div>
+    <div class="topbar-stat">OS <span class="val" id="s-os">--</span></div>
+    <div class="topbar-stat">UPTIME <span class="val" id="s-uptime">--</span></div>
+    <div class="topbar-stat">CPU <span class="val" id="s-cpu">--</span></div>
+    <div class="topbar-stat">RAM <span class="val" id="s-ram">--</span></div>
+  </div>
+  <div class="topbar-right">
+    <span class="mode-badge mode-demo" id="mode-badge">DEMO</span>
+    <button class="mode-toggle" id="mode-toggle">Toggle</button>
+    <button class="help-btn" id="help-btn" title="Keyboard shortcuts">?</button>
+  </div>
+</div>
+
+<!-- DEMO BANNER -->
+<div class="demo-banner" id="demo-banner">&#9888; DEMO MODE — Data is simulated for demonstration</div>
+
+<!-- DASHBOARD -->
+<div class="dashboard" id="dashboard">
+  <!-- LEFT PANEL: PROCESSES -->
+  <div class="panel">
+    <div class="panel-header"><span>Running Processes</span><span class="badge" id="proc-count">0</span></div>
+    <div class="panel-body">
+      <table>
+        <thead><tr><th>PID</th><th>Name</th><th>Origin</th><th>CPU</th><th>Score</th><th></th></tr></thead>
+        <tbody id="proc-tbody"></tbody>
+      </table>
+      <div class="timestamp" id="proc-ts"></div>
+    </div>
+  </div>
+
+  <!-- RIGHT PANEL -->
+  <div class="panel" style="display:flex;flex-direction:column;overflow:hidden">
+    <!-- RECOMMENDATIONS BANNER -->
+    <rec-banner id="rec-banner">
+      <rec-header id="rec-toggle"><span>Recommendations (<span id="rec-count">0</span>)</span><span id="rec-arrow">&#9660;</span></rec-header>
+      <rec-body id="rec-body" style="display:none"></rec-body>
+    </rec-banner>
+
+    <!-- TABS -->
+    <div class="tabs">
+      <div class="tab active" data-tab="network">Network <span class="tab-badge" id="net-count">0</span></div>
+      <div class="tab" data-tab="events">Events <span class="tab-badge" id="evt-count">0</span></div>
+      <div class="tab" data-tab="ioc">IOC Lookup</div>
+      <div class="tab" data-tab="logs">Logs <span class="tab-badge" id="log-count">0</span></div>
+    </div>
+
+    <!-- NETWORK TAB -->
+    <div class="tab-content active" id="tab-network" style="flex:1;display:flex;flex-direction:column;overflow:hidden">
+      <div class="panel-body" style="flex:1;overflow-y:auto">
+        <table>
+          <thead><tr><th>Local</th><th>Remote</th><th>Status</th><th>Country</th><th>Process</th></tr></thead>
+          <tbody id="net-tbody"></tbody>
+        </table>
+        <div class="timestamp" id="net-ts"></div>
+      </div>
+    </div>
+
+    <!-- EVENTS TAB -->
+    <div class="tab-content" id="tab-events" style="flex:1;display:none;flex-direction:column;overflow:hidden">
+      <div style="display:flex;gap:4px;padding:5px 10px;border-bottom:1px solid #1a1a2e;flex-shrink:0">
+        <button class="filter-btn active" id="evt-scroll-toggle">Auto-Scroll</button>
+        <button class="filter-btn" id="evt-clear" style="color:#ff3355;border-color:#ff335522">CLEAR</button>
+      </div>
+      <div class="panel-body" style="flex:1;overflow-y:auto">
+        <table>
+          <thead><tr><th>Time</th><th>Event</th><th>Path</th></tr></thead>
+          <tbody id="evt-tbody"></tbody>
+        </table>
+        <div class="timestamp" id="evt-ts"></div>
+      </div>
+    </div>
+
+    <!-- IOC TAB -->
+    <div class="tab-content" id="tab-ioc" style="display:none;flex-direction:column">
+      <div class="ioc-box">
+        <input type="text" id="ioc-input" placeholder="IP / Domain / Hash ...">
+        <button id="ioc-btn">SCAN</button>
+      </div>
+      <div id="ioc-result"></div>
+      <div class="ioc-history" id="ioc-history"></div>
+    </div>
+
+    <!-- LOGS TAB -->
+    <div class="tab-content" id="tab-logs" style="flex:1;display:none;flex-direction:column;overflow:hidden">
+      <div class="filter-bar" id="log-filter-bar">
+        <button class="filter-btn active" data-filter="all">All</button>
+        <button class="filter-btn" data-filter="auth_failure">AUTH_FAIL</button>
+        <button class="filter-btn" data-filter="auth_success">AUTH_OK</button>
+        <button class="filter-btn" data-filter="privilege_escalation">PRIV_ESC</button>
+        <button class="filter-btn" data-filter="service_start">SERVICE</button>
+        <button class="filter-btn export-btn" id="log-export">Export TXT</button>
+      </div>
+      <div class="panel-body" style="flex:1;overflow-y:auto">
+        <table>
+          <thead><tr><th>Timestamp</th><th>Tag</th><th>Source</th><th>Message</th></tr></thead>
+          <tbody id="log-tbody"></tbody>
+        </table>
+        <div class="timestamp" id="log-ts"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+const BASE = 'http://127.0.0.1:5000';
+let TOKEN = localStorage.getItem('sentinel_token') || '';
+let CURRENT_MODE = 'demo';
+let IOC_HISTORY = JSON.parse(localStorage.getItem('ioc_history') || '[]');
+let LOG_FILTER = 'all';
+
+// relative time
+function relTime(iso) {
+  if (!iso) return '';
+  const d = new Date(iso);
+  const diff = Math.floor((Date.now() - d.getTime()) / 1000);
+  if (diff < 5) return 'now';
+  if (diff < 60) return diff + 's ago';
+  if (diff < 3600) return Math.floor(diff/60) + 'm ago';
+  return Math.floor(diff/3600) + 'h ago';
+}
+
+function formatTime(t) {
+  if (!t) return '';
+  if (t.includes('T')) return t.split('T')[1].split('.')[0];
+  return t;
+}
+
+function ts() { return new Date().toLocaleTimeString(); }
+
+async function doLogin() {
+  const pass = document.getElementById('login-pass').value;
+  const errEl = document.getElementById('login-error');
+  try {
+    const r = await fetch(BASE + '/api/auth', {method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({password:pass})});
+    const d = await r.json();
+    if (!r.ok) { errEl.textContent = 'ACCESS DENIED'; return; }
+    TOKEN = d.token;
+    localStorage.setItem('sentinel_token', TOKEN);
+    CURRENT_MODE = d.mode || 'demo';
+    document.getElementById('login-overlay').classList.add('hidden');
+    document.getElementById('s-hostname').textContent = d.hostname;
+    document.getElementById('s-ip').textContent = d.ip;
+    document.getElementById('s-network').textContent = d.network;
+    errEl.textContent = '';
+    updateModeUI();
+    init();
+  } catch(e) { errEl.textContent = 'Connection error: ' + e.message; }
+}
+
+document.getElementById('login-btn').addEventListener('click', doLogin);
+document.getElementById('login-pass').addEventListener('keydown', e => { if(e.key==='Enter') doLogin(); });
+
+if (TOKEN) {
+  fetch(BASE + '/api/status', {headers:{'Authorization':'Bearer '+TOKEN}})
+    .then(r => { if(r.ok) { document.getElementById('login-overlay').classList.add('hidden'); CURRENT_MODE = 'demo'; updateModeUI(); init(); } else { localStorage.removeItem('sentinel_token'); } })
+    .catch(() => { localStorage.removeItem('sentinel_token'); });
+}
+
+// Mode toggle
+document.getElementById('mode-toggle').addEventListener('click', async () => {
+  const newMode = CURRENT_MODE === 'demo' ? 'live' : 'demo';
+  const r = await fetch(BASE + '/api/mode', {method:'POST',headers:{'Content-Type':'application/json','Authorization':'Bearer '+TOKEN},body:JSON.stringify({mode:newMode})});
+  if (!r.ok) return;
+  const d = await r.json();
+  CURRENT_MODE = d.mode;
+  updateModeUI();
+  refreshAll();
+});
+
+function updateModeUI() {
+  const badge = document.getElementById('mode-badge');
+  const banner = document.getElementById('demo-banner');
+  const dash = document.getElementById('dashboard');
+  badge.textContent = CURRENT_MODE.toUpperCase();
+  badge.className = 'mode-badge ' + (CURRENT_MODE === 'demo' ? 'mode-demo' : 'mode-live');
+  banner.classList.toggle('active', CURRENT_MODE === 'demo');
+  dash.classList.toggle('demomode', CURRENT_MODE === 'demo');
+  document.title = 'SENTINEL-CLI \u00b7 ' + (CURRENT_MODE === 'demo' ? 'DEMO MODE' : 'LIVE');
+}
+
+// Tab switching
+document.querySelectorAll('.tab').forEach(t => {
+  t.addEventListener('click', () => {
+    document.querySelectorAll('.tab').forEach(x => x.classList.remove('active'));
+    document.querySelectorAll('.tab-content').forEach(x => { x.style.display = 'none'; x.classList.remove('active'); });
+    t.classList.add('active');
+    const id = 'tab-' + t.dataset.tab;
+    const el = document.getElementById(id);
+    el.style.display = 'flex';
+    el.style.flexDirection = 'column';
+    el.classList.add('active');
+  });
+});
+
+// IOC
+let iocTimer;
+document.getElementById('ioc-btn').addEventListener('click', async () => {
+  const q = document.getElementById('ioc-input').value.trim();
+  if (!q) return;
+  const res = await fetch(BASE + '/api/ioc/check', {method:'POST',headers:{'Content-Type':'application/json','Authorization':'Bearer '+TOKEN},body:JSON.stringify({query:q})});
+  if (!res.ok) return;
+  const d = await res.json();
+  const el = document.getElementById('ioc-result');
+  if (d.found) {
+    el.innerHTML = `<div class="ioc-card threat"><strong style="color:#ff3355">THREAT DETECTED</strong><div class="ioc-meta"><span class="l">Query:</span><span class="v">${d.query}</span><span class="l">Type:</span><span class="v">${d.type.toUpperCase()}</span><span class="l">Category:</span><span class="v" style="color:#ff3355">MALICIOUS</span><span class="l">Confidence:</span><span class="v" style="color:#ffaa00">HIGH (95%)</span></div><a class="ioc-link" href="https://www.virustotal.com/gui/search/${encodeURIComponent(d.query)}" target="_blank">Check on VirusTotal &rarr;</a></div>`;
+  } else {
+    el.innerHTML = `<div class="ioc-card clean"><strong style="color:#00ff88">CLEAR</strong> — No threats detected for "${d.query}"</div>`;
+  }
+  IOC_HISTORY = [q, ...IOC_HISTORY.filter(x => x !== q)].slice(0, 5);
+  localStorage.setItem('ioc_history', JSON.stringify(IOC_HISTORY));
+  renderIocHistory();
+});
+document.getElementById('ioc-input').addEventListener('keydown', e => { if(e.key==='Enter') document.getElementById('ioc-btn').click(); });
+
+function renderIocHistory() {
+  const el = document.getElementById('ioc-history');
+  el.innerHTML = 'Recent: ' + IOC_HISTORY.map(q => `<span onclick="document.getElementById('ioc-input').value='${q.replace(/'/g,"\\'")}';document.getElementById('ioc-btn').click()">${q}</span>`).join('');
+}
+renderIocHistory();
+
+// Log filter
+document.querySelectorAll('[data-filter]').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('[data-filter]').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    LOG_FILTER = btn.dataset.filter;
+    fetchLogs();
+  });
+});
+document.getElementById('log-export').addEventListener('click', async () => {
+  const r = await fetch(BASE + '/api/logs/export', {headers:{'Authorization':'Bearer '+TOKEN}});
+  if (!r.ok) return;
+  const text = await r.text();
+  const blob = new Blob([text], {type:'text/plain'});
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = 'sentinel_logs_' + Date.now() + '.txt';
+  a.click();
+});
+
+// Events controls
+let evtAutoScroll = true;
+document.getElementById('evt-scroll-toggle').addEventListener('click', function() {
+  evtAutoScroll = !evtAutoScroll;
+  this.classList.toggle('active');
+  this.textContent = evtAutoScroll ? 'Auto-Scroll' : 'Paused';
+});
+document.getElementById('evt-clear').addEventListener('click', () => {
+  document.getElementById('evt-tbody').innerHTML = '';
+  document.getElementById('evt-count').textContent = '0';
+});
+
+// Recommendations toggle
+document.getElementById('rec-toggle').addEventListener('click', () => {
+  const body = document.getElementById('rec-body');
+  body.style.display = body.style.display === 'none' ? 'flex' : 'none';
+  document.getElementById('rec-arrow').textContent = body.style.display === 'none' ? '\u25BC' : '\u25B2';
+});
+
+// Slide panel
+function openSlide(pid) {
+  document.getElementById('slide-overlay').classList.add('active');
+  document.getElementById('slide-panel').classList.add('open');
+  loadSlide(pid);
+}
+document.getElementById('slide-overlay').addEventListener('click', closeSlide);
+document.getElementById('slide-close').addEventListener('click', closeSlide);
+function closeSlide() {
+  document.getElementById('slide-overlay').classList.remove('active');
+  document.getElementById('slide-panel').classList.remove('open');
+}
+
+async function loadSlide(pid) {
+  const body = document.getElementById('slide-body');
+  body.innerHTML = '<div style="padding:20px;text-align:center;color:#555566">Loading...</div>';
+  let detail;
+  try {
+    const r = await fetch(BASE + '/api/process/' + pid, {headers:{'Authorization':'Bearer '+TOKEN}});
+    if (!r.ok) { body.innerHTML = '<div style="padding:20px;color:#ff3355">Error loading process</div>'; return; }
+    detail = await r.json();
+  } catch(e) { body.innerHTML = '<div style="padding:20px;color:#ff3355">Connection error</div>'; return; }
+
+  document.getElementById('slide-title').textContent = 'Analysis: ' + (detail.name||'Unknown') + ' (PID ' + pid + ')';
+
+  const score = detail.threat_score || 0;
+  const scoreColor = score < 30 ? '#00ff88' : score < 60 ? '#ffaa00' : '#ff3355';
+  const scoreLabel = score < 30 ? 'LOW' : score < 60 ? 'MEDIUM' : 'HIGH';
+  const angle = (score / 100) * 180;
+
+  const action = detail.recommended_action || (score >= 75 ? 'TERMINATE' : score >= 40 ? 'INVESTIGATE' : 'MONITOR');
+  const actionColor = action === 'MONITOR' ? '#00aaff' : action === 'INVESTIGATE' ? '#ffaa00' : '#ff3355';
+
+  const flagsHtml = (detail.behavioral_flags || []).map(f => `<div class="slide-flag">${f}</div>`).join('');
+  const connHtml = (detail.connections || []).slice(0, 15).map(c =>
+    `<tr><td>${c.laddr||'-'}</td><td>${c.raddr||'-'}</td><td>${c.status||'-'}</td></tr>`
+  ).join('');
+  const created = detail.created ? new Date(detail.created * 1000).toLocaleString() : 'N/A';
+  const cmdline = (detail.cmdline || []).join(' ') || 'N/A';
+
+  body.innerHTML = `
+    <div class="slide-section">
+      <div class="gauge-wrap">
+        <svg class="gauge-svg" viewBox="0 0 80 50">
+          <path d="M 5 45 A 35 35 0 0 1 75 45" fill="none" stroke="#1a1a2e" stroke-width="6" stroke-linecap="round"/>
+          <path d="M 5 45 A 35 35 0 0 1 75 45" fill="none" stroke="${scoreColor}" stroke-width="6" stroke-linecap="round"
+            stroke-dasharray="${(angle/180)*110} 110" />
+        </svg>
+        <div><div class="gauge-label" style="color:${scoreColor}">${score}/100</div><div style="font-size:9px;color:#555566;text-transform:uppercase">${scoreLabel} RISK</div></div>
+      </div>
+    </div>
+    <div class="slide-section">
+      <h3>Summary</h3>
+      <div class="slide-grid">
+        <div><span class="l">PID</span><div class="v">${detail.pid}</div></div>
+        <div><span class="l">Name</span><div class="v">${detail.name||'N/A'}</div></div>
+        <div><span class="l">Origin</span><div class="v ${detail.origin==='TEMP'||detail.origin==='DESKTOP'?'warn':''}">${detail.origin||'Unknown'}</div></div>
+        <div><span class="l">User</span><div class="v">${detail.username||'N/A'}</div></div>
+        <div><span class="l">Status</span><div class="v">${detail.status||'N/A'}</div></div>
+        <div><span class="l">Parent</span><div class="v">${detail.parent_name||'N/A'} (PID ${detail.ppid||'?'})</div></div>
+        <div><span class="l">Threads</span><div class="v">${detail.num_threads||0}</div></div>
+        <div><span class="l">CPU / MEM</span><div class="v">${detail.cpu_percent||0}% / ${detail.memory_percent||0}%</div></div>
+        <div style="grid-column:1/3"><span class="l">Executable</span><div class="v">${detail.exe||'N/A'}</div></div>
+        <div style="grid-column:1/3"><span class="l">Command Line</span><div class="v" style="font-size:9px;color:#888899">${cmdline}</div></div>
+        <div style="grid-column:1/3"><span class="l">Working Dir</span><div class="v">${detail.cwd||'N/A'}</div></div>
+        <div style="grid-column:1/3"><span class="l">Created</span><div class="v">${created}</div></div>
+      </div>
+    </div>
+    ${flagsHtml ? `<div class="slide-section"><h3>Behavioral Flags</h3>${flagsHtml}</div>` : ''}
+    ${connHtml ? `<div class="slide-section"><h3>Network Connections (${(detail.connections||[]).length})</h3><table class="slide-table"><thead><tr><th>Local</th><th>Remote</th><th>Status</th></tr></thead><tbody>${connHtml}</tbody></table></div>` : ''}
+    <div class="slide-section">
+      <h3>Recommended Action</h3>
+      <button class="slide-action ${action.toLowerCase()}" onclick="alert('Kill command copied: taskkill /F /PID ${detail.pid}')">${action}</button>
+      <span style="font-size:9px;color:#555566;margin-left:10px">${action === 'TERMINATE' ? '(copies kill command)' : ''}</span>
+    </div>
+  `;
+}
+
+// API fetchers
+async function fetchStatus() {
+  const r = await fetch(BASE + '/api/status', {headers:{'Authorization':'Bearer '+TOKEN}});
+  if (r.status===401) { localStorage.removeItem('sentinel_token'); location.reload(); return; }
+  if (!r.ok) return;
+  const d = await r.json();
+  document.getElementById('s-hostname').textContent = d.hostname;
+  document.getElementById('s-ip').textContent = d.ip;
+  document.getElementById('s-network').textContent = d.network;
+  document.getElementById('s-os').textContent = d.os;
+  document.getElementById('s-uptime').textContent = d.uptime;
+  document.getElementById('s-cpu').textContent = d.cpu_percent + '%';
+  const ramEl = document.getElementById('s-ram');
+  ramEl.textContent = d.memory_percent + '%';
+  ramEl.className = 'val ' + (d.memory_percent > 80 ? 'danger' : d.memory_percent > 60 ? 'warn' : '');
+  if (d.mode && d.mode !== CURRENT_MODE) { CURRENT_MODE = d.mode; updateModeUI(); }
+}
+
+async function fetchProcesses() {
+  const r = await fetch(BASE + '/api/processes', {headers:{'Authorization':'Bearer '+TOKEN}});
+  if (!r.ok) return;
+  const d = await r.json();
+  document.getElementById('proc-count').textContent = d.count;
+  const tbody = document.getElementById('proc-tbody');
+  tbody.innerHTML = '';
+  for (const p of d.processes) {
+    const score = p.threat_score || 0;
+    const sClass = score < 30 ? 'sb-green' : score < 60 ? 'sb-amber' : 'sb-red';
+    const barW = Math.min(score, 100);
+    const origKey = (p.origin||'unknown').toLowerCase();
+    const tr = document.createElement('tr');
+    const rowClass = score >= 60 ? 'critical highlight-row' : '';
+    if (rowClass) tr.className = rowClass;
+    const btnClass = score >= 40 ? 'danger' : '';
+    const mem = p.memory_percent !== undefined ? p.memory_percent : '';
+    tr.innerHTML = `<td style="color:#555566">${p.pid}</td>
+      <td style="color:#e0e0e0;font-weight:500">${p.name}</td>
+      <td><span class="origin-tag ot-${origKey}">${p.origin||'?'}</span></td>
+      <td>${p.cpu_percent !== undefined ? p.cpu_percent : ''}</td>
+      <td><div class="score-cell"><div class="score-bar"><div class="score-bar-fill ${sClass}" style="width:${barW}%"></div></div>${score}</div></td>
+      <td><button class="analyze-btn ${btnClass}" onclick="openSlide(${p.pid})">&#9654; Analyze</button></td>`;
+    tbody.appendChild(tr);
+  }
+  document.getElementById('proc-ts').textContent = 'Updated: ' + ts();
+}
+
+async function fetchNetwork() {
+  const r = await fetch(BASE + '/api/network', {headers:{'Authorization':'Bearer '+TOKEN}});
+  if (!r.ok) return;
+  const d = await r.json();
+  document.getElementById('net-count').textContent = d.count;
+  const tbody = document.getElementById('net-tbody');
+  tbody.innerHTML = '';
+  for (const c of d.connections) {
+    const flagCls = c.flagged ? 'flag-malicious' : 'flag-clean';
+    const flagLabel = c.flagged ? 'TOR' : (c.country || '\u2014');
+    const sCls = 's-' + (c.status||'NONE').replace(/[^A-Z_]/g,'');
+    const tr = document.createElement('tr');
+    if (c.flagged) tr.className = 'highlight-row';
+    tr.innerHTML = `<td style="color:#555566;font-size:9px">${c.local_addr}</td>
+      <td style="font-size:9px">${c.remote_addr||'\u2014'}</td>
+      <td><span class="status-badge ${sCls}">${c.status||'\u2014'}</span></td>
+      <td><span class="flag-badge ${flagCls}">${flagLabel}</span></td>
+      <td style="color:#888899">${c.process_name||''}</td>`;
+    tbody.appendChild(tr);
+  }
+  document.getElementById('net-ts').textContent = 'Updated: ' + ts();
+}
+
+async function fetchEvents() {
+  const r = await fetch(BASE + '/api/events?limit=50', {headers:{'Authorization':'Bearer '+TOKEN}});
+  if (!r.ok) return;
+  const d = await r.json();
+  document.getElementById('evt-count').textContent = d.count;
+  const tbody = document.getElementById('evt-tbody');
+  if (!evtAutoScroll) return;
+  tbody.innerHTML = '';
+  for (const e of d.events) {
+    const iconMap = {created:'📁', modified:'✏️', deleted:'🗑', moved:'📦'};
+    const colorMap = {created:'evt-create', modified:'evt-modify', deleted:'evt-delete', moved:'evt-move'};
+    const icon = iconMap[e.type] || '';
+    const cl = colorMap[e.type] || '';
+    const tr = document.createElement('tr');
+    tr.innerHTML = `<td style="color:#555566;font-size:9px">${relTime(e.time)||'--'}</td>
+      <td><span class="${cl}">${icon} <span style="text-transform:uppercase">${e.type}</span></span></td>
+      <td style="color:#888899;font-size:9px">${e.path||''}</td>`;
+    tbody.appendChild(tr);
+  }
+  if (evtAutoScroll) {
+    const b = document.querySelector('#tab-events .panel-body');
+    if (b) b.scrollTop = 0;
+  }
+  document.getElementById('evt-ts').textContent = 'Updated: ' + ts();
+}
+
+async function fetchLogs() {
+  const r = await fetch(BASE + '/api/logs?limit=100', {headers:{'Authorization':'Bearer '+TOKEN}});
+  if (!r.ok) return;
+  const d = await r.json();
+  document.getElementById('log-count').textContent = d.count;
+  const filtered = LOG_FILTER === 'all' ? d.logs : d.logs.filter(l => l.event_type === LOG_FILTER);
+  const tbody = document.getElementById('log-tbody');
+  tbody.innerHTML = '';
+  for (const l of filtered) {
+    const tr = document.createElement('tr');
+    tr.innerHTML = `<td style="color:#555566;font-size:9px">${l.timestamp||''}</td>
+      <td><span class="tag tag-${l.event_type}">${l.event_type.replace('_',' ')}</span></td>
+      <td style="color:#888899;font-size:9px">${l.source||''}</td>
+      <td style="color:#888899;font-size:9px;max-width:300px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="${(l.message||'').replace(/"/g,'&quot;')}">${l.message||''}</td>`;
+    tbody.appendChild(tr);
+  }
+  document.getElementById('log-ts').textContent = 'Updated: ' + ts();
+}
+
+async function fetchRecommendations() {
+  const r = await fetch(BASE + '/api/recommendations', {headers:{'Authorization':'Bearer '+TOKEN}});
+  if (!r.ok) return;
+  const d = await r.json();
+  const banner = document.getElementById('rec-banner');
+  const body = document.getElementById('rec-body');
+  if (!d || d.length === 0) { banner.classList.remove('active'); return; }
+  banner.classList.add('active');
+  document.getElementById('rec-count').textContent = d.length;
+  body.innerHTML = d.map(r => `
+    <rec-card>
+      <rec-badge class="rec-severity-${r.severity}">${r.severity}</rec-badge>
+      <rec-text><rec-title>${r.title}</rec-title><rec-desc>${r.description}</rec-desc></rec-text>
+      <button class="rec-action" onclick="${r.action==='Open process list' ? "document.querySelector('[data-tab=processes]').click()" : "alert('Action: "+r.action.replace(/'/g,"\\'")+"')"}">Run</button>
+    </rec-card>
+  `).join('');
+}
+
+function refreshAll() { fetchStatus(); fetchProcesses(); fetchNetwork(); fetchEvents(); fetchLogs(); fetchRecommendations(); }
+
+function init() {
+  refreshAll();
+  setInterval(fetchStatus, 5000);
+  setInterval(fetchProcesses, 10000);
+  setInterval(fetchNetwork, 15000);
+  setInterval(fetchEvents, 3000);
+  setInterval(fetchLogs, 10000);
+  setInterval(fetchRecommendations, 15000);
+}
+
+// Keyboard shortcuts
+document.addEventListener('keydown', e => {
+  const key = e.key.toLowerCase();
+  if (key === 'd') { document.getElementById('mode-toggle').click(); }
+  if (key === 'r') { refreshAll(); }
+  if (key === '1') { document.querySelectorAll('.tab')[0].click(); }
+  if (key === '2') { document.querySelectorAll('.tab')[1].click(); }
+  if (key === '3') { document.querySelectorAll('.tab')[2].click(); }
+  if (key === '4') { document.querySelectorAll('.tab')[3].click(); }
+  if (key === '?' || (key === '/' && e.shiftKey)) { document.getElementById('kb-overlay').classList.add('active'); }
+});
+document.getElementById('help-btn').addEventListener('click', () => document.getElementById('kb-overlay').classList.add('active'));
+document.getElementById('kb-overlay').addEventListener('click', e => { if(e.target===e.currentTarget) document.getElementById('kb-overlay').classList.remove('active'); });
+</script>
+</body>
+</html>

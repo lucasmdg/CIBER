@@ -1,0 +1,8 @@
+flask
+flask-cors
+psutil
+watchdog
+# Optional: geoip2 (for GeoIP lookups)
+# geoip2
+# Optional: pywin32 (for Windows Event Log access)
+# pywin32
