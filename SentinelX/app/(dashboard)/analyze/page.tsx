@@ -5,7 +5,8 @@ import { Card, CardContent, CardHeader, CardTitle, CardSubtitle } from "@/compon
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { useDropzone } from "react-dropzone";
-import { ShieldCheck, ShieldAlert, ShieldX, UploadCloud, Trash2, FileText, CheckCircle, Database } from "lucide-react";
+import { ShieldCheck, ShieldAlert, ShieldX, UploadCloud, Trash2, FileText, CheckCircle, Database, AlertTriangle } from "lucide-react";
+import { useToast } from "@/components/ui/toast";
 
 type FileAnalysisRecord = {
   id: string;
@@ -27,6 +28,8 @@ export default function AnalyzePage() {
   const [analyzing, setAnalyzing] = React.useState(false);
   const [currentAnalysis, setCurrentAnalysis] = React.useState<any | null>(null);
   const [error, setError] = React.useState<string | null>(null);
+  const [deleteTargetId, setDeleteTargetId] = React.useState<string | null>(null);
+  const toast = useToast();
 
   async function loadHistory() {
     try {
@@ -66,12 +69,22 @@ export default function AnalyzePage() {
       
       setCurrentAnalysis(data);
       loadHistory();
+      toast.push({
+        title: "Análisis completado",
+        description: `Muestra "${file.name}" analizada con veredicto: ${data.verdict.toUpperCase()}`,
+        tone: data.verdict === "clean" ? "success" : data.verdict === "suspicious" ? "warn" : "danger"
+      });
     } catch (err) {
       setError((err as Error).message);
+      toast.push({
+        title: "Error de análisis",
+        description: (err as Error).message,
+        tone: "danger"
+      });
     } finally {
       setAnalyzing(false);
     }
-  }, []);
+  }, [toast]);
 
   const { getRootProps, getInputProps, isDragActive } = useDropzone({
     onDrop,
@@ -80,21 +93,36 @@ export default function AnalyzePage() {
   });
 
   async function deleteRecord(id: string) {
-    if (!confirm("¿Está seguro de que desea eliminar este registro del historial?")) return;
+    const backupHistory = [...history];
+    
+    // Optimistic Update: remove from UI instantly
+    setHistory(prev => prev.filter(x => x.id !== id));
+    if (currentAnalysis?.id === id) {
+      setCurrentAnalysis(null);
+    }
+
     try {
       const res = await fetch(`/api/analyze/file/${id}`, {
         method: "DELETE"
       });
-      if (!res.ok) throw new Error("Fallo al eliminar.");
-      
-      // Si el registro eliminado coincide con el que estamos mostrando, lo limpiamos
-      if (currentAnalysis?.id === id) {
-        setCurrentAnalysis(null);
+      const data = await res.json();
+      if (!res.ok) {
+        throw new Error(data.error ?? "No se pudo eliminar el registro en el servidor.");
       }
-      
-      loadHistory();
+
+      toast.push({
+        title: "Registro eliminado",
+        description: "El análisis ha sido borrado del historial.",
+        tone: "success"
+      });
     } catch (err) {
-      alert((err as Error).message);
+      // Rollback on fail
+      setHistory(backupHistory);
+      toast.push({
+        title: "Error al eliminar",
+        description: (err as Error).message,
+        tone: "danger"
+      });
     }
   }
 
@@ -304,8 +332,8 @@ export default function AnalyzePage() {
                       <Button
                         size="sm"
                         variant="ghost"
-                        className="text-slate-400 hover:text-danger hover:bg-danger/10 px-2 py-1"
-                        onClick={() => deleteRecord(item.id)}
+                        className="text-slate-400 hover:text-danger hover:bg-danger/10 px-2 py-1 transition-colors duration-200"
+                        onClick={() => setDeleteTargetId(item.id)}
                         aria-label="Delete entry"
                       >
                         <Trash2 className="h-3.5 w-3.5" />
@@ -318,6 +346,43 @@ export default function AnalyzePage() {
           </CardContent>
         </Card>
       </div>
+
+      {/* Custom Confirmation Modal */}
+      {deleteTargetId && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-sm p-4">
+          <div className="glass w-full max-w-md p-6 border border-white/10 shadow-2xl">
+            <div className="flex items-center gap-3 mb-4">
+              <AlertTriangle className="h-6 w-6 text-warning" />
+              <h3 className="text-sm font-semibold text-slate-100 uppercase tracking-widest">Confirmar Eliminación</h3>
+            </div>
+            <p className="text-xs text-slate-300 leading-relaxed mb-6">
+              ¿Estás seguro de que deseas eliminar permanentemente este registro del historial? Esta acción actualizará la telemetría local de forma optimista y se propagará a la base de datos de manera definitiva.
+            </p>
+            <div className="flex justify-end gap-3 font-mono text-xs">
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => setDeleteTargetId(null)}
+                className="border-white/10 text-slate-300 hover:bg-white/5"
+              >
+                Cancelar
+              </Button>
+              <Button
+                variant="danger"
+                size="sm"
+                onClick={() => {
+                  if (deleteTargetId) {
+                    deleteRecord(deleteTargetId);
+                    setDeleteTargetId(null);
+                  }
+                }}
+              >
+                Confirmar Borrado
+              </Button>
+            </div>
+          </div>
+        </div>
+      )}
     </>
   );
 }

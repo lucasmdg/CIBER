@@ -1,10 +1,10 @@
 import { PageHeader } from "@/components/layout/page-header";
 import { Card, CardContent, CardHeader, CardTitle, CardSubtitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
 import { samplePosture } from "@/lib/data/samples";
-import { Radar, ShieldCheck, ShieldAlert, ShieldX } from "lucide-react";
+import { Radar, ShieldCheck, ShieldAlert, ShieldX, Download } from "lucide-react";
 import { PostureClient } from "./client";
+import { PostureTrendChart } from "@/components/posture/trend-chart";
 
 export default function PosturePage() {
   const score = Math.round(
@@ -16,8 +16,13 @@ export default function PosturePage() {
         title="Security Posture Scanner"
         description="Safe, loopback-only configuration checks. Defensive guidance, never exploit code."
         actions={
-          <a href="/api/posture/report" className="rounded-md border border-white/10 bg-white/5 px-3 py-1.5 text-xs text-slate-200 hover:bg-white/10">
-            Download report
+          <a
+            href="/api/posture/report"
+            className="inline-flex items-center gap-1.5 rounded-md border border-white/10 bg-white/5 px-3 py-1.5 text-xs text-slate-200 hover:bg-white/10 transition-colors"
+            title="Descarga el último escaneo en JSON firmado con SHA-256"
+          >
+            <Download className="h-3.5 w-3.5" />
+            Export JSON Report
           </a>
         }
       />
@@ -74,6 +79,9 @@ export default function PosturePage() {
         </Card>
       </div>
 
+      {/* Score Trend Chart */}
+      <PostureTrendChart />
+
       <Card>
         <CardHeader>
           <div>
@@ -94,4 +102,4 @@ export default function PosturePage() {
       </Card>
     </>
   );
-}
+}

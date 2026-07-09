@@ -1,7 +1,7 @@
 import { describe, it, expect } from "vitest";
-import { assetCreateSchema, postureScanRequestSchema } from "../lib/security/validation";
-import { cn, severityColor } from "../lib/utils";
-import { can } from "../lib/rbac/roles";
+import { assetCreateSchema, postureScanRequestSchema } from "../../lib/security/validation";
+import { cn, severityColor } from "../../lib/utils";
+import { can } from "../../lib/rbac/roles";
 
 describe("validation", () => {
   it("accepts a well-formed asset", () => {

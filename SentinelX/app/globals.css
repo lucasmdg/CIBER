@@ -58,3 +58,51 @@ body {
 .scrollbar-thin::-webkit-scrollbar { width: 8px; height: 8px; }
 .scrollbar-thin::-webkit-scrollbar-thumb { background: rgba(0,180,230,0.25); border-radius: 8px; }
 .scrollbar-thin::-webkit-scrollbar-track { background: transparent; }
+
+/* Cyberpunk Glows and Radar Sweep Animations */
+@keyframes radar-sweep {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+@keyframes telemetry-pulse {
+  0%, 100% { transform: scale(1); opacity: 1; }
+  50% { transform: scale(1.02); opacity: 0.8; }
+}
+
+@keyframes cyber-pulse {
+  0%, 100% { border-color: rgba(0, 212, 255, 0.2); }
+  50% { border-color: rgba(0, 212, 255, 0.6); }
+}
+
+.animate-radar-sweep {
+  animation: radar-sweep 6s linear infinite;
+}
+
+.animate-telemetry-pulse {
+  animation: telemetry-pulse 3s ease-in-out infinite;
+}
+
+.animate-cyber-pulse {
+  animation: cyber-pulse 2s infinite;
+}
+
+.shadow-neon-cyan {
+  box-shadow: 0 0 15px rgba(0, 212, 255, 0.35);
+}
+
+.shadow-neon-green {
+  box-shadow: 0 0 15px rgba(46, 213, 115, 0.35);
+}
+
+.shadow-neon-yellow {
+  box-shadow: 0 0 15px rgba(255, 165, 0, 0.35);
+}
+
+.shadow-neon-red {
+  box-shadow: 0 0 15px rgba(255, 71, 87, 0.35);
+}
+
+.shadow-neon-cyber {
+  box-shadow: 0 0 20px rgba(0, 212, 255, 0.45);
+}

@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { sampleAssets, sampleVulns, sampleAttackPaths } from "../lib/data/samples";
+import { sampleAssets, sampleVulns, sampleAttackPaths } from "../../lib/data/samples";
 
 describe("sample data", () => {
   it("contains unique asset names", () => {

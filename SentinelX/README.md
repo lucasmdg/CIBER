@@ -1,133 +1,110 @@
-<div align="center">
+# SentinelX — Defensive Cyber Security Operations Dashboard
 
-# ??? SentinelX — Cyber Security Operations Dashboard
+[![Build & Test](https://github.com/lucasmdg/CIBER/actions/workflows/ci-sentinelx.yml/badge.svg)](https://github.com/lucasmdg/CIBER/actions/workflows/ci-sentinelx.yml)
+[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
+[![Security Policy](https://img.shields.io/badge/Security-STRIDE_Reviewed-success.svg)](SECURITY.md)
 
-A defensive, educational SOC console for blue teams, security analysts and DevSecOps engineers.
+SentinelX is a defensive, educational Security Operations Center (SOC) dashboard built with Next.js 14, TypeScript, TailwindCSS, and Prisma. It is designed to run locally, gathering system telemetry, performing static analysis on files, and providing simulated attack path simulations.
 
-[![CI](https://img.shields.io/badge/CI-GitHub_Actions-blue)]() [![CodeQL](https://img.shields.io/badge/CodeQL-enabled-blueviolet)]() [![Dependabot](https://img.shields.io/badge/Dependabot-enabled-brightgreen)]() [![Secret Scan](https://img.shields.io/badge/gitleaks-enabled-red)]() [![License: MIT](https://img.shields.io/badge/license-MIT-yellowgreen)]()
+---
 
-</div>
+## 🏗️ Architecture & Data Flow
 
-> SentinelX simulates a modern Security Operations Center. It is **100% defensive**:
-> it never runs offensive tooling, generates payloads, performs brute force, or
-> weaponises data. All telemetry is synthetic, public, or self-generated.
+The system runs entirely within a local boundary. The following diagram illustrates the data gathering, analysis, and rendering pipeline:
 
-## ? Features
+```mermaid
+flowchart TD
+    subgraph Host ["Local Host Boundary"]
+        Telemetry[System Telemetry: CPU, RAM, Sockets] -->|systeminformation| Server[Next.js Server API]
+        Files[Uploaded Sample Files] -->|multipart/form-data| Server
+    end
+    
+    subgraph Engine ["Analysis Engine (Server-side)"]
+        Server -->|Prisma Client| DB[(SQLite Database / Turso)]
+        Server -->|Entropy & Hex Analysis| StaticEngine[Static Analyzer]
+        Server -->|Directives Evaluation| PostureEngine[Posture Scanner]
+    end
 
-- **Executive Dashboard** — security score, KPIs, severity pie, trend area chart, risk heatmap, threat feed, compliance coverage.
-- **Asset Inventory** — register and manage servers, workstations, containers, cloud and network assets. Search, filter, delete.
-- **Vulnerability Management** — CVEs with CVSS, status, affected assets, sorting, filtering, search, monthly trend.
-- **Threat Intelligence Center** — public threat actors, malware families and MITRE ATT&CK coverage per tactic.
-- **Security Posture Scanner** — safe, **loopback / RFC1918 only** HTTP header and reachability checks with PDF export.
-- **Attack Path Visualization** — interactive kill-chain graphs (React Flow) for tabletop exercises.
-- **Incident Response** — NIST SP 800-61 phases timeline with per-phase events.
-- **Security Reports** — Executive, Technical, Threat and Incident reports as branded PDFs.
-
-## ?? Tech stack
-
-| Layer | Technology |
-| --- | --- |
-| Framework | Next.js 14 (App Router) |
-| Language | TypeScript (strict) |
-| Styling | Tailwind CSS + shadcn-style primitives + glassmorphism |
-| Charts | Recharts |
-| Graphs | React Flow |
-| Auth | NextAuth (Credentials) |
-| ORM | Prisma (SQLite by default, PostgreSQL ready) |
-| Validation | Zod |
-| Tests | Vitest + Playwright |
-| DevSecOps | ESLint, Prettier, Husky, Commitlint, CodeQL, Dependabot, gitleaks, npm audit |
-
-## ??? Defensive scope
-
-This repository **must** stay defensive. The following are **forbidden**:
-
-- Exploits, malware, reverse shells, persistence mechanisms
-- Credential harvesting, phishing kits, brute force tooling
-- Payload generators, weaponised scanners, unauthorised reconnaissance
-- Real user data collection
-
-See `SECURITY.md` and `THREAT_MODEL.md` for the full policy.
-
-## ?? Local development
-
-```bash
-git clone https://github.com/<your-user>/Ciber.git
-cd Ciber/SentinelX
-cp .env.example .env
-npm install
-npx prisma migrate deploy
-npx tsx prisma/seed.ts
-npx tsx prisma/seed-users.ts
-npm run dev
+    subgraph Client ["Security Console (Client-side)"]
+        StaticEngine -->|JSON Payload| UI[React UI Console]
+        PostureEngine -->|JSON Payload| UI
+        DB -->|Query Hydration| UI
+    end
 ```
 
-Then open <http://localhost:3000> and sign in with the demo credentials seeded above:
+---
 
-| Role | Email | Password |
-| --- | --- | --- |
-| Analyst | `analyst@sentinelx.local` | `SentinelX-Demo-2026` |
-| Engineer | `engineer@sentinelx.local` | `SentinelX-Demo-2026` |
-| Admin | `admin@sentinelx.local` | `SentinelX-Demo-2026` |
+## 🛠️ Tech Stack
 
-> Replace the seed password in production. The schema is configured for
-> NextAuth + Prisma adapter; rotate secrets via environment variables only.
+- **Framework**: Next.js 14 (App Router)
+- **Language**: TypeScript (Strict Mode compiler settings verified)
+- **Database ORM**: Prisma Client (SQLite local database file)
+- **Testing**: Vitest (Unit & Integration)
+- **Aesthetics**: Vanilla TailwindCSS + custom utility classes for glassmorphism and real-time state telemetry overlays
 
-## ?? Docker
+---
 
+## 🚦 System Capabilities & Verification
+
+The project is structured with a strict **Security by Design** perspective:
+1. **Host Telemetry**: Collects active TCP/UDP connection maps, speed states, and local network interface details using the `systeminformation` library.
+2. **Posture Scanning**: Safely probes headers of the local host. An `AbortController` handles manual scan cancellation to prevent UI thread lockups.
+3. **Static File Analyzer**: Extracts MD5 and SHA-256 hashes, calculates Shannon Entropy to detect packed/encrypted payloads, parse PE (Portable Executable) headers, and reports suspicious strings without executing binary instructions.
+
+---
+
+## ⚠️ Known Limitations
+
+- **No Active Network Probing**: SentinelX only probes loopback or RFC1918 local addresses. Outbound malicious port scanning is restricted.
+- **Static Analysis Depth**: The static analyzer parses files up to 10 MB in memory. It does not perform dynamic analysis, virtualization, or kernel-level sandbox execution.
+- **SQLite Database**: Designed for local execution. In production environments, replace it with a PostgreSQL backend (Turso/PostgreSQL schemas are compatible).
+
+---
+
+## 🚀 Local Development
+
+Follow these steps to run SentinelX on your machine:
+
+1. **Clone the Repository**:
+   ```bash
+   git clone https://github.com/lucasmdg/CIBER.git
+   cd CIBER/SentinelX
+   ```
+
+2. **Configure Environment Variables**:
+   ```bash
+   cp .env.example .env
+   ```
+
+3. **Install Dependencies & Generate Schema**:
+   ```bash
+   npm install
+   npx prisma generate
+   npx prisma db push
+   ```
+
+4. **Seed Database Records**:
+   ```bash
+   npx tsx prisma/seed.ts
+   npx tsx prisma/seed-users.ts
+   ```
+
+5. **Run the Development Server**:
+   ```bash
+   npm run dev
+   ```
+
+6. **Credentials for local testing**:
+   - **Analyst**: `analyst@sentinelx.local` / `SentinelX-Demo-2026`
+   - **Engineer**: `engineer@sentinelx.local` / `SentinelX-Demo-2026`
+   - **Admin**: `admin@sentinelx.local` / `SentinelX-Demo-2026`
+
+---
+
+## 🧪 Testing Suite
+
+Run the full testing verification suite:
 ```bash
-docker build -t sentinelx .
-docker compose up -d
+npm run typecheck   # Runs strict TypeScript validation
+npm test            # Runs unit tests (Vitest)
 ```
-
-For hot-reload development:
-
-```bash
-docker compose -f docker-compose.dev.yml up
-```
-
-For a real PostgreSQL backend:
-
-```bash
-docker compose --profile postgres up
-```
-
-## ?? Tests
-
-```bash
-npm run lint
-npm run typecheck
-npm test
-npm run test:e2e
-```
-
-## ?? Documentation
-
-- [ARCHITECTURE.md](docs/ARCHITECTURE.md) — system design and data model
-- [THREAT_MODEL.md](docs/THREAT_MODEL.md) — STRIDE-style model and mitigations
-- [SECURITY.md](SECURITY.md) — responsible disclosure and security policy
-- [CONTRIBUTING.md](CONTRIBUTING.md) — code style, commit conventions
-- [docs/screenshots/README.md](public/screenshots/README.md) — screenshot placeholders
-
-## ??? Screenshots
-
-Drop captures into `public/screenshots/` and reference them from
-`public/screenshots/README.md`. Suggested frames:
-
-- Executive dashboard
-- Asset inventory
-- Vulnerability list
-- Threat intelligence center
-- Posture scanner results
-- Attack path graph
-- Incident timeline
-- Report PDF preview
-
-## ?? Contributing
-
-Contributions that keep the project defensive are welcome. Read `CONTRIBUTING.md`
-and `SECURITY.md` first. Run `npm run lint && npm test` before opening a PR.
-
-## ?? License
-
-MIT — see [LICENSE](LICENSE).

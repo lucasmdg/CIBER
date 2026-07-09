@@ -14,18 +14,33 @@ export function PostureClient() {
   const [lines, setLines] = useState<string[]>([]);
   const [error, setError] = useState<string | null>(null);
   const terminalEndRef = useRef<HTMLDivElement>(null);
+  const abortControllerRef = useRef<AbortController | null>(null);
 
   // Auto scroll terminal to bottom
   useEffect(() => {
     terminalEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [lines]);
 
+  function cancel() {
+    if (abortControllerRef.current) {
+      abortControllerRef.current.abort();
+      setLines(prev => [...prev, "\n[ABORTED] Operación de escaneo cancelada por el operador. Deteniendo tareas y cerrando sockets..."]);
+      setError("Escaneo cancelado por el operador.");
+      setRunning(false);
+    }
+  }
+
   async function run() {
     setError(null);
     setRunning(true);
     setLines([]);
 
+    const controller = new AbortController();
+    abortControllerRef.current = controller;
+    const signal = controller.signal;
+
     const addLine = async (txt: string, delay = 0) => {
+      if (signal.aborted) return;
       setLines(prev => [...prev, txt]);
       if (delay > 0) {
         await sleep(delay);
@@ -33,26 +48,36 @@ export function PostureClient() {
     };
 
     try {
-      await addLine("[*] Inicializando Scanner de Postura de Seguridad...", 200);
-      await addLine(`[*] Host objetivo: ${target} (Loopback/Localhost)`, 150);
-      await addLine("[*] Cargando librerías de telemetría de hardware...", 100);
-      await addLine("[*] Cargando firmas de blacklist de procesos...", 100);
-      await addLine("[*] Conectando con el socket local... Por favor, espere.", 200);
+      await addLine("[*] Inicializando Scanner de Postura de Seguridad...", 150);
+      if (signal.aborted) return;
+      await addLine(`[*] Host objetivo: ${target} (Loopback/Localhost)`, 100);
+      if (signal.aborted) return;
+      await addLine("[*] Cargando librerías de telemetría de hardware...", 80);
+      if (signal.aborted) return;
+      await addLine("[*] Cargando firmas de blacklist de procesos...", 80);
+      if (signal.aborted) return;
+      await addLine("[*] Conectando con el socket local... Por favor, espere.", 150);
+      if (signal.aborted) return;
       
       const startTime = Date.now();
       
-      // Llamada real al endpoint
+      // Llamada real al endpoint con soporte de AbortSignal
       const r = await fetch("/api/scanner", {
         method: "POST",
         headers: { "content-type": "application/json" },
-        body: JSON.stringify({ target })
+        body: JSON.stringify({ target }),
+        signal
       });
+      
+      if (signal.aborted) return;
       const data = await r.json();
       if (!r.ok) throw new Error(data.error ?? "El escaneo ha fallado.");
 
       const duration = ((Date.now() - startTime) / 1000).toFixed(2);
-      await addLine(`[+] Conexión establecida con éxito. Telemetría recolectada en ${duration} segundos.`, 150);
-      await addLine("[*] Ejecutando análisis heurístico secuencial de directivas...", 200);
+      await addLine(`[+] Conexión establecida con éxito. Telemetría recolectada en ${duration} segundos.`, 100);
+      if (signal.aborted) return;
+      await addLine("[*] Ejecutando análisis heurístico secuencial de directivas...", 150);
+      if (signal.aborted) return;
 
       const checks = data.results as Result[];
       let fails = 0;
@@ -61,6 +86,7 @@ export function PostureClient() {
 
       // Imprimir checks secuencialmente con un delay realista de 60 a 120 ms
       for (const check of checks) {
+        if (signal.aborted) return;
         const delay = Math.floor(Math.random() * (120 - 60 + 1)) + 60;
         
         let statusString = "";
@@ -70,48 +96,108 @@ export function PostureClient() {
         } else if (check.status === "warn") {
           statusString = "[WARN]";
           warns++;
-        } else {
+        } else if (check.status === "fail") {
           statusString = "[FAIL]";
+          fails++;
+        } else {
+          statusString = "[ERROR]";
           fails++;
         }
 
         await addLine(`[CHECK] ${check.name.padEnd(45, ".")} ${statusString}`, delay);
-        await addLine(`        Detalle: ${check.detail}`, 30);
-        await addLine(`        Rec:     ${check.recommendation}`, 30);
+        if (signal.aborted) return;
+        await addLine(`        Detalle: ${check.detail}`, 20);
+        if (signal.aborted) return;
+        await addLine(`        Rec:     ${check.recommendation}`, 20);
+        if (signal.aborted) return;
         if (check.evidence) {
           const evidenceLines = check.evidence.split("\n");
           await addLine("        Evidencia:", 10);
           for (const evLine of evidenceLines) {
+            if (signal.aborted) return;
             await addLine(`          > ${evLine}`, 10);
           }
         }
-        await addLine("--------------------------------------------------------------------------------", 20);
+        await addLine("--------------------------------------------------------------------------------", 10);
       }
 
+      if (signal.aborted) return;
       // Calcular puntuación final
-      const score = Math.round((passes / (passes + warns + fails)) * 100);
+      const totalChecks = passes + warns + fails;
+      const score = totalChecks > 0 ? Math.round((passes / totalChecks) * 100) : 0;
       
-      await addLine("[+]", 100);
-      await addLine("=================================== RESUMEN ===================================", 100);
-      await addLine(`[+] Escaneo completado para el host local.`, 100);
-      await addLine(`[+] Puntuación General: ${score}/100`, 150);
-      await addLine(`[+] Métricas: ${passes} Aprobados, ${warns} Advertencias, ${fails} Fallos Críticos.`, 100);
+      await addLine("[+]", 50);
+      await addLine("=================================== RESUMEN ===================================", 50);
+      await addLine(`[+] Escaneo completado para el host local.`, 50);
+      await addLine(`[+] Puntuación General: ${score}/100`, 50);
+      await addLine(`[+] Métricas: ${passes} Aprobados, ${warns} Advertencias, ${fails} Fallos Críticos.`, 50);
       
       if (fails > 0) {
-        await addLine("[!] ADVERTENCIA: Se han detectado fallos de seguridad críticos en el host.", 100);
-        await addLine("[!] Revise las recomendaciones indicadas arriba y aplique remediaciones.", 100);
+        await addLine("[!] ADVERTENCIA: Se han detectado fallos de seguridad críticos en el host.", 50);
+        await addLine("[!] Revise las recomendaciones indicadas arriba y aplique remediaciones.", 50);
       } else {
-        await addLine("[+] EXCELENTE: El sistema cumple con todas las directivas defensivas probadas.", 100);
+        await addLine("[+] EXCELENTE: El sistema cumple con todas las directivas defensivas probadas.", 50);
       }
-      await addLine("===============================================================================", 50);
+      await addLine("===============================================================================", 30);
 
     } catch (e) {
+      if (e instanceof Error && e.name === "AbortError") {
+        // Ya manejado por cancel()
+        return;
+      }
       setError(e instanceof Error ? e.message : "El escaneo ha fallado.");
-      setLines(prev => [...prev, `\n[ERR] Error durante el proceso de escaneo: ${e instanceof Error ? e.message : "Fallo de conexión"}`]);
+      setLines(prev => [...prev, `\n[ERROR] Error durante el proceso de escaneo: ${e instanceof Error ? e.message : "Fallo de conexión"}`]);
     } finally {
-      setRunning(false);
+      if (abortControllerRef.current === controller) {
+        setRunning(false);
+      }
     }
   }
+
+  const renderLine = (line: string) => {
+    if (line.includes("[PASS]")) {
+      const parts = line.split("[PASS]");
+      return (
+        <div className="whitespace-pre-wrap leading-relaxed text-slate-300">
+          {parts[0]}<span className="text-success font-bold">[PASS]</span>{parts[1]}
+        </div>
+      );
+    }
+    if (line.includes("[WARN]")) {
+      const parts = line.split("[WARN]");
+      return (
+        <div className="whitespace-pre-wrap leading-relaxed text-slate-300">
+          {parts[0]}<span className="text-warning font-bold">[WARN]</span>{parts[1]}
+        </div>
+      );
+    }
+    if (line.includes("[FAIL]")) {
+      const parts = line.split("[FAIL]");
+      return (
+        <div className="whitespace-pre-wrap leading-relaxed text-slate-300">
+          {parts[0]}<span className="text-danger font-bold">[FAIL]</span>{parts[1]}
+        </div>
+      );
+    }
+    if (line.includes("[ERROR]")) {
+      const parts = line.split("[ERROR]");
+      return (
+        <div className="whitespace-pre-wrap leading-relaxed text-slate-300">
+          {parts[0]}<span className="text-danger font-bold">[ERROR]</span>{parts[1]}
+        </div>
+      );
+    }
+    if (line.includes("[ABORTED]")) {
+      return <div className="whitespace-pre-wrap leading-relaxed text-warning font-bold">{line}</div>;
+    }
+    if (line.startsWith("[*]")) {
+      return <div className="whitespace-pre-wrap leading-relaxed text-cyber-300">{line}</div>;
+    }
+    if (line.startsWith("[+]")) {
+      return <div className="whitespace-pre-wrap leading-relaxed text-success">{line}</div>;
+    }
+    return <div className="whitespace-pre-wrap leading-relaxed text-slate-400">{line}</div>;
+  };
 
   return (
     <div className="mt-4 space-y-4">
@@ -141,6 +227,15 @@ export function PostureClient() {
             </>
           )}
         </Button>
+        {running && (
+          <Button 
+            onClick={cancel} 
+            variant="danger"
+            className="font-semibold flex items-center gap-1.5"
+          >
+            Cancelar
+          </Button>
+        )}
       </div>
 
       {error && <p className="text-xs text-danger font-mono bg-danger/5 border border-danger/25 p-2 rounded">{error}</p>}
@@ -155,7 +250,7 @@ export function PostureClient() {
           <span className="text-[10px] tracking-wider uppercase text-slate-500">Live Shell Output</span>
         </div>
 
-        <div className="scrollbar-thin h-96 overflow-y-auto font-mono text-xs text-[#2ed573] space-y-1 select-text scroll-smooth">
+        <div className="scrollbar-thin h-96 overflow-y-auto font-mono text-xs space-y-1 select-text scroll-smooth">
           {lines.length === 0 ? (
             <div className="flex h-full flex-col items-center justify-center text-slate-600 gap-2 select-none">
               <Shield className="h-8 w-8 text-slate-700 animate-pulse" />
@@ -163,8 +258,8 @@ export function PostureClient() {
             </div>
           ) : (
             lines.map((line, i) => (
-              <div key={i} className="whitespace-pre-wrap leading-relaxed">
-                {line}
+              <div key={i}>
+                {renderLine(line)}
               </div>
             ))
           )}

@@ -44,6 +44,23 @@ Para prevenir ataques de fuerza bruta y ataques automatizados de denegación de 
 
 ## 🔍 4. Validación estricta y Sanitización de Datos
 
-- **Zod Validation Schema (`lib/security/validation.ts`)**: Todas las cargas útiles de las APIs (JSON) se validan estrictamente mediante esquemas Zod antes de procesarse, garantizando tipado correcto y descartando campos no deseados.
-- **Sanitización de Cadenas**: Se aplican filtros de limpieza a los campos textuales para evadir inyecciones de código HTML/JavaScript (mitigación activa de cross-site scripting o XSS).
 - **Protección contra Directory Traversal**: Al analizar o procesar archivos en el backend, los nombres de archivos se limpian para eliminar secuencias peligrosas tipo `../`.
+
+---
+
+## 🕵️ 5. Ejecución Segura y Análisis de Privilegios (Simulador de Postura)
+
+### Diseño 100% Read-Only (Lectura)
+El **Scanner de Postura** de SentinelX ha sido diseñado bajo el principio de **Mínimo Privilegio**. El escáner es **100% pasivo e instructivo**:
+1. **Límites de Red**: Solo realiza solicitudes HTTP hacia interfaces locales (`localhost`, `127.0.0.1` o rangos RFC1918).
+2. **Telemetría del Host**: Lee el estado de sockets abiertos, porcentaje de carga de CPU y memoria RAM. No altera la configuración de red, no cierra puertos ni modifica las directivas de seguridad locales del sistema.
+3. **No-Offensive Policy**: No inyecta payloads, no realiza escaneos de vulnerabilidades activas ni ejecuta exploits.
+
+### Análisis del Peor Caso: Privilegios Excesivos
+Si SentinelX se ejecutara con privilegios del sistema excesivos (ej: como usuario `root` en Linux o `Administrator` en Windows):
+- **Impacto Potencial**: Un fallo o inyección en el analizador de archivos o en los comandos de telemetría de `systeminformation` podría permitir a un atacante que comprometa el servidor web de Next.js ejecutar comandos con privilegios totales sobre la máquina host (Command Injection).
+- **Medidas de Mitigación**:
+  - **Ejecución sin Privilegios**: La aplicación web se ejecuta por defecto dentro de un contenedor Docker en modo de usuario no-root (`node`).
+  - **Sanitización de Comandos**: Ninguna entrada del usuario (como el `target` URL del escáner) se interpola directamente en una shell de comandos (`exec`/`spawn`). El control de target se valida mediante expresiones regulares para verificar únicamente dominios válidos o IPs RFC1918 antes de cualquier resolución.
+  - **Entorno Aislado**: El analizador estático opera exclusivamente en buffers binarios en memoria, asegurando que las muestras no se escriban en disco en formato ejecutable.
+

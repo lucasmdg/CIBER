@@ -53,3 +53,20 @@ Esta página detalla el alcance, las llamadas técnicas y las justificaciones de
 - **Feeds Públicos**: Consume directamente el feed de CISA KEV (Known Exploited Vulnerabilities) y la matriz MITRE ATT&CK.
 - **Caché contra Abuse**: Las respuestas de las llamadas HTTP a CISA y MITRE se almacenan de forma serializada en la tabla `ExternalCache` de Prisma y se invalidan automáticamente cada 24 horas, optimizando tiempos de carga y previniendo bloqueos de IP.
 - **Buscador de IOCs**: Buscador reactivo donde el analista introduce IPs, hashes o dominios y se realiza un escaneo cruzado contra la base de datos local y el feed KEV.
+
+---
+
+## ⚙️ 6. Decisiones de Diseño y Trade-offs Técnicos
+
+### Base de Datos: SQLite Local vs PostgreSQL Remoto
+- **Decisión**: Se configuró SQLite por defecto en el archivo de Prisma.
+- **Trade-off**: Facilita la portabilidad ("cero configuración" al clonar el repo) y permite la ejecución de pruebas unitarias locales ultrarrápidas sin depender de servicios externos en Docker. El trade-off es la falta de concurrencia a gran escala en producción, lo cual es mitigable modificando la cadena de conexión en `.env` hacia PostgreSQL/Turso cuando el proyecto escala.
+
+### Procesamiento de Archivos: In-Memory vs Almacenamiento en Disco
+- **Decisión**: Los archivos subidos se procesan directamente como un Buffer en memoria (`Buffer.from(arrayBuffer)`) y luego se descartan, guardando únicamente el metadato en base de datos.
+- **Trade-off**: Elimina el riesgo de inyección de malware persistente en el sistema host (Directory Traversal o carga de payloads ejecutables). El trade-off es que no se pueden realizar análisis de flujo profundo multipaso sobre el binario almacenado, pero garantiza la naturaleza 100% defensiva de la consola.
+
+### Almacenamiento de Caché de Threat Intel (CISA & MITRE)
+- **Decisión**: Uso de caché local serializada en base de datos con TTL (Time To Live) de 24 horas.
+- **Trade-off**: Evita el bloqueo por rate-limiting de las APIs públicas de CISA/MITRE y acelera drásticamente el renderizado del dashboard para el usuario. El trade-off es que la información de CVEs recién publicados puede tener un desfase máximo de un día.
+

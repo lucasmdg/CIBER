@@ -1,44 +1,76 @@
 import { NextResponse } from "next/server";
+import { getServerSession } from "next-auth/next";
+import { authOptions } from "@/lib/auth/options";
 import { prisma } from "@/lib/prisma";
-import { jsPDF } from "jspdf";
+import { createHash } from "crypto";
 
 export async function GET() {
-  const checks = await prisma.postureCheck.findMany({ orderBy: { createdAt: "desc" }, take: 50 });
-  const doc = new jsPDF();
-  doc.setFontSize(18);
-  doc.text("SentinelX – Posture Snapshot", 14, 18);
-  doc.setFontSize(10);
-  doc.text(`Generated: ${new Date().toISOString()}`, 14, 26);
-  doc.text(`Total checks: ${checks.length}`, 14, 32);
+  const session = await getServerSession(authOptions);
 
-  let y = 44;
-  doc.setFontSize(12);
-  doc.text("Category", 14, y);
-  doc.text("Name", 50, y);
-  doc.text("Status", 130, y);
-  doc.text("Detail", 150, y);
-  y += 4;
-  doc.line(14, y, 200, y);
-  y += 6;
-  doc.setFontSize(9);
-  for (const c of checks) {
-    if (y > 270) {
-      doc.addPage();
-      y = 20;
-    }
-    doc.text(c.category, 14, y);
-    doc.text(c.name.slice(0, 30), 50, y);
-    doc.text(c.status, 130, y);
-    const detail = doc.splitTextToSize(c.detail, 50);
-    doc.text(detail, 150, y);
-    y += Math.max(6, detail.length * 5);
-  }
-
-  const buf = Buffer.from(doc.output("arraybuffer"));
-  return new NextResponse(buf, {
-    headers: {
-      "content-type": "application/pdf",
-      "content-disposition": `attachment; filename="sentinelx-posture-${Date.now()}.pdf"`
-    }
+  // Recoger últimos checks de postura de base de datos
+  const checks = await prisma.postureCheck.findMany({
+    orderBy: { createdAt: "desc" },
+    take: 50,
   });
-}
+
+  const timestamp = new Date().toISOString();
+  const analyst = session?.user?.email ?? "anonymous";
+
+  // Calcular score basado en los checks
+  const passes = checks.filter((c) => c.status === "pass").length;
+  const score =
+    checks.length > 0 ? Math.round((passes / checks.length) * 100) : 0;
+
+  const reportPayload = {
+    meta: {
+      generator: "SentinelX SOC Dashboard v2",
+      timestamp,
+      analyst,
+      format_version: "2.0",
+    },
+    summary: {
+      score,
+      total_checks: checks.length,
+      passed: passes,
+      warned: checks.filter((c) => c.status === "warn").length,
+      failed: checks.filter((c) => c.status === "fail").length,
+    },
+    findings: checks.map((c) => ({
+      id: c.id,
+      category: c.category,
+      name: c.name,
+      status: c.status,
+      detail: c.detail,
+      evidence: c.evidence,
+      target: c.target,
+      scanned_at: c.createdAt.toISOString(),
+    })),
+    compliance_refs: [
+      "NIST CSF 2.0 — ID.AM, PR.IP",
+      "CIS Controls v8 — Control 4 (Secure Configuration)",
+      "ISO/IEC 27001:2022 — A.8.8",
+    ],
+    // Hash SHA-256 de integridad del reporte (sin el campo integrity en sí)
+    integrity: "",
+  };
+
+  // Calcular hash SHA-256 sobre el cuerpo del reporte (excluyendo el campo integrity)
+  const payloadForHash = { ...reportPayload, integrity: undefined };
+  const hash = createHash("sha256")
+    .update(JSON.stringify(payloadForHash))
+    .digest("hex");
+
+  reportPayload.integrity = `sha256:${hash}`;
+
+  const jsonBody = JSON.stringify(reportPayload, null, 2);
+
+  return new NextResponse(jsonBody, {
+    status: 200,
+    headers: {
+      "Content-Type": "application/json",
+      "Content-Disposition": `attachment; filename="sentinelx-posture-${Date.now()}.json"`,
+      "X-Report-Integrity": `sha256:${hash}`,
+      "Cache-Control": "no-store",
+    },
+  });
+}

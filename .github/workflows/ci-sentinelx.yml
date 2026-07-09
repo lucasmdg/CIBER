@@ -1,0 +1,51 @@
+name: SentinelX CI
+
+on:
+  push:
+    branches: [ main ]
+    paths:
+      - 'SentinelX/**'
+      - '.github/workflows/ci-sentinelx.yml'
+  pull_request:
+    branches: [ main ]
+    paths:
+      - 'SentinelX/**'
+      - '.github/workflows/ci-sentinelx.yml'
+
+jobs:
+  build-and-test:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: 'npm'
+          cache-dependency-path: 'SentinelX/package-lock.json'
+
+      - name: Install dependencies
+        run: npm ci
+        working-directory: SentinelX
+
+      - name: Generate Prisma client
+        run: npx prisma generate
+        working-directory: SentinelX
+
+      - name: Run unit tests
+        run: npm test
+        working-directory: SentinelX
+
+      - name: Run TypeScript typecheck
+        run: npm run typecheck
+        working-directory: SentinelX
+
+      - name: Build Next.js application
+        run: npm run build
+        working-directory: SentinelX
+        env:
+          NEXTAUTH_SECRET: "mock-secret-for-ci-build-testing"
+          DATABASE_URL: "file:./dev.db"

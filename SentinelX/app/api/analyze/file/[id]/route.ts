@@ -21,6 +21,7 @@ export async function DELETE(
     });
 
     if (!exists) {
+      console.warn(`[AUDIT] Intento de eliminación fallido para ID de análisis inexistente: ${id}`);
       return NextResponse.json({ error: "No se encontró el análisis especificado." }, { status: 404 });
     }
 
@@ -28,6 +29,8 @@ export async function DELETE(
     await prisma.fileAnalysis.delete({
       where: { id }
     });
+
+    console.log(`[AUDIT] Entrada de análisis eliminada con éxito: ID ${id}, archivo "${exists.filename}"`);
 
     return NextResponse.json({ message: "Análisis eliminado con éxito." });
   } catch (err) {

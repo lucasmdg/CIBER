@@ -2,7 +2,8 @@ import { PageHeader } from "@/components/layout/page-header";
 import { Card, CardContent, CardHeader, CardTitle, CardSubtitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { sampleThreatActors, sampleMalware } from "@/lib/data/samples";
-import { Crosshair, Bug } from "lucide-react";
+import { Crosshair, Bug, Search } from "lucide-react";
+import { IOCChecker } from "@/components/threats/ioc-checker";
 
 export default function ThreatsPage() {
   return (
@@ -11,6 +12,22 @@ export default function ThreatsPage() {
         title="Threat Intelligence Center"
         description="Curated public intelligence on adversary groups, malware families and TTPs mapped to MITRE ATT&CK."
       />
+
+      {/* IOC Reputation Checker — funcionalidad real */}
+      <Card>
+        <CardHeader>
+          <div>
+            <CardTitle>IOC Reputation Lookup</CardTitle>
+            <CardSubtitle>
+              IPs, domains, MD5/SHA-256 hashes — mock reputation DB in demo mode, configurable for external APIs
+            </CardSubtitle>
+          </div>
+          <Search className="h-4 w-4 text-cyber-300" />
+        </CardHeader>
+        <CardContent>
+          <IOCChecker />
+        </CardContent>
+      </Card>
 
       <div className="grid gap-4 lg:grid-cols-2">
         <Card>
@@ -82,16 +99,16 @@ export default function ThreatsPage() {
         <CardContent>
           <div className="grid gap-2 sm:grid-cols-2 lg:grid-cols-4">
             {[
-              { id: "TA0001", name: "Initial Access", cov: 64 },
-              { id: "TA0002", name: "Execution", cov: 52 },
-              { id: "TA0003", name: "Persistence", cov: 71 },
-              { id: "TA0004", name: "Privilege Escalation", cov: 48 },
-              { id: "TA0005", name: "Defense Evasion", cov: 39 },
-              { id: "TA0006", name: "Credential Access", cov: 60 },
-              { id: "TA0007", name: "Discovery", cov: 77 },
-              { id: "TA0008", name: "Lateral Movement", cov: 42 },
-              { id: "TA0011", name: "Command and Control", cov: 65 },
-              { id: "TA0010", name: "Exfiltration", cov: 33 }
+              { id: "TA0001", name: "Initial Access",        cov: 64 },
+              { id: "TA0002", name: "Execution",             cov: 52 },
+              { id: "TA0003", name: "Persistence",           cov: 71 },
+              { id: "TA0004", name: "Privilege Escalation",  cov: 48 },
+              { id: "TA0005", name: "Defense Evasion",       cov: 39 },
+              { id: "TA0006", name: "Credential Access",     cov: 60 },
+              { id: "TA0007", name: "Discovery",             cov: 77 },
+              { id: "TA0008", name: "Lateral Movement",      cov: 42 },
+              { id: "TA0011", name: "Command and Control",   cov: 65 },
+              { id: "TA0010", name: "Exfiltration",          cov: 33 }
             ].map((t) => (
               <div key={t.id} className="rounded-md border border-white/5 bg-white/[0.02] p-3">
                 <div className="text-[11px] uppercase tracking-wide text-slate-400">{t.id}</div>
@@ -107,4 +124,4 @@ export default function ThreatsPage() {
       </Card>
     </>
   );
-}
+}
