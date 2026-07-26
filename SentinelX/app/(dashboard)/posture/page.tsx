@@ -1,4 +1,4 @@
-import { PageHeader } from "@/components/layout/page-header";
+﻿﻿import { PageHeader } from "@/components/layout/page-header";
 import { Card, CardContent, CardHeader, CardTitle, CardSubtitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { samplePosture } from "@/lib/data/samples";
@@ -13,6 +13,7 @@ export default function PosturePage() {
   return (
     <>
       <PageHeader
+        badge={{ text: "MÓDULO REAL", tone: "ok" }}
         title="Security Posture Scanner"
         description="Safe, loopback-only configuration checks. Defensive guidance, never exploit code."
         actions={
@@ -65,7 +66,7 @@ export default function PosturePage() {
                   </span>
                   <div>
                     <div className="text-sm font-medium text-slate-100">{p.name}</div>
-                    <div className="text-xs text-slate-400">{p.category} · {p.target}</div>
+                    <div className="text-xs text-slate-400">{p.category} Â· {p.target}</div>
                     <p className="mt-1 text-xs text-slate-300">{p.detail}</p>
                     {p.evidence && <pre className="mt-1 max-w-full overflow-x-auto rounded bg-black/40 p-2 text-[11px] text-slate-400">{p.evidence}</pre>}
                   </div>
@@ -91,7 +92,7 @@ export default function PosturePage() {
         </CardHeader>
         <CardContent>
           <ul className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3 text-sm text-slate-300">
-            <li className="rounded-md border border-white/5 bg-white/[0.02] p-3">Loopback / RFC1918 targets only — enforced in <code>postureScanRequestSchema</code>.</li>
+            <li className="rounded-md border border-white/5 bg-white/[0.02] p-3">Loopback / RFC1918 targets only â€” enforced in <code>postureScanRequestSchema</code>.</li>
             <li className="rounded-md border border-white/5 bg-white/[0.02] p-3">No payload generators, no exploit code, no shell exec.</li>
             <li className="rounded-md border border-white/5 bg-white/[0.02] p-3">Read-only configuration inspections and HTTP header checks.</li>
             <li className="rounded-md border border-white/5 bg-white/[0.02] p-3">CSP, HSTS, X-Frame-Options, Referrer-Policy headers verified.</li>

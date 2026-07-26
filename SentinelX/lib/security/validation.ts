@@ -12,7 +12,7 @@ export const criticalitySchema = z.enum(["low", "medium", "high", "critical"]);
 
 export const assetCreateSchema = z.object({
   name: z.string().min(2).max(80).regex(/^[a-zA-Z0-9._-]+$/, "invalid hostname"),
-  ip: z.string().ip({ version: "v4" }),
+  ip: z.string().regex(/^(?:[0-9]{1,3}\.){3}[0-9]{1,3}$/, "invalid ip"),
   os: z.string().min(2).max(60),
   owner: z.string().min(2).max(80),
   type: assetTypeSchema,

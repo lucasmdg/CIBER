@@ -16,48 +16,80 @@ import {
   Globe,
   UploadCloud,
   Cpu,
-  HardDrive
+  HardDrive,
+  Bot,
+  Server,
+  MonitorDot,
+  Coins
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { ToastProvider } from "@/components/ui/toast";
 import { Progress } from "@/components/ui/progress";
 
-const nav = [
-  { href: "/dashboard", label: "Overview", icon: Activity },
-  { href: "/assets", label: "Assets", icon: Boxes },
-  { href: "/vulnerabilities", label: "Vulnerabilities", icon: Bug },
-  { href: "/threats", label: "Threat Intel", icon: Crosshair },
-  { href: "/posture", label: "Posture Scanner", icon: Radar },
-  { href: "/network", label: "Network Monitor", icon: Globe },
-  { href: "/analyze", label: "File Analyzer", icon: UploadCloud },
-  { href: "/attack-paths", label: "Attack Paths", icon: GitBranch },
-  { href: "/incidents", label: "Incidents", icon: AlarmClock },
-  { href: "/reports", label: "Reports", icon: FileBarChart }
+const navSections = [
+  {
+    label: "SOC",
+    items: [
+      { href: "/dashboard", label: "Overview", icon: Activity },
+      { href: "/assets", label: "Assets", icon: Boxes },
+      { href: "/vulnerabilities", label: "Vulnerabilities", icon: Bug },
+      { href: "/threats", label: "Threat Intel", icon: Crosshair },
+      { href: "/posture", label: "Posture Scanner", icon: Radar },
+      { href: "/network", label: "Network Monitor", icon: Globe },
+      { href: "/analyze", label: "File Analyzer", icon: UploadCloud },
+      { href: "/attack-paths", label: "Attack Paths", icon: GitBranch },
+      { href: "/incidents", label: "Incidents", icon: AlarmClock },
+      { href: "/reports", label: "Reports", icon: FileBarChart },
+    ],
+  },
+  {
+    label: "IA Local",
+    items: [
+      { href: "/sophia", label: "Sophia", icon: Bot },
+      { href: "/mcp", label: "MCPs", icon: Server },
+      { href: "/usage", label: "Uso & Ahorro", icon: Coins },
+    ],
+  },
+  {
+    label: "Sistema",
+    items: [
+      { href: "/system", label: "Control del Sistema", icon: MonitorDot },
+    ],
+  },
 ];
 
 // Navigation subcomponent memoized to prevent re-renders when CPU/RAM telemetry updates
 const Navigation = React.memo(({ pathname }: { pathname: string }) => {
   return (
-    <nav className="flex flex-col gap-1">
-      {nav.map((n) => {
-        const Icon = n.icon;
-        const active = pathname === n.href || (n.href !== "/dashboard" && pathname?.startsWith(n.href));
-        return (
-          <Link
-            key={n.href}
-            href={n.href}
-            className={cn(
-              "group flex items-center gap-2.5 rounded-md px-3 py-2 text-xs font-semibold tracking-wider uppercase transition-all duration-300 relative overflow-hidden border border-transparent hover:border-cyber-500/20",
-              active
-                ? "bg-cyber-500/10 text-cyber-300 border-cyber-500/20 shadow-neon-cyan"
-                : "text-slate-400 hover:bg-white/5 hover:text-slate-200"
-            )}
-          >
-            <Icon className="h-4 w-4 transition-transform duration-300 group-hover:scale-110 group-hover:text-cyber-300" />
-            {n.label}
-          </Link>
-        );
-      })}
+    <nav className="flex flex-col gap-4" aria-label="Navegación principal">
+      {navSections.map(section => (
+        <div key={section.label}>
+          <div className="text-[9px] font-bold uppercase tracking-[0.2em] text-slate-600 px-3 mb-1">
+            {section.label}
+          </div>
+          <div className="flex flex-col gap-0.5">
+            {section.items.map(n => {
+              const Icon = n.icon;
+              const active = pathname === n.href || (n.href !== "/dashboard" && pathname?.startsWith(n.href));
+              return (
+                <Link
+                  key={n.href}
+                  href={n.href}
+                  className={cn(
+                    "group flex items-center gap-2.5 rounded-md px-3 py-2 text-xs font-semibold tracking-wider uppercase transition-all duration-300 relative overflow-hidden border border-transparent hover:border-cyber-500/20",
+                    active
+                      ? "bg-cyber-500/10 text-cyber-300 border-cyber-500/20 shadow-neon-cyan"
+                      : "text-slate-400 hover:bg-white/5 hover:text-slate-200"
+                  )}
+                >
+                  <Icon className="h-4 w-4 transition-transform duration-300 group-hover:scale-110 group-hover:text-cyber-300" />
+                  {n.label}
+                </Link>
+              );
+            })}
+          </div>
+        </div>
+      ))}
     </nav>
   );
 });
@@ -132,17 +164,32 @@ export function Shell({ children, user }: { children: React.ReactNode; user?: { 
               <div className="space-y-1">
                 <div className="flex justify-between text-slate-400">
                   <span className="flex items-center gap-1"><Cpu className="h-3 w-3 text-cyber-400" /> CPU</span>
-                  <span>{telemetry ? `${telemetry.cpu}%` : "--"}</span>
+                  <span aria-live="polite">{telemetry ? `${telemetry.cpu}%` : "--"}</span>
                 </div>
-                <Progress value={telemetry?.cpu ?? 0} className="h-1 bg-white/5" />
+                <Progress value={telemetry?.cpu ?? 0} className="h-1 bg-white/5" aria-label={`CPU al ${telemetry?.cpu ?? 0}%`} />
               </div>
 
               <div className="space-y-1">
                 <div className="flex justify-between text-slate-400">
                   <span className="flex items-center gap-1"><HardDrive className="h-3 w-3 text-cyber-400" /> RAM</span>
-                  <span>{telemetry ? `${telemetry.mem}%` : "--"}</span>
+                  <span aria-live="polite">{telemetry ? `${telemetry.mem}%` : "--"}</span>
                 </div>
-                <Progress value={telemetry?.mem ?? 0} className="h-1 bg-white/5" />
+                <Progress value={telemetry?.mem ?? 0} className="h-1 bg-white/5" aria-label={`RAM al ${telemetry?.mem ?? 0}%`} />
+              </div>
+
+              {/* Keyboard shortcuts hint */}
+              <div className="border-t border-white/5 pt-3">
+                <div className="text-slate-600 text-[9px] uppercase tracking-widest mb-1.5">Atajos</div>
+                <div className="space-y-1 text-slate-600">
+                  <div className="flex justify-between">
+                    <span>Paleta</span>
+                    <kbd className="rounded bg-white/5 border border-white/10 px-1 text-[9px] text-slate-500">Ctrl K</kbd>
+                  </div>
+                  <div className="flex justify-between">
+                    <span>Navegar</span>
+                    <kbd className="rounded bg-white/5 border border-white/10 px-1 text-[9px] text-slate-500">g + tecla</kbd>
+                  </div>
+                </div>
               </div>
             </div>
           </aside>

@@ -1,10 +1,11 @@
-"use client";
+﻿﻿"use client";
 import * as React from "react";
 import { PageHeader } from "@/components/layout/page-header";
 import { Card, CardContent, CardHeader, CardTitle, CardSubtitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Activity, ShieldAlert, Wifi, Globe, Server, ArrowDown, ArrowUp } from "lucide-react";
+import { Activity, ShieldAlert, Wifi, Globe } from "lucide-react";
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer } from "recharts";
+import { SkeletonBlock, SkeletonLine, ChartSkeleton, TableRowSkeleton } from "@/components/ui/skeleton";
 
 type Interface = {
   iface: string;
@@ -72,6 +73,7 @@ export default function NetworkPage() {
   return (
     <>
       <PageHeader
+        badge={{ text: "MÓDULO REAL", tone: "ok" }}
         title="Network Telemetry Monitor"
         description="Monitorización de sockets activos, interfaces locales y volumen de tráfico en tiempo real."
       />
@@ -86,11 +88,29 @@ export default function NetworkPage() {
       )}
 
       {loading && !data ? (
-        <div className="flex h-64 items-center justify-center">
-          <div className="flex flex-col items-center gap-3">
-            <div className="h-8 w-8 animate-spin rounded-full border-4 border-cyber-500 border-t-transparent" />
-            <p className="text-xs text-slate-400 font-mono animate-pulse">CARGANDO TELEMETRÍA EN VIVO...</p>
+        <div className="grid gap-6">
+          <div className="grid gap-6 md:grid-cols-3">
+            <Card className="md:col-span-2">
+              <CardHeader>
+                <div><SkeletonLine className="w-40 mb-1" /><SkeletonLine className="w-64" /></div>
+              </CardHeader>
+              <CardContent><ChartSkeleton height={240} /></CardContent>
+            </Card>
+            <Card>
+              <CardHeader><SkeletonLine className="w-32" /></CardHeader>
+              <CardContent className="space-y-4">
+                {[1,2,3].map(i => <SkeletonBlock key={i} className="h-16" />)}
+              </CardContent>
+            </Card>
           </div>
+          <Card>
+            <CardHeader><SkeletonLine className="w-48" /></CardHeader>
+            <CardContent>
+              <table className="w-full"><tbody>
+                {[1,2,3,4,5].map(i => <TableRowSkeleton key={i} cols={5} />)}
+              </tbody></table>
+            </CardContent>
+          </Card>
         </div>
       ) : (
         <div className="grid gap-6">
@@ -121,8 +141,9 @@ export default function NetworkPage() {
                     </BarChart>
                   </ResponsiveContainer>
                 ) : (
-                  <div className="flex h-full items-center justify-center text-xs text-slate-500">
-                    No se registran estadísticas de tráfico activas.
+                  <div className="flex h-full flex-col items-center justify-center gap-2 text-slate-600">
+                    <Activity className="h-8 w-8 text-slate-700" />
+                    <p className="text-xs">Sin tráfico activo detectado en las interfaces locales.</p>
                   </div>
                 )}
               </CardContent>
@@ -178,15 +199,19 @@ export default function NetworkPage() {
                 <table className="w-full text-left border-collapse">
                   <thead>
                     <tr className="border-b border-white/10 text-xs text-slate-400 font-mono">
-                      <th className="py-2 px-3">Protocolo</th>
-                      <th className="py-2 px-3">Dirección Local</th>
-                      <th className="py-2 px-3">Dirección Remota</th>
-                      <th className="py-2 px-3">Estado</th>
-                      <th className="py-2 px-3 text-right">Gravedad</th>
+                      <th className="py-2 px-3" scope="col">Protocolo</th>
+                      <th className="py-2 px-3" scope="col">Dirección Local</th>
+                      <th className="py-2 px-3" scope="col">Dirección Remota</th>
+                      <th className="py-2 px-3" scope="col">Estado</th>
+                      <th className="py-2 px-3 text-right" scope="col">Gravedad</th>
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-white/5 font-mono text-xs">
-                    {data?.connections.map((c, idx) => (
+                    {data?.connections.length === 0 ? (
+                      <tr><td colSpan={5} className="py-10 text-center text-slate-600 text-xs">
+                        Sin conexiones activas detectadas.
+                      </td></tr>
+                    ) : data?.connections.map((c, idx) => (
                       <tr
                         key={idx}
                         className={

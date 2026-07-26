@@ -1,4 +1,4 @@
-"use client";
+﻿﻿"use client";
 import * as React from "react";
 import { PageHeader } from "@/components/layout/page-header";
 import { Card, CardContent, CardHeader, CardTitle, CardSubtitle } from "@/components/ui/card";
@@ -77,6 +77,7 @@ export default function AssetsPage() {
   return (
     <>
       <PageHeader
+        badge={{ text: "DATOS DEMO", tone: "warn" }}
         title="Asset Inventory"
         description="Servers, workstations, containers, cloud and network assets under SentinelX protection."
         actions={
@@ -98,7 +99,7 @@ export default function AssetsPage() {
             <label className="relative block">
               <Search className="pointer-events-none absolute left-2.5 top-2.5 h-4 w-4 text-slate-500" />
               <Input
-                placeholder="Search name, IP, owner, OS…"
+                placeholder="Search name, IP, owner, OSâ€¦"
                 className="pl-8"
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
@@ -193,7 +194,7 @@ export default function AssetsPage() {
               <option value="critical">Critical</option>
             </Select>
           </Field>
-          <Field label="Risk score (0–100)">
+          <Field label="Risk score (0â€“100)">
             <Input
               type="number"
               min={0}

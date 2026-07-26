@@ -2,7 +2,7 @@
 
 # Lucas M.
 
-**Desarrollador enfocado en ciberseguridad defensiva, desarrollo seguro de aplicaciones y administración de sistemas de infraestructura crítica.**
+**Desarrollador enfocado en plataformas de control local, ciberseguridad defensiva y automatización inteligente con IA.**
 
 [![LinkedIn](https://img.shields.io/badge/LinkedIn-0A66C2?style=for-the-badge&logo=linkedin&logoColor=white)](https://linkedin.com/in/lucasmdg)
 [![GitHub](https://img.shields.io/badge/GitHub-181717?style=for-the-badge&logo=github&logoColor=white)](https://github.com/lucasmdg)
@@ -13,36 +13,30 @@
 
 ## Sobre mí
 
-Estoy construyendo experiencia real en la intersección entre desarrollo de software y seguridad defensiva. No aprendo seguridad de forma teórica — construyo herramientas, las rompo, las aseguro, y documento por qué cada decisión se tomó así.
-
-Mi enfoque principal es **seguridad defensiva**: entender cómo funcionan las amenazas para poder detectarlas y mitigarlas, no reproducirlas. Eso implica code review con criterio de seguridad, análisis de configuración, monitorización de comportamiento de red, y construir sistemas que fallen de forma segura.
+Estoy construyendo herramientas y ecosistemas reales que devuelven el control de los sistemas y la privacidad a las manos del usuario. Mi enfoque mezcla **seguridad defensiva**, **IA 100% local (zero-cost)** y **control de infraestructura**, creando plataformas que no dependen de APIs externas, sino que exprimen el hardware local al máximo.
 
 ---
 
-## Proyectos destacados
+## Proyecto Insignia
 
-### 🛡️ [SentinelX](https://github.com/lucasmdg/CIBER/tree/main/SentinelX) — SOC Dashboard defensivo
+### 🛡️ [SentinelX](https://github.com/lucasmdg/CIBER/tree/main/SentinelX) — Plataforma de Control Local & SOC Defensivo
 
-Dashboard de centro de operaciones de seguridad (SOC) construido con **Next.js 14 + TypeScript + Prisma + NextAuth**.
+SentinelX evolucionó de un dashboard de ciberseguridad a una **plataforma integral que orquesta el ordenador al completo**, inspirada en la interfaz clínica y densa de Bloomberg Terminal y CrowdStrike Falcon.
 
-No es un proyecto de demostración con datos falsos. Tiene lógica real:
+Construido con **Next.js 14 + TypeScript + Prisma + NextAuth**, incluye:
 
-- **Scanner de postura**: 6 checks defensivos sobre el host local (headers HTTP, telemetría de hardware, procesos sospechosos, auditoría de dependencias npm, exposición de `.env`). Todo en loopback, sin acceso externo. Cada check incluye evidencia y guía de remediación.
-- **Analizador de archivos**: cálculo de entropía de Shannon para detectar archivos cifrados o empaquetados, detección de tipo por magic bytes (no por extensión), hashing SHA-256/MD5, búsqueda de patrones sospechosos (IPs, llamadas de red, APIs de shell).
-- **Exportación de reportes con firma de integridad**: los JSON de escaneo incluyen un hash SHA-256 del contenido para verificar que no han sido manipulados post-generación.
-- **IOC Reputation Checker**: buscador de IPs, dominios y hashes contra base de datos de reputación (modo demo funcional, arquitectura preparada para VirusTotal/AbuseIPDB en modo real).
-- **Score Trend**: gráfico de evolución del score de postura en los últimos 7 días de escaneos.
-- **21 tests unitarios** con Vitest cubriendo entropía, hashing, scoring y validación de datos. CI en GitHub Actions.
-
-**Stack técnico:** Next.js 14 App Router · TypeScript estricto · Prisma (SQLite/PostgreSQL) · NextAuth · Recharts · systeminformation · Zod · Vitest
-
-**Modelo de amenazas STRIDE** documentado en [`SECURITY.md`](https://github.com/lucasmdg/CIBER/blob/main/SentinelX/SECURITY.md).
+- **Sophia (IA Local)**: Asistente integrado con soporte de doble backend intercambiable (`Ollama` vía HTTP directo y `llama.cpp` vía proceso gestionado) para usar modelos como DeepSeek-R1 o Llama3 sin enviar datos a la nube. Incluye streaming SSE y gestión de descargas (pull) desde la propia UI.
+- **Gestor MCP (Model Context Protocol)**: Registro local, auto-descubrimiento de herramientas y monitorización en vivo (ping JSON-RPC) de servidores MCP para extender las capacidades de la IA.
+- **Centro de Control del Sistema**: Telemetría real (gracias a `systeminformation`) de CPU por núcleos, RAM, discos y temperatura cada 3 segundos, más un gestor de procesos activos con capacidad de terminación (kill) directa.
+- **Panel de Uso y Rentabilidad**: Tracker de los tokens consumidos en local comparados con el coste equivalente si usaras proveedores cloud (GPT-4o, Claude), visualizando el ahorro real y la rentabilidad del hardware.
+- **Puente IDE (Bridge)**: API expuesta que permite a editores como VS Code (vía Continue.dev) o OpenCode conectarse a Sophia y utilizar su backend unificado y sus capacidades MCP.
+- **SOC Defensivo Original**: Módulos funcionales como el escáner de postura (UAC, Firewall), monitor de red en vivo, analizador estático de ficheros por entropía, e inteligencia contra la base de datos CISA KEV.
 
 ---
 
-### 🔒 [CIBER](https://github.com/lucasmdg/CIBER) — Repositorio de aprendizaje técnico en ciberseguridad
+### 🔒 [CIBER](https://github.com/lucasmdg/CIBER) — Repositorio de desarrollo técnico
 
-Repositorio de práctica y experimentación. Incluye ejercicios de análisis forense, scripting defensivo, y documentación de decisiones técnicas.
+El repositorio paraguas que contiene SentinelX y todos mis experimentos en ciberseguridad, análisis forense, scripting defensivo, y documentación de arquitectura.
 
 ---
 
@@ -50,24 +44,14 @@ Repositorio de práctica y experimentación. Incluye ejercicios de análisis for
 
 | Área | Tecnologías |
 |------|-------------|
-| **Lenguajes** | TypeScript, Python, Bash |
-| **Frontend** | Next.js, React, TailwindCSS |
-| **Backend** | Node.js, Prisma, NextAuth |
-| **Seguridad** | Análisis estático, headers HTTP, telemetría de red, STRIDE |
-| **Infraestructura** | Docker, GitHub Actions, SQLite/PostgreSQL |
-| **Herramientas** | Vitest, Zod, systeminformation |
-
----
-
-## Áreas de interés
-
-- Seguridad defensiva y análisis de postura
-- Desarrollo seguro de aplicaciones (SAST, validación de inputs, gestión de secretos)
-- Detección de anomalías en comportamiento de red y procesos
-- Documentación técnica con criterio real (threat models, ADRs, trade-offs)
+| **Frontend & Backend** | Next.js 14 App Router, TypeScript, React, TailwindCSS, Node.js |
+| **Bases de Datos** | Prisma ORM, SQLite (Turso-ready), PostgreSQL |
+| **Inteligencia Artificial** | Ollama, llama.cpp, Vercel AI SDK, MCP (Model Context Protocol) |
+| **Seguridad & OS** | `execa` (gestión de procesos hijos), `systeminformation` (telemetría profunda) |
+| **Herramientas** | Vitest, Zod, Git, GitHub Actions |
 
 ---
 
 <div align="center">
-<sub>Este perfil se actualiza activamente. Los proyectos tienen código funcional, no solo READMEs.</sub>
+<sub>Este perfil se actualiza activamente. Mis proyectos contienen código y utilidades reales, no simples plantillas.</sub>
 </div>

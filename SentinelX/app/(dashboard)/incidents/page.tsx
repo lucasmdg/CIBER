@@ -1,4 +1,4 @@
-import { PageHeader } from "@/components/layout/page-header";
+﻿﻿import { PageHeader } from "@/components/layout/page-header";
 import { Card, CardContent, CardHeader, CardTitle, CardSubtitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { sampleIncidents } from "@/lib/data/samples";
@@ -17,6 +17,7 @@ export default function IncidentsPage() {
   return (
     <>
       <PageHeader
+        badge={{ text: "DATOS DEMO", tone: "warn" }}
         title="Incident Response"
         description="NIST SP 800-61 phases: detection ? investigation ? containment ? eradication ? recovery ? post-incident."
       />
@@ -65,7 +66,7 @@ export default function IncidentsPage() {
                               )}
                               {p.label}
                             </div>
-                            <div className="mt-2 text-sm font-medium text-slate-100">{event?.title ?? "—"}</div>
+                            <div className="mt-2 text-sm font-medium text-slate-100">{event?.title ?? "â€”"}</div>
                             <p className="mt-1 text-xs text-slate-400">{event?.description ?? "Pending."}</p>
                           </div>
                         </li>

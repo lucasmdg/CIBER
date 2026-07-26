@@ -1,4 +1,4 @@
-"use client";
+﻿﻿"use client";
 import * as React from "react";
 import { PageHeader } from "@/components/layout/page-header";
 import { Card, CardContent, CardHeader, CardTitle, CardSubtitle } from "@/components/ui/card";
@@ -129,6 +129,7 @@ export default function AnalyzePage() {
   return (
     <>
       <PageHeader
+        badge={{ text: "MÓDULO REAL", tone: "ok" }}
         title="Static File Analyzer"
         description="Analiza archivos de forma 100% defensiva mediante hashes, firmas hex, entropía y strings sospechosos. Límite de 10 MB."
       />
@@ -163,7 +164,7 @@ export default function AnalyzePage() {
               {analyzing && (
                 <div className="mt-4 flex items-center justify-center gap-2 text-xs font-mono text-cyber-300">
                   <div className="h-4 w-4 animate-spin rounded-full border-2 border-cyber-500 border-t-transparent" />
-                  <span>EJECUTANDO ANÁLISIS ESTÁTICO...</span>
+                  <span>EJECUTANDO ANÃLISIS ESTÃTICO...</span>
                 </div>
               )}
 
@@ -265,7 +266,7 @@ export default function AnalyzePage() {
                   {currentAnalysis.suspiciousStrings.length > 0 ? (
                     <ul className="space-y-1 max-h-32 overflow-y-auto bg-black/40 p-2 rounded text-[11px] scrollbar-thin">
                       {currentAnalysis.suspiciousStrings.map((str: string, index: number) => (
-                        <li key={index} className="text-warning-300">• {str}</li>
+                        <li key={index} className="text-warning-300">â€¢ {str}</li>
                       ))}
                     </ul>
                   ) : (
@@ -283,7 +284,7 @@ export default function AnalyzePage() {
             <div className="flex items-center justify-between">
               <div>
                 <CardTitle>Historial de Muestras</CardTitle>
-                <CardSubtitle>Últimos 20 análisis registrados en la base de datos</CardSubtitle>
+                <CardSubtitle>Ãšltimos 20 análisis registrados en la base de datos</CardSubtitle>
               </div>
               <Database className="h-4 w-4 text-cyber-300" />
             </div>
@@ -325,7 +326,7 @@ export default function AnalyzePage() {
                           <div>Type: {item.fileType}</div>
                           <div>SHA-256: {item.sha256.substring(0, 16)}...</div>
                           <div className="text-slate-500">
-                            {new Date(item.createdAt).toLocaleString()} · {(item.sizeBytes / 1024).toFixed(2)} KB
+                            {new Date(item.createdAt).toLocaleString()} Â· {(item.sizeBytes / 1024).toFixed(2)} KB
                           </div>
                         </div>
                       </div>
@@ -356,7 +357,7 @@ export default function AnalyzePage() {
               <h3 className="text-sm font-semibold text-slate-100 uppercase tracking-widest">Confirmar Eliminación</h3>
             </div>
             <p className="text-xs text-slate-300 leading-relaxed mb-6">
-              ¿Estás seguro de que deseas eliminar permanentemente este registro del historial? Esta acción actualizará la telemetría local de forma optimista y se propagará a la base de datos de manera definitiva.
+              Â¿Estás seguro de que deseas eliminar permanentemente este registro del historial? Esta acción actualizará la telemetría local de forma optimista y se propagará a la base de datos de manera definitiva.
             </p>
             <div className="flex justify-end gap-3 font-mono text-xs">
               <Button

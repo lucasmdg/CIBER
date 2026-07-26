@@ -182,3 +182,37 @@ model ExternalCache {
   data      String   // JSON stringified payload
   updatedAt DateTime @default(now())
 }
+
+// ===== Módulos Sophia / IA / MCP / Sistema =====
+
+model ChatMessage {
+  id        String   @id @default(cuid())
+  role      String   // user | assistant | system
+  content   String
+  model     String
+  backend   String   // ollama | llamacpp
+  sessionId String   // agrupa mensajes de una conversación
+  createdAt DateTime @default(now())
+}
+
+model McpServer {
+  id             String    @id @default(cuid())
+  name           String    @unique
+  url            String
+  description    String    @default("")
+  active         Boolean   @default(true)
+  lastPing       String?   // ISO datetime
+  lastPingStatus String?   // ok | error | pending
+  tools          String    @default("[]") // JSON list of McpTool
+  createdAt      DateTime  @default(now())
+}
+
+model UsageEvent {
+  id          String   @id @default(cuid())
+  backend     String   // ollama | llamacpp
+  model       String
+  tokensIn    Int
+  tokensOut   Int
+  durationMs  Int
+  createdAt   DateTime @default(now())
+}

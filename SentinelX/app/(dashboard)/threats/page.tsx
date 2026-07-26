@@ -1,4 +1,4 @@
-import { PageHeader } from "@/components/layout/page-header";
+﻿﻿import { PageHeader } from "@/components/layout/page-header";
 import { Card, CardContent, CardHeader, CardTitle, CardSubtitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { sampleThreatActors, sampleMalware } from "@/lib/data/samples";
@@ -9,17 +9,18 @@ export default function ThreatsPage() {
   return (
     <>
       <PageHeader
+        badge={{ text: "MÓDULO REAL", tone: "ok" }}
         title="Threat Intelligence Center"
         description="Curated public intelligence on adversary groups, malware families and TTPs mapped to MITRE ATT&CK."
       />
 
-      {/* IOC Reputation Checker — funcionalidad real */}
+      {/* IOC Reputation Checker â€” funcionalidad real */}
       <Card>
         <CardHeader>
           <div>
             <CardTitle>IOC Reputation Lookup</CardTitle>
             <CardSubtitle>
-              IPs, domains, MD5/SHA-256 hashes — mock reputation DB in demo mode, configurable for external APIs
+              IPs, domains, MD5/SHA-256 hashes â€” mock reputation DB in demo mode, configurable for external APIs
             </CardSubtitle>
           </div>
           <Search className="h-4 w-4 text-cyber-300" />
@@ -34,7 +35,7 @@ export default function ThreatsPage() {
           <CardHeader>
             <div>
               <CardTitle>Tracked Threat Actors</CardTitle>
-              <CardSubtitle>Public sources only · defensive use</CardSubtitle>
+              <CardSubtitle>Public sources only Â· defensive use</CardSubtitle>
             </div>
             <Crosshair className="h-4 w-4 text-cyber-300" />
           </CardHeader>

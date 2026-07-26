@@ -23,7 +23,7 @@ export async function POST(req: Request) {
   if (!parsed.success) {
     return NextResponse.json({ error: parsed.error.issues[0]?.message ?? "invalid" }, { status: 400 });
   }
-  const created = await prisma.asset.create({ data: parsed.data });
+  const created = await prisma.asset.create({ data: parsed.data as any });
   await audit({
     actor: session?.user?.email ?? "anonymous",
     action: "asset.create",

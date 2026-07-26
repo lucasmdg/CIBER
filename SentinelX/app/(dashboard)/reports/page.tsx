@@ -1,4 +1,4 @@
-import { PageHeader } from "@/components/layout/page-header";
+﻿﻿import { PageHeader } from "@/components/layout/page-header";
 import { Card, CardContent, CardHeader, CardTitle, CardSubtitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { FileBarChart, ShieldCheck, Bug, Crosshair, AlarmClock } from "lucide-react";
@@ -14,6 +14,7 @@ export default function ReportsPage() {
   return (
     <>
       <PageHeader
+        badge={{ text: "DATOS DEMO", tone: "warn" }}
         title="Security Reports"
         description="Generate portfolio-ready PDF reports. Branded, deterministic and offline-safe."
       />

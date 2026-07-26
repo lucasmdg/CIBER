@@ -1,4 +1,4 @@
-"use client";
+﻿﻿"use client";
 import * as React from "react";
 import ReactFlow, { Background, Controls, MarkerType, Position } from "reactflow";
 import "reactflow/dist/style.css";
@@ -54,6 +54,7 @@ export default function AttackPathsPage() {
   return (
     <>
       <PageHeader
+        badge={{ text: "DATOS DEMO", tone: "warn" }}
         title="Attack Path Visualization"
         description="Defensive, sample-only kill-chain graphs. Useful for tabletop exercises and detection coverage."
       />

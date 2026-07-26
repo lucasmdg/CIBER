@@ -1,4 +1,4 @@
-import { PageHeader } from "@/components/layout/page-header";
+﻿﻿import { PageHeader } from "@/components/layout/page-header";
 import { Kpi, KpiGrid } from "@/components/dashboard/kpi";
 import { RiskHeatmap } from "@/components/dashboard/risk-heatmap";
 import { TrendChart } from "@/components/dashboard/trend-chart";
@@ -68,6 +68,7 @@ export default async function DashboardPage() {
   return (
     <>
       <PageHeader
+        badge={{ text: "DATOS DEMO", tone: "warn" }}
         title="Executive Security Dashboard"
         description="Real-time posture, threat exposure and incident response readiness."
         actions={
@@ -78,7 +79,7 @@ export default async function DashboardPage() {
       />
 
       <KpiGrid>
-        <Kpi label="Security Score" value={score} tone={score >= 75 ? "success" : score >= 55 ? "warning" : "danger"} hint="Composite 0–100" icon={<ShieldCheck className="h-3.5 w-3.5" />} />
+        <Kpi label="Security Score" value={score} tone={score >= 75 ? "success" : score >= 55 ? "warning" : "danger"} hint="Composite 0â€“100" icon={<ShieldCheck className="h-3.5 w-3.5" />} />
         <Kpi label="Active Alerts" value={activeAlerts} tone="warning" hint="Open + posture warnings" icon={<Activity className="h-3.5 w-3.5" />} />
         <Kpi label="Critical Vulnerabilities" value={critical} tone="danger" hint="Unresolved CVSS >= 9.0" icon={<Bug className="h-3.5 w-3.5" />} />
         <Kpi label="Tracked Threat Actors" value={actorsCount} tone="cyber" hint="Public intel only" icon={<Radar className="h-3.5 w-3.5" />} />
@@ -88,7 +89,7 @@ export default async function DashboardPage() {
         <section className="glass lg:col-span-2 p-5">
           <div className="mb-3 flex items-center justify-between">
             <h2 className="text-sm font-semibold uppercase tracking-[0.18em] text-cyber-300">Security Trends (7d)</h2>
-            <span className="text-xs text-slate-400">alerts · blocked · incidents</span>
+            <span className="text-xs text-slate-400">alerts Â· blocked Â· incidents</span>
           </div>
           <TrendChart data={trendData} />
         </section>

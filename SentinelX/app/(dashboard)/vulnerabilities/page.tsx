@@ -1,4 +1,4 @@
-"use client";
+﻿﻿"use client";
 import * as React from "react";
 import { PageHeader } from "@/components/layout/page-header";
 import { Card, CardContent, CardHeader, CardTitle, CardSubtitle } from "@/components/ui/card";
@@ -70,6 +70,7 @@ export default function VulnerabilitiesPage() {
   return (
     <>
       <PageHeader
+        badge={{ text: "DATOS DEMO", tone: "warn" }}
         title="Vulnerability Management"
         description="Track CVEs, prioritise by risk, drive remediation and observe trends."
       />
@@ -90,7 +91,7 @@ export default function VulnerabilitiesPage() {
         <CardHeader>
           <div>
             <CardTitle>Vulnerabilities</CardTitle>
-            <CardSubtitle>{filtered.length} matching · {items.length} total</CardSubtitle>
+            <CardSubtitle>{filtered.length} matching Â· {items.length} total</CardSubtitle>
           </div>
         </CardHeader>
         <CardContent>
@@ -164,7 +165,7 @@ export default function VulnerabilitiesPage() {
                   </Td>
                   <Td>
                     {v.affected.length === 0 ? (
-                      <span className="text-slate-500">—</span>
+                      <span className="text-slate-500">â€”</span>
                     ) : (
                       <div className="flex flex-wrap gap-1">
                         {v.affected.slice(0, 3).map((f) => (
