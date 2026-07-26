@@ -1,21 +1,38 @@
 # Security Policy
 
-## Supported Versions
-
-Use this section to tell people about which versions of your project are
-currently being supported with security updates.
+## Versiones Soportadas
 
 | Version | Supported          |
 | ------- | ------------------ |
-| 5.1.x   | :white_check_mark: |
-| 5.0.x   | :x:                |
-| 4.0.x   | :white_check_mark: |
-| < 4.0   | :x:                |
+| 2.x     | :white_check_mark: |
+| 1.x     | :x:                |
 
-## Reporting a Vulnerability
+## Reportar una Vulnerabilidad
 
-Use this section to tell people how to report a vulnerability.
+Este repositorio contiene herramientas educativas de ciberseguridad. Si encuentras una vulnerabilidad de seguridad en el código:
 
-Tell them where to go, how often they can expect to get an update on a
-reported vulnerability, what to expect if the vulnerability is accepted or
-declined, etc.
+1. **No abras un issue público**
+2. Envía un email a **lucasmdz@protonmail.com**
+3. Incluye:
+   - Descripción clara de la vulnerabilidad
+   - Pasos para reproducirla (PoC)
+   - Archivos afectados
+   - Impacto potencial
+
+### Qué esperar
+
+- **Acuse de recibo** en 48 horas
+- **Actualización de estado** cada 5 días hábiles
+- **Resolución** en un máximo de 14 días
+
+### Uso Ético
+
+Las herramientas en este repositorio son **exclusivamente educativas**. El uso malicioso de cualquier vulnerabilidad aquí descrita o implementada va en contra de los principios de este proyecto.
+
+### Medidas de Seguridad
+
+- Contraseñas almacenadas con PBKDF2 (600,000 iteraciones)
+- Cifrado AES-256-GCM para datos sensibles (AEAD)
+- No se incluyen credenciales reales en el código
+- Scapy requiere permisos de administrador explícitos
+- Las dependencias se auditan regularmente

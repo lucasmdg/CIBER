@@ -1,26 +1,37 @@
-<div align="center">
+<p align="center">
+  <img src="assets/portada.png" alt="CIBER Banner" width="800">
+</p>
 
-![CIBER Portada](assets/portada.png)
+<h1 align="center">🛡️ CIBER — Laboratorio de Ciberseguridad</h1>
 
-# 🛡️ CIBER — Laboratorio de Ciberseguridad
+<p align="center">
+  <strong>De los fundamentos al Red Team — 37 proyectos prácticos de ciberseguridad en Python</strong>
+</p>
 
-[![Python](https://img.shields.io/badge/Python-3.10+-3776AB?style=for-the-badge&logo=python&logoColor=white)](https://python.org)
-[![Proyectos](https://img.shields.io/badge/Proyectos-37-27AE60?style=for-the-badge&logo=github)](https://github.com/lucasmdg/CIBER)
-[![Tests](https://img.shields.io/badge/Tests-29%2F29%20✓-00ff66?style=for-the-badge&logo=pytest)](https://github.com/lucasmdg/CIBER)
-[![Wiki](https://img.shields.io/badge/Wiki-Completa%2030%20págs-00d9ff?style=for-the-badge&logo=gitbook)](https://github.com/lucasmdg/CIBER/wiki)
-[![Uso](https://img.shields.io/badge/Uso-Solo%20Educativo-E67E22?style=for-the-badge)](https://github.com/lucasmdg/CIBER)
+<p align="center">
+  <a href="#"><img src="https://img.shields.io/badge/Python-3.10%2B-3776AB?style=flat-square&logo=python&logoColor=white" alt="Python"></a>
+  <a href="#"><img src="https://img.shields.io/badge/Proyectos-37-success?style=flat-square" alt="Proyectos"></a>
+  <a href="#"><img src="https://img.shields.io/badge/Tests-29%2F29%20✓-brightgreen?style=flat-square" alt="Tests"></a>
+  <a href="#"><img src="https://img.shields.io/github/license/lucasmdg/CIBER?style=flat-square" alt="License"></a>
+  <a href="#"><img src="https://img.shields.io/github/stars/lucasmdg/CIBER?style=flat-square" alt="Stars"></a>
+  <a href="#"><img src="https://img.shields.io/badge/PRs-welcome-brightgreen?style=flat-square" alt="PRs Welcome"></a>
+  <a href="#"><img src="https://img.shields.io/badge/Security-Educational%20Only-orange?style=flat-square" alt="Educational"></a>
+</p>
 
-</div>
+<p align="center">
+  <a href="#features">Features</a> •
+  <a href="#roadmap-de-aprendizaje">Roadmap</a> •
+  <a href="#proyectos">Proyectos</a> •
+  <a href="#instalación">Instalación</a> •
+  <a href="#arquitectura">Arquitectura</a> •
+  <a href="#rendimiento">Rendimiento</a> •
+  <a href="#wiki">Wiki</a> •
+  <a href="#contribuir">Contribuir</a>
+</p>
 
 ---
 
-## 👤 Sobre mí
-
-<div align="center">
-
-![About Lucas](assets/about_lucas.png)
-
-</div>
+## 👤 Sobre Mí
 
 ```
 ┌─────────────────────────────────────────────────────────────────┐
@@ -39,13 +50,6 @@
 │  [Sistemas]    Linux · Windows Server · Virtualización          │
 │  [Herramientas] Scapy · Paramiko · Cryptography · Metasploit   │
 │                                                                 │
-│  $ cat intereses.txt                                            │
-│                                                                 │
-│  ├── Ciberseguridad Ofensiva (Red Team)                         │
-│  ├── Defensa y Detección de Intrusiones (Blue Team)             │
-│  ├── Infraestructura de Redes y Telecomunicaciones              │
-│  └── Desarrollo de Herramientas de Seguridad en Python          │
-│                                                                 │
 │  $ echo $STATUS                                                 │
 │  Abierto a oportunidades en ciberseguridad                      │
 └─────────────────────────────────────────────────────────────────┘
@@ -53,15 +57,27 @@
 
 ---
 
-## 🗺️ Mapa de Aprendizaje
+## Features
 
-<div align="center">
+| Feature | Descripción |
+|---------|-------------|
+| **37 Proyectos Progresivos** | Desde cifrado básico hasta simulación Red Team completa |
+| **3 Niveles de Dificultad** | Básico, Intermedio, Avanzado — ruta de aprendizaje estructurada |
+| **Criptografía Aplicada** | Fernet → AES-256-CBC → AES-256-GCM con PBKDF2 |
+| **Análisis de Red** | Scapy, sniffing, ARP, IDS, detección de intrusiones |
+| **Red Team / C2** | Framework de explotación, simulación C2, pivoting |
+| **Blue Team / Defensa** | HIDS, NIDS, Threat Hunting con MITRE ATT&CK |
+| **Dashboards Interactivos** | HTML/JS + backend Python (SIEM, C2, honeypots, malware) |
+| **SentinelX SOC** | Dashboard SOC completo con Next.js, Prisma y autenticación |
+| **Wiki Técnica** | 40+ páginas con diagramas, código explicado y fundamentos |
 
-![Roadmap](assets/roadmap.png)
+---
 
-</div>
+## Roadmap de Aprendizaje
 
-Este repositorio está organizado de menor a mayor complejidad. Cada proyecto construye sobre los conceptos del anterior, formando una ruta de aprendizaje completa desde los fundamentos hasta la simulación de operaciones reales de Red Team y Blue Team.
+<img src="assets/roadmap.png" alt="CIBER Roadmap" width="800">
+
+Este repositorio está organizado de menor a mayor complejidad. Cada proyecto construye sobre los conceptos del anterior, formando una ruta de aprendizaje completa:
 
 ```
 NIVEL BÁSICO ──────► NIVEL INTERMEDIO ──────► NIVEL AVANZADO ──────► PROYECTOS FUTUROS (UI)
@@ -73,9 +89,11 @@ NIVEL BÁSICO ──────► NIVEL INTERMEDIO ──────► NIVEL
 
 ---
 
-## 🟢 Nivel Básico — Fundamentos
+## Proyectos
 
-> **Objetivo**: Comprender cómo funcionan por dentro las herramientas de seguridad más comunes. Ideal para comenzar a programar scripts de seguridad en Python.
+### 🟢 Nivel Básico — Fundamentos
+
+> **Objetivo**: Comprender cómo funcionan por dentro las herramientas de seguridad más comunes.
 
 | # | Proyecto | Conceptos Clave | Dependencias |
 |---|----------|-----------------|--------------|
@@ -90,11 +108,9 @@ NIVEL BÁSICO ──────► NIVEL INTERMEDIO ──────► NIVEL
 | 09 | [Vulnerability Scanner](ciberseguridad/nivel_basico/09_simple_vulnerability_scanner) | Cabeceras HTTP, CSP, HSTS, X-Frame-Options | `requests` |
 | 10 | [Network Sniffer](ciberseguridad/nivel_basico/10_network_sniffer_basico) | Captura de paquetes, modo promiscuo, L3/L4 | `scapy` |
 
----
+### 🟡 Nivel Intermedio — Automatización y Detección
 
-## 🟡 Nivel Intermedio — Automatización y Detección
-
-> **Objetivo**: Implementar herramientas multihilo, análisis de protocolos de red y primeros sistemas defensivos. Se trabaja con concurrencia real y tráfico en vivo.
+> **Objetivo**: Implementar herramientas multihilo, análisis de protocolos de red y primeros sistemas defensivos.
 
 | # | Proyecto | Conceptos Clave | Dependencias |
 |---|----------|-----------------|--------------|
@@ -109,11 +125,9 @@ NIVEL BÁSICO ──────► NIVEL INTERMEDIO ──────► NIVEL
 | 09 | [SSH Bruteforce](ciberseguridad/nivel_intermedio/09_ssh_bruteforce_tool) | Protocolo SSH, autenticación, Paramiko | `paramiko`, `threading` |
 | 10 | [Log Monitor System](ciberseguridad/nivel_intermedio/10_log_monitoring_system) | Tail -f en Python, correlación, umbrales | `re`, `threading` |
 
----
+### 🔴 Nivel Avanzado — Red Team / Blue Team
 
-## 🔴 Nivel Avanzado — Red Team / Blue Team
-
-> **Objetivo**: Simular operaciones reales de ataque y defensa. Incluye frameworks de explotación, análisis forense, detección de intrusos con inteligencia de amenazas y técnicas de evasión.
+> **Objetivo**: Simular operaciones reales de ataque y defensa con frameworks, detección y evasión.
 
 | # | Proyecto | Conceptos Clave | Dependencias |
 |---|----------|-----------------|--------------|
@@ -128,87 +142,220 @@ NIVEL BÁSICO ──────► NIVEL INTERMEDIO ──────► NIVEL
 | 09 | [Threat Hunting Lab](ciberseguridad/nivel_avanzado/09_threat_hunting_lab) | MITRE ATT&CK, correlación, IOCs, Sysmon events | `re`, `json` |
 | 10 | [Red Team Lab](ciberseguridad/nivel_avanzado/10_red_team_lab_simulation) | Recon → Exploit → Pivot → Exfil → Report | múltiples |
 
----
+### 🛸 Proyecto Estrella: SentinelX SOC Dashboard
 
-## 🚀 Proyectos Futuros — Dashboards Interactivos
+> Panel de Control de Ciberseguridad (SOC) construido con Next.js, Prisma y autenticación segura.
 
-> **Objetivo**: Visualizar operaciones de seguridad complejas mediante interfaces web interactivas. Cada proyecto tiene un **dashboard HTML/JS** que se abre en el navegador Y un **script Python** funcional de backend.
+| Componente | Tecnología |
+|------------|-----------|
+| Frontend | Next.js 14, React, TypeScript |
+| Backend | Next.js API Routes, Prisma ORM |
+| Base de Datos | SQLite (dev) / PostgreSQL (prod) |
+| Autenticación | NextAuth.js con credenciales seguras |
+| UI/UX | Tailwind CSS, componentes responsivos |
+| Charts | Chart.js para visualización de datos |
+
+[Ver documentación completa →](SentinelX/README.md)
+
+### 🚀 Proyectos Futuros — Dashboards Interactivos
+
+> **Objetivo**: Visualizar operaciones de seguridad mediante interfaces web interactivas.
 
 | # | Dashboard Visual | Backend CLI Python |
 |---|------------------|--------------------|
-| [01 Simulador APT](ciberseguridad/proyectos_futuros/01_simulador_apt) | Consola C2 con nodos, terminal y beacon logs | `apt_agent.py` |
-| [02 Analizador Malware IA](ciberseguridad/proyectos_futuros/02_analizador_malware_ia) | Gauge de amenaza, entropía, APIs sospechosas | `malware_analyzer.py` |
-| [03 Red Team Framework](ciberseguridad/proyectos_futuros/03_red_team_framework) | Consola de exploits estilo Metasploit | `nexus_framework.py` |
-| [04 SIEM Dashboard](ciberseguridad/proyectos_futuros/04_siem_dashboard) | Monitor de logs en tiempo real con alertas | `siem_collector.py` |
-| [05 Honeypots Interactivos](ciberseguridad/proyectos_futuros/05_honeypots_interactivos) | Mapa de ataques live + capturas de credenciales | `honeypot_runner.py` |
-| [06 Phishing Manager](ciberseguridad/proyectos_futuros/06_phishing_manager) | Gestor de campañas con plantillas de suplantación | `phishing_simulator.py` |
-| [07 Mapeador Superficie Ataque](ciberseguridad/proyectos_futuros/07_mapeador_superficie_ataque) | Topología de red con sonar de reconocimiento | `surface_mapper.py` |
+| 01 | [Simulador APT](ciberseguridad/proyectos_futuros/01_simulador_apt) | Consola C2 con nodos, terminal y beacon logs |
+| 02 | [Analizador Malware IA](ciberseguridad/proyectos_futuros/02_analizador_malware_ia) | Gauge de amenaza, entropía, APIs sospechosas |
+| 03 | [Red Team Framework](ciberseguridad/proyectos_futuros/03_red_team_framework) | Consola de exploits estilo Metasploit |
+| 04 | [SIEM Dashboard](ciberseguridad/proyectos_futuros/04_siem_dashboard) | Monitor de logs en tiempo real con alertas |
+| 05 | [Honeypots Interactivos](ciberseguridad/proyectos_futuros/05_honeypots_interactivos) | Mapa de ataques live + capturas de credenciales |
+| 06 | [Phishing Manager](ciberseguridad/proyectos_futuros/06_phishing_manager) | Gestor de campañas con plantillas |
+| 07 | [Mapeador Superficie Ataque](ciberseguridad/proyectos_futuros/07_mapeador_superficie_ataque) | Topología de red con sonar de reconocimiento |
 
 ---
 
-## ⚡ Instalación Rápida
+## Instalación
+
+### Prerrequisitos
+
+- **Python** 3.10 o superior
+- **Git** 2.30+
+- **Node.js** 18+ (solo para SentinelX)
+- **Scapy** requiere permisos de administrador en proyectos de red
+
+### Clonar e instalar
 
 ```bash
-# 1. Clonar el repositorio
 git clone https://github.com/lucasmdg/CIBER.git
 cd CIBER
 
-# 2. Crear entorno virtual (recomendado)
 python -m venv .venv
 source .venv/bin/activate        # Linux/Mac
 .venv\Scripts\activate           # Windows
 
-# 3. Instalar dependencias
 pip install -r ciberseguridad/requirements.txt
+```
 
-# 4. Ejecutar tests para validar que todo funciona
+### Verificar instalación
+
+```bash
 cd ciberseguridad
 python run_tests.py
 # Resultado esperado: 29/29 proyectos pasaron ✓
 ```
 
----
-
-## 🧪 Ejecutar los Proyectos Interactivos
+### SentinelX
 
 ```bash
-# Abrir dashboard en el navegador (doble clic o):
-start ciberseguridad/proyectos_futuros/01_simulador_apt/index.html
-
-# Ejecutar el analizador de malware por línea de comandos:
-python ciberseguridad/proyectos_futuros/02_analizador_malware_ia/malware_analyzer.py <archivo>
-
-# Lanzar el framework de explotación interactivo:
-python ciberseguridad/proyectos_futuros/03_red_team_framework/nexus_framework.py
-
-# Iniciar el colector SIEM en tiempo real:
-python ciberseguridad/proyectos_futuros/04_siem_dashboard/siem_collector.py
-
-# Mapear la superficie de ataque de un dominio:
-python ciberseguridad/proyectos_futuros/07_mapeador_superficie_ataque/surface_mapper.py google.com
+cd SentinelX
+npm install
+npx prisma generate
+npx prisma db push
+npm run dev
 ```
 
 ---
 
-## 📖 Documentación Completa — Wiki
+## Arquitectura
 
-La **[Wiki de este repositorio](https://github.com/lucasmdg/CIBER/wiki)** contiene para cada proyecto:
+```
+CIBER/
+├── ciberseguridad/           # Proyectos Python de ciberseguridad
+│   ├── nivel_basico/         # 10 proyectos fundamentales
+│   ├── nivel_intermedio/     # 10 proyectos de automatización
+│   ├── nivel_avanzado/       # 10 proyectos Red/Blue Team
+│   ├── proyectos_futuros/    # 7 dashboards interactivos
+│   ├── pruebas_claude/       # Tests internos
+│   ├── run_tests.py          # Suite de tests unificada
+│   └── requirements.txt      # Dependencias Python
+├── SentinelX/                # SOC Dashboard (Next.js)
+│   ├── src/                  # Código fuente
+│   ├── prisma/               # Esquema de base de datos
+│   └── package.json
+├── sentinel-cli/             # CLI de SentinelX
+├── wiki/                     # Documentación GitHub Wiki
+├── assets/                   # Imágenes y recursos
+├── .github/                  # Templates y workflows CI
+├── README.md
+└── LICENSE
+```
 
-- 📐 **Diagrama de arquitectura** en formato Mermaid
-- 🧠 **Explicación técnica profunda** de los conceptos
-- 💻 **Código de ejemplo** comentado
-- 🔗 **Enlace directo** al código fuente
+### Pipeline de Aprendizaje
+
+```
+┌──────────────┐    ┌──────────────┐    ┌──────────────┐    ┌──────────────┐
+│  Fundamentals │───▶│  Automation  │───▶│  Red/Blue    │───▶│  Dashboards  │
+│  (Básico)     │    │  (Intermedio)│    │  (Avanzado)  │    │  (Futuro)    │
+└──────────────┘    └──────────────┘    └──────────────┘    └──────────────┘
+       │                   │                   │                    │
+       ▼                   ▼                   ▼                    ▼
+  Cifrado Fernet      AES-256+PBKDF2      AES-256-GCM          UI/UX real
+  Sockets TCP         Threading           C2 Framework         SIEM tiempo real
+  Hashing básico      Packet analysis     NIDS con flujos       Análisis IA
+  Log parsing         ARP Detection       Malware static        Consola web
+```
 
 ---
 
-<div align="center">
+## Tecnologías
 
-> ⚠️ **Aviso ético**: Todo el contenido de este repositorio tiene propósitos **exclusivamente educativos**. Utiliza estas herramientas únicamente en entornos controlados y con autorización explícita. La ciberseguridad es responsabilidad de todos.
+| Categoría | Tecnologías |
+|-----------|-------------|
+| **Lenguajes** | Python 3.10+, TypeScript, Bash |
+| **Criptografía** | `cryptography` (Fernet, AES-256-CBC, AES-256-GCM, PBKDF2) |
+| **Redes** | `scapy`, `socket`, `requests`, `paramiko` |
+| **Web** | `flask`, `bs4`, Next.js 14, Prisma, Tailwind CSS |
+| **Testing** | `pytest`, `unittest` |
+| **Herramientas** | Scapy, Paramiko, Metasploit (conceptual) |
 
 ---
 
-*Lucas Méndez Díez · Telecom & Cybersecurity Engineer*
+## Rendimiento
+
+| Proyecto | Tiempo de Ejecución | Consumo RAM |
+|----------|--------------------|-------------|
+| Password Locker | < 100ms | ~20 MB |
+| Port Scanner (100 puertos) | ~2s | ~30 MB |
+| Hash Cracker (10K palabras) | ~500ms | ~40 MB |
+| C2 Simulator | Tiempo real | ~80 MB |
+| NIDS (análisis en vivo) | Tiempo real | ~150 MB |
+| SentinelX Dashboard | < 1s carga | ~200 MB |
+
+---
+
+## Consideraciones de Seguridad
+
+- **Todos los proyectos son educativos** — no deben usarse en producción sin auditoría
+- Las herramientas de red requieren **entornos controlados** y autorización explícita
+- SentinelX usa NextAuth.js con **credenciales hasheadas** — configurar en producción con HTTPS
+- No se almacenan contraseñas reales — solo hashes PBKDF2 con 600,000 iteraciones
+- Los proyectos de red (Scapy) deben ejecutarse con **permisos de administrador**
+- **Marco legal**: El uso no autorizado de estas herramientas puede constituir delito (Art. 264 CP España)
+
+---
+
+## Wiki
+
+La [Wiki del repositorio](https://github.com/lucasmdg/CIBER/wiki) contiene documentación completa:
+
+| Sección | Páginas |
+|---------|---------|
+| **General** | [Home](wiki/Home.md), [Instalación](wiki/Installation.md), [Quick Start](wiki/Quick-Start.md), [Arquitectura](wiki/Architecture.md) |
+| **Básico** | Password Locker, Port Scanner, Hash Cracker, Log Analyzer, FIC, Keylogger, Caesar, Base64, Vuln Scanner, Sniffer |
+| **Intermedio** | PW Locker v2, MT Port Scanner, Dir Bruteforcer, Login Bruteforce, Packet Sniffer, ARP Detector, IDS, Web Vuln, SSH, Log Monitor |
+| **Avanzado** | C2, Mini Metasploit, Advanced PW, NIDS, Pentesting, PrivEsc, Malware Lab, Ransomware, Threat Hunting, Red Team |
+| **SentinelX** | Introducción, Arquitectura, Instalación, Módulos, Seguridad, DevSecOps, Roadmap |
+| **Guías** | [Desarrollo](wiki/Development.md), [Testing](wiki/Testing.md), [Contribuir](wiki/Contributing.md), [FAQ](wiki/FAQ.md), [Troubleshooting](wiki/Troubleshooting.md) |
+
+---
+
+## FAQ
+
+**¿Puedo usar estas herramientas en sistemas reales?**
+Solo en entornos controlados con autorización explícita. El uso no autorizado es ilegal.
+
+**¿Necesito conocimientos previos?**
+Se recomienda conocer Python básico. Los proyectos nivel básico enseñan los fundamentos.
+
+**¿Funciona en Windows?**
+Sí, aunque los proyectos de red (Scapy) funcionan mejor en Linux o WSL2.
+
+**¿Cómo ejecuto todos los tests?**
+```bash
+cd ciberseguridad
+python run_tests.py
+```
+
+**¿Cómo contribuyo?**
+Revisa la [Guía de Contribución](CONTRIBUTING.md) y el [Código de Conducta](CODE_OF_CONDUCT.md).
+
+---
+
+## Contribuir
+
+Las contribuciones son bienvenidas. Por favor:
+
+1. Revisa los [issues abiertos](https://github.com/lucasmdg/CIBER/issues)
+2. Lee la [Guía de Contribución](CONTRIBUTING.md)
+3. Sigue el [Código de Conducta](CODE_OF_CONDUCT.md)
+4. Abre un PR con tus cambios
+
+---
+
+## Licencia
+
+Distribuido bajo **MIT License**. Ver [LICENSE](LICENSE).
+
+---
+
+## Contacto
+
+**Lucas Méndez Díez** — Telecom & Cybersecurity Engineer
 
 [![GitHub](https://img.shields.io/badge/GitHub-lucasmdg-181717?style=flat-square&logo=github)](https://github.com/lucasmdg)
 
-</div>
+---
+
+<p align="center">
+  <strong>Educación · Seguridad · Responsabilidad</strong><br>
+  <sub>Todo el contenido tiene fines exclusivamente educativos. Usa este conocimiento de forma ética.</sub>
+</p>

@@ -1,0 +1,90 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+    paths-ignore:
+      - "wiki/**"
+      - "assets/**"
+      - "**.md"
+  pull_request:
+    branches: [main]
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  python-lint:
+    name: Python Lint
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.10"
+          cache: "pip"
+          cache-dependency-path: ciberseguridad/requirements.txt
+      - run: pip install -r ciberseguridad/requirements.txt
+      - run: pip install flake8 black
+      - run: flake8 ciberseguridad/ --max-line-length=100 --exclude=pruebas_claude
+      - run: black --check ciberseguridad/ --exclude=pruebas_claude
+
+  python-test:
+    name: Python Tests (${{ matrix.os }})
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest]
+        python-version: ["3.10", "3.11", "3.12"]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+          cache: "pip"
+          cache-dependency-path: ciberseguridad/requirements.txt
+      - run: pip install -r ciberseguridad/requirements.txt
+      - name: Run tests
+        working-directory: ciberseguridad
+        run: python run_tests.py
+      - name: Upload coverage
+        uses: codecov/codecov-action@v4
+        with:
+          directory: ./ciberseguridad
+          fail_ci_if_error: false
+
+  sentinelx:
+    name: SentinelX Build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: "npm"
+          cache-dependency-path: SentinelX/package-lock.json
+      - run: npm ci
+        working-directory: SentinelX
+      - run: npx prisma generate
+        working-directory: SentinelX
+      - run: npm run typecheck
+        working-directory: SentinelX
+      - run: npm run build
+        working-directory: SentinelX
+        env:
+          NEXTAUTH_SECRET: "ci-build-mock-secret"
+          DATABASE_URL: "file:./dev.db"
+
+  security:
+    name: Security Audit
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.10"
+      - run: pip install -r ciberseguridad/requirements.txt
+      - run: pip install pip-audit
+      - run: pip-audit -r ciberseguridad/requirements.txt --desc

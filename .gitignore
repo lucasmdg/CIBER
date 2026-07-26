@@ -2,30 +2,52 @@
 __pycache__/
 *.py[cod]
 *$py.class
+*.egg-info/
+dist/
+build/
+*.egg
+
+# Virtual environments
 .venv/
 env/
 venv/
 ENV/
+.venv-win/
 
-# Archivos de datos de los proyectos (Sensibles)
+# Datos de proyectos (sensibles)
 *.json
 *.key
 *.txt
 !README.md
 !requirements.txt
+!package.json
+!package-lock.json
 
 # Logs
 *.log
 keylog.txt
 
-# Base de datos del Vault
+# Bases de datos
 vault.json
 test_vault.json
 baseline.json
+*.db
+*.sqlite
 
-# IDEs
+# IDE
 .vscode/
 .idea/
+*.swp
+*.swo
+*~
+
+# Node
+node_modules/
+.next/
+
+# OS
+.DS_Store
+Thumbs.db
 
 # Pruebas aisladas (privado)
 ciberseguridad/pruebas_claude/
@@ -35,3 +57,12 @@ ciberseguridad/pruebas_claude/
 !SentinelX/**/*.json
 !SentinelX/**/*.env.example
 
+# Environment
+.env
+.env.local
+.env.*.local
+
+# Cache
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/

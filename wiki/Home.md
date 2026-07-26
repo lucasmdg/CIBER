@@ -157,6 +157,22 @@ key = kdf.derive(password.encode())  # Tarda ~1 segundo, inviable para fuerza br
 
 ---
 
+## 📖 Guías Rápidas
+
+| Guía | Descripción |
+|------|-------------|
+| [[Quick Start\|Quick-Start]] | Primeros pasos en 5 minutos |
+| [[Instalación\|Installation]] | Requisitos e instalación detallada |
+| [[Arquitectura\|Architecture]] | Estructura del repositorio y pipeline |
+| [[Desarrollo\|Development]] | Setup de entorno de desarrollo |
+| [[Testing]] | Estrategia de tests y cobertura |
+| [[Contribuir\|Contributing]] | Cómo contribuir al proyecto |
+| [[FAQ]] | Preguntas frecuentes |
+| [[Troubleshooting]] | Solución de problemas comunes |
+| [[Roadmap]] | Plan de desarrollo futuro |
+
+---
+
 ## 🛠️ Prerrequisitos Técnicos
 
 Para ejecutar los proyectos de este repositorio necesitas:

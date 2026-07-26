@@ -1,0 +1,31 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - "v*"
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    name: Create Release
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Generate release notes
+        id: release_notes
+        run: |
+          echo "notes=## Release ${{ github.ref_name }}" > $GITHUB_OUTPUT
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          body: |
+            ## Release ${{ github.ref_name }}
+
+            Ver [CHANGELOG.md](https://github.com/lucasmdg/CIBER/blob/main/CHANGELOG.md) para detalles completos.
+          draft: false
+          prerelease: false
