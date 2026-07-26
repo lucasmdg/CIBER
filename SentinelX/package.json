@@ -68,7 +68,7 @@
     "react-dropzone": "^15.0.0",
     "react-hook-form": "7.53.2",
     "reactflow": "11.11.4",
-    "recharts": "2.13.3",
+    "recharts": "3.10.1",
     "systeminformation": "^5.31.11",
     "tailwind-merge": "2.5.4",
     "tailwindcss-animate": "1.0.7",
