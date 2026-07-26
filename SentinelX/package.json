@@ -70,7 +70,7 @@
     "reactflow": "11.11.4",
     "recharts": "2.13.3",
     "systeminformation": "^5.31.11",
-    "tailwind-merge": "2.5.4",
+    "tailwind-merge": "3.6.0",
     "tailwindcss-animate": "1.0.7",
     "zod": "^4.4.3"
   },
