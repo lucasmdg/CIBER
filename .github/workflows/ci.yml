@@ -50,7 +50,7 @@ jobs:
         working-directory: ciberseguridad
         run: python run_tests.py
       - name: Upload coverage
-        uses: codecov/codecov-action@v4
+        uses: codecov/codecov-action@v7
         with:
           directory: ./ciberseguridad
           fail_ci_if_error: false
