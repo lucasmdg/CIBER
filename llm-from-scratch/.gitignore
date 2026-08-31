@@ -1,0 +1,52 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.egg-info/
+dist/
+build/
+*.egg
+
+# Virtual environments
+.venv/
+env/
+venv/
+
+# Environment
+.env
+.env.local
+
+# Data (downloaded datasets)
+data/raw/*.txt
+data/raw/*.csv
+data/processed/*.pt
+data/processed/*.json
+!data/raw/smoke_test.txt
+
+# Checkpoints
+checkpoints/
+*.pt
+*.pth
+!configs/*.yaml
+
+# Results and logs
+results/
+logs/
+*.log
+
+# IDE
+.vscode/
+.idea/
+*.swp
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Cache
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+
+# Tokenizer artifacts (generated)
+tokenizer_data/

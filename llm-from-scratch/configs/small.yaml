@@ -1,0 +1,44 @@
+# Small Model Configuration (~20M parameters)
+# Requires more compute; GPU recommended
+
+model:
+  vocab_size: null
+  context_length: 512
+  d_model: 384
+  n_layers: 6
+  n_heads: 6
+  d_ff: 1536
+  dropout: 0.1
+  bias: true
+  positional_encoding: "learned"
+  activation: "gelu"
+
+training:
+  batch_size: 16
+  learning_rate: 3.0e-4
+  weight_decay: 0.1
+  betas: [0.9, 0.95]
+  max_epochs: 20
+  max_steps: null
+  gradient_clip: 1.0
+  gradient_accumulation_steps: 2
+  warmup_steps: 200
+  eval_interval: 500
+  eval_steps: 100
+  checkpoint_interval: 1000
+  mixed_precision: true
+  seed: 42
+
+dataset:
+  name: "tinyshakespeare"
+  train_split: 0.9
+  val_split: 0.05
+  test_split: 0.05
+  tokenizer_type: "char"
+  bpe_vocab_size: 1000
+
+generation:
+  max_new_tokens: 500
+  temperature: 0.8
+  top_k: 50
+  top_p: 0.9

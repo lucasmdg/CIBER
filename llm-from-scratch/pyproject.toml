@@ -1,0 +1,30 @@
+[build-system]
+requires = ["setuptools>=68.0", "wheel"]
+build-backend = "setuptools.backends._legacy:_Backend"
+
+[project]
+name = "llm-from-scratch"
+version = "0.1.0"
+description = "A decoder-only Transformer language model built from first principles"
+readme = "README.md"
+requires-python = ">=3.10"
+license = {text = "MIT"}
+authors = [{name = "Lucas Méndez Díez"}]
+dependencies = [
+    "torch>=2.0.0",
+    "pyyaml>=6.0",
+    "numpy>=1.24.0",
+    "tqdm>=4.65.0",
+]
+
+[project.optional-dependencies]
+web = ["flask>=3.0.0"]
+dev = ["pytest>=7.0.0", "pytest-cov>=4.0.0"]
+all = ["llm-from-scratch[web,dev]"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+pythonpath = ["."]
+
+[tool.setuptools.packages.find]
+include = ["model*", "tokenizer*", "training*", "evaluation*", "inference*", "experiments*"]

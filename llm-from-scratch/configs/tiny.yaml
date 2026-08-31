@@ -1,0 +1,44 @@
+# Tiny Model Configuration (~1.5M parameters)
+# Designed for fast iteration, smoke tests, and CPU training
+
+model:
+  vocab_size: null  # Set automatically from tokenizer
+  context_length: 256
+  d_model: 128
+  n_layers: 4
+  n_heads: 4
+  d_ff: 512
+  dropout: 0.1
+  bias: true
+  positional_encoding: "learned"  # "learned" or "sinusoidal"
+  activation: "gelu"
+
+training:
+  batch_size: 32
+  learning_rate: 3.0e-4
+  weight_decay: 0.1
+  betas: [0.9, 0.95]
+  max_epochs: 10
+  max_steps: null  # If set, overrides max_epochs
+  gradient_clip: 1.0
+  gradient_accumulation_steps: 1
+  warmup_steps: 100
+  eval_interval: 200
+  eval_steps: 50
+  checkpoint_interval: 500
+  mixed_precision: false
+  seed: 42
+
+dataset:
+  name: "tinyshakespeare"
+  train_split: 0.9
+  val_split: 0.05
+  test_split: 0.05
+  tokenizer_type: "char"  # "char" or "bpe"
+  bpe_vocab_size: 1000  # Only used if tokenizer_type is "bpe"
+
+generation:
+  max_new_tokens: 200
+  temperature: 0.8
+  top_k: 50
+  top_p: 0.9
