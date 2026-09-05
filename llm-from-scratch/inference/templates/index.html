@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LLM from Scratch - Web Demo</title>
+    <style>
+        body { font-family: sans-serif; max-width: 800px; margin: 0 auto; padding: 20px; }
+        textarea { width: 100%; height: 100px; margin-bottom: 10px; }
+        button { padding: 10px 20px; cursor: pointer; }
+        .result-box { margin-top: 20px; padding: 15px; border: 1px solid #ccc; background: #f9f9f9; min-height: 100px; white-space: pre-wrap;}
+    </style>
+</head>
+<body>
+    <h1>LLM from Scratch Demo</h1>
+    <p>Enter a prompt below and click generate.</p>
+    
+    <div>
+        <textarea id="prompt" placeholder="Type your prompt here...">ROMEO: </textarea>
+    </div>
+    
+    <div>
+        <label>Max Tokens: <input type="number" id="max_tokens" value="100" style="width: 60px;"></label>
+        <label>Temperature: <input type="number" id="temperature" value="0.8" step="0.1" style="width: 60px;"></label>
+    </div>
+    <br>
+    
+    <button id="generateBtn" onclick="generateText()">Generate</button>
+    
+    <div class="result-box" id="result">
+        <em>Output will appear here...</em>
+    </div>
+
+    <script>
+        async function generateText() {
+            const prompt = document.getElementById('prompt').value;
+            const maxTokens = document.getElementById('max_tokens').value;
+            const temp = document.getElementById('temperature').value;
+            const resultBox = document.getElementById('result');
+            const btn = document.getElementById('generateBtn');
+
+            resultBox.innerHTML = '<em>Generating...</em>';
+            btn.disabled = true;
+
+            try {
+                const response = await fetch('/generate', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        prompt: prompt,
+                        max_tokens: maxTokens,
+                        temperature: temp
+                    })
+                });
+                
+                const data = await response.json();
+                if (response.ok) {
+                    resultBox.textContent = data.result;
+                } else {
+                    resultBox.innerHTML = '<span style="color:red">Error: ' + data.error + '</span>';
+                }
+            } catch (err) {
+                resultBox.innerHTML = '<span style="color:red">Request failed.</span>';
+            }
+            btn.disabled = false;
+        }
+    </script>
+</body>
+</html>
