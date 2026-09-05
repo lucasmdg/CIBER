@@ -20,6 +20,21 @@ MODEL_STATE = {
 def index():
     return render_template('index.html')
 
+@app.route('/status', methods=['GET'])
+def status_api():
+    if MODEL_STATE["model"] is None:
+        return jsonify({"status": "error", "message": "Model not loaded", "params": 0})
+    
+    # Calculate parameters
+    model = MODEL_STATE["model"]
+    num_params = sum(p.numel() for p in model.parameters())
+    return jsonify({
+        "status": "ready",
+        "params": num_params,
+        "vocab_size": model.config.vocab_size,
+        "context_length": model.config.context_length
+    })
+
 @app.route('/generate', methods=['POST'])
 def generate_api():
     if MODEL_STATE["model"] is None:
@@ -29,7 +44,20 @@ def generate_api():
     prompt = data.get('prompt', '')
     max_tokens = int(data.get('max_tokens', 100))
     temperature = float(data.get('temperature', 0.8))
+    top_k = data.get('top_k', None)
+    top_p = data.get('top_p', None)
     
+    # Convert top_k/top_p to proper types if provided
+    if top_k is not None and top_k != "":
+        top_k = int(top_k)
+    else:
+        top_k = None
+        
+    if top_p is not None and top_p != "":
+        top_p = float(top_p)
+    else:
+        top_p = None
+
     from model.generation import TextGenerator
     generator = TextGenerator(MODEL_STATE["model"], MODEL_STATE["tokenizer"], MODEL_STATE["device"])
     
@@ -37,7 +65,9 @@ def generate_api():
         result = generator.generate(
             prompt=prompt,
             max_new_tokens=max_tokens,
-            temperature=temperature
+            temperature=temperature,
+            top_k=top_k,
+            top_p=top_p
         )
         return jsonify({"result": result})
     except Exception as e:
