@@ -14,10 +14,6 @@ Explicacion humana:
     redes sociales para comunicarse. Aqui lo simplificamos para entenderlo.
 """
 
-import http.server
-import json
-import threading
-import time
 from datetime import datetime
 
 

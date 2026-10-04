@@ -1,8 +1,9 @@
 import argparse
-import sys
 import logging
+import sys
 from datetime import datetime
-from scapy.all import sniff, IP, TCP, UDP, ICMP, Raw
+
+from scapy.all import ICMP, IP, TCP, UDP, Raw, sniff
 from scapy.layers.http import HTTPRequest, HTTPResponse
 
 # Configuración de logs
@@ -10,6 +11,7 @@ logging.basicConfig(
     level=logging.INFO,
     format='%(asctime)s - %(levelname)s - %(message)s'
 )
+
 
 class AdvancedSniffer:
     def __init__(self, interface=None, count=0, bpf_filter=None, output_file=None):
@@ -32,7 +34,7 @@ class AdvancedSniffer:
 
         self.packet_count += 1
         self.stats["Total"] += 1
-        
+
         ip_layer = packet[IP]
         src_ip = ip_layer.src
         dst_ip = ip_layer.dst
@@ -55,7 +57,7 @@ class AdvancedSniffer:
             self.stats["ICMP"] += 1
 
         info = f"[+] {proto} | {src_ip} -> {dst_ip}"
-        
+
         # Análisis de Payload (Búsqueda de credenciales simples en texto plano)
         if packet.haslayer(Raw):
             payload = str(packet[Raw].load)
@@ -66,10 +68,11 @@ class AdvancedSniffer:
         self.log_packet(info)
 
     def start(self):
-        self.log_packet(f"[*] Iniciando Advanced Sniffer en {self.interface or 'interfaz por defecto'}...")
+        self.log_packet(
+            f"[*] Iniciando Advanced Sniffer en {self.interface or 'interfaz por defecto'}...")
         if self.bpf_filter:
             self.log_packet(f"[*] Filtro BPF aplicado: {self.bpf_filter}")
-        
+
         try:
             sniff(
                 iface=self.interface,
@@ -91,17 +94,22 @@ class AdvancedSniffer:
             print(f"{k}: {v}")
         print("="*30)
 
+
 def main():
-    parser = argparse.ArgumentParser(description="Advanced Packet Sniffer for Cybersecurity Portfolio")
+    parser = argparse.ArgumentParser(
+        description="Advanced Packet Sniffer for Cybersecurity Portfolio")
     parser.add_argument("-i", "--interface", help="Interfaz de red a escuchar")
-    parser.add_argument("-c", "--count", type=int, default=0, help="Número de paquetes a capturar (0 = infinito)")
-    parser.add_argument("-f", "--filter", help="Filtro BPF (ej: 'tcp port 80')")
-    parser.add_argument("-o", "--output", help="Archivo de log para guardar resultados")
-    
+    parser.add_argument("-c", "--count", type=int, default=0,
+                        help="Número de paquetes a capturar (0 = infinito)")
+    parser.add_argument(
+        "-f", "--filter", help="Filtro BPF (ej: 'tcp port 80')")
+    parser.add_argument(
+        "-o", "--output", help="Archivo de log para guardar resultados")
+
     args = parser.parse_args()
 
     # Verificar privilegios
-    if sys.platform != "win32" and not sys.getuid() == 0:
+    if sys.platform != "win32" and sys.getuid() != 0:
         print("Error: Este script requiere privilegios de root.")
         sys.exit(1)
 
@@ -111,13 +119,14 @@ def main():
         bpf_filter=args.filter,
         output_file=args.output
     )
-    
+
     try:
         sniffer.start()
     except KeyboardInterrupt:
         print("\n[*] Deteniendo sniffer...")
         sniffer.show_stats()
         sys.exit(0)
+
 
 if __name__ == "__main__":
     main()

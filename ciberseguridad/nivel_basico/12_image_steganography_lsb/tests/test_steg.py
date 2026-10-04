@@ -1,14 +1,16 @@
-import unittest
 import os
+import unittest
+
 from PIL import Image
-from src.steg import hide_message, reveal_message, message_to_bin, bin_to_message
+from src.steg import bin_to_message, hide_message, message_to_bin, reveal_message
+
 
 class TestImageSteganography(unittest.TestCase):
 
     def setUp(self):
         self.test_img_path = "test_input.png"
         self.test_output_path = "test_output.png"
-        
+
         # Crear una pequeña imagen de prueba (8x8 píxeles rojos)
         img = Image.new("RGB", (8, 8), color="red")
         img.save(self.test_img_path, "PNG")
@@ -27,12 +29,14 @@ class TestImageSteganography(unittest.TestCase):
 
     def test_hide_and_reveal(self):
         secret = "Secret 123"
-        success = hide_message(self.test_img_path, secret, self.test_output_path)
+        success = hide_message(
+            self.test_img_path, secret, self.test_output_path)
         self.assertTrue(success)
         self.assertTrue(os.path.exists(self.test_output_path))
-        
+
         revealed = reveal_message(self.test_output_path)
         self.assertEqual(revealed, secret)
+
 
 if __name__ == '__main__':
     unittest.main()

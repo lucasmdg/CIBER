@@ -3,7 +3,7 @@ Tests para el detector de ARP Spoofing.
 Usamos mocks porque necesitariamos una red real para probarlo de verdad.
 """
 import unittest
-from unittest.mock import patch, MagicMock
+from unittest.mock import MagicMock, patch
 
 from src.arp_monitor import ARPMonitor
 

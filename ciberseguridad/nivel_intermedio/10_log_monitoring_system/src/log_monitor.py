@@ -18,11 +18,9 @@ Uso:
     python log_monitor.py --logfile mi_log.txt --rules reglas.json
 """
 
+import os
 import re
 import time
-import json
-import os
-import sys
 from collections import defaultdict
 from datetime import datetime
 
@@ -41,6 +39,7 @@ class DetectionRule:
     Por ejemplo: si vemos "Failed password" muchas veces seguidas desde la
     misma IP, eso huele a ataque de fuerza bruta.
     """
+
     def __init__(self, name, pattern, alert_level, threshold=1, window_seconds=60):
         self.name = name
         self.pattern = re.compile(pattern, re.IGNORECASE)
@@ -68,6 +67,7 @@ class LogMonitor:
     """
     El vigilante principal. Lee logs linea a linea y aplica las reglas.
     """
+
     def __init__(self):
         self.rules = []
         self.alerts = []
@@ -250,4 +250,5 @@ if __name__ == "__main__":
     # Mostramos resumen al salir
     resumen = monitor.get_summary()
     print(f"\n  Resumen: {resumen['total_alertas']} alertas totales")
-    print(f"  Criticas: {resumen['criticas']} | Warnings: {resumen['warnings']}")
+    print(
+        f"  Criticas: {resumen['criticas']} | Warnings: {resumen['warnings']}")

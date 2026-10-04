@@ -1,4 +1,8 @@
-scapy==2.5.0
-requests==2.31.0
-pytest==8.0.0
-cryptography==42.0.5
+scapy>=2.5.0
+requests>=2.33.0
+pytest>=8.0.0
+cryptography>=44.0.1
+pynput
+beautifulsoup4
+paramiko
+Pillow

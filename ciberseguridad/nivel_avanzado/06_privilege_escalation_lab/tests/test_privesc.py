@@ -1,4 +1,5 @@
 import unittest
+
 from src.privesc_checker import PrivEscChecker
 
 
@@ -7,11 +8,13 @@ class TestPrivEscChecker(unittest.TestCase):
         self.checker = PrivEscChecker()
 
     def test_suid_dangerous(self):
-        results = self.checker.check_suid_binaries(["/usr/bin/python3", "/usr/bin/vim"])
+        results = self.checker.check_suid_binaries(
+            ["/usr/bin/python3", "/usr/bin/vim"])
         self.assertEqual(len(results), 2)
 
     def test_suid_safe(self):
-        results = self.checker.check_suid_binaries(["/usr/bin/passwd", "/usr/bin/sudo"])
+        results = self.checker.check_suid_binaries(
+            ["/usr/bin/passwd", "/usr/bin/sudo"])
         self.assertEqual(len(results), 0)
 
     def test_writable_files(self):

@@ -17,7 +17,6 @@ Explicacion humana:
     pero para hackers.
 """
 
-import json
 from datetime import datetime
 from enum import Enum
 
@@ -33,6 +32,7 @@ class Phase(Enum):
 
 class Target:
     """Representa un objetivo del ejercicio."""
+
     def __init__(self, name, ip, services=None):
         self.name = name
         self.ip = ip
@@ -90,10 +90,12 @@ class RedTeamExercise:
     def recon_active(self):
         """Reconocimiento activo (interaccion directa con el objetivo)."""
         targets = [
-            Target("Servidor Web", "10.0.0.1", ["HTTP:80", "HTTPS:443", "SSH:22"]),
+            Target("Servidor Web", "10.0.0.1", [
+                   "HTTP:80", "HTTPS:443", "SSH:22"]),
             Target("Servidor de Correo", "10.0.0.2", ["SMTP:25", "IMAP:143"]),
             Target("Base de Datos", "10.0.0.3", ["MySQL:3306"]),
-            Target("Domain Controller", "10.0.0.10", ["LDAP:389", "SMB:445", "RDP:3389"]),
+            Target("Domain Controller", "10.0.0.10", [
+                   "LDAP:389", "SMB:445", "RDP:3389"]),
         ]
         self.targets = targets
         self.log_action("Reconocimiento activo", {
@@ -107,13 +109,18 @@ class RedTeamExercise:
         """Escanea los objetivos en busca de vulnerabilidades."""
         self.current_phase = Phase.SCANNING
         vulns = [
-            {"target": "10.0.0.1", "vuln": "Apache Struts RCE (CVE-2017-5638)", "severity": "CRITICAL"},
-            {"target": "10.0.0.1", "vuln": "Directory listing habilitado", "severity": "LOW"},
+            {"target": "10.0.0.1",
+                "vuln": "Apache Struts RCE (CVE-2017-5638)", "severity": "CRITICAL"},
+            {"target": "10.0.0.1", "vuln": "Directory listing habilitado",
+                "severity": "LOW"},
             {"target": "10.0.0.2", "vuln": "Open relay SMTP", "severity": "MEDIUM"},
-            {"target": "10.0.0.3", "vuln": "MySQL sin contrasena root", "severity": "CRITICAL"},
-            {"target": "10.0.0.10", "vuln": "SMB signing desactivado", "severity": "MEDIUM"},
+            {"target": "10.0.0.3", "vuln": "MySQL sin contrasena root",
+                "severity": "CRITICAL"},
+            {"target": "10.0.0.10", "vuln": "SMB signing desactivado",
+                "severity": "MEDIUM"},
         ]
-        self.log_action("Escaneo de vulnerabilidades", {"vulns_found": len(vulns)})
+        self.log_action("Escaneo de vulnerabilidades",
+                        {"vulns_found": len(vulns)})
         return vulns
 
     # ---- FASE 3: EXPLOTACION ----
@@ -242,10 +249,12 @@ class RedTeamExercise:
         print("[6/6] Generando reporte...")
         report = self.generate_report()
 
-        print(f"\n[+] Ejercicio completado.")
-        print(f"    Objetivos comprometidos: {report['summary']['compromised']}/{report['summary']['total_targets']}")
+        print("\n[+] Ejercicio completado.")
+        print(
+            f"    Objetivos comprometidos: {report['summary']['compromised']}/{report['summary']['total_targets']}")
         print(f"    Acceso root: {report['summary']['root_access']}")
-        print(f"    Datos exfiltrados: {report['summary']['data_exfiltrated']}")
+        print(
+            f"    Datos exfiltrados: {report['summary']['data_exfiltrated']}")
 
         return report
 

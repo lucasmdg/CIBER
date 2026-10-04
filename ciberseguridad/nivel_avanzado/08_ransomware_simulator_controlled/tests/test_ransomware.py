@@ -1,4 +1,6 @@
-import unittest, os, tempfile
+import os
+import unittest
+
 from src.ransomware_sim import RansomwareSimulator
 
 

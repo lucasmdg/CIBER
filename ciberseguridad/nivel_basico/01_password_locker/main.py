@@ -1,6 +1,8 @@
 import sys
+
 import crypto
 import storage
+
 
 def print_usage():
     print("Usage:")
@@ -8,6 +10,7 @@ def print_usage():
     print("  python main.py add <service> <password> - Add a new password")
     print("  python main.py get <service>            - Retrieve a password")
     print("  python main.py list                     - List all services")
+
 
 def main():
     if len(sys.argv) < 2:
@@ -61,6 +64,7 @@ def main():
     else:
         print(f"Unknown command: {command}")
         print_usage()
+
 
 if __name__ == "__main__":
     main()

@@ -2,6 +2,7 @@ import socket
 import sys
 from datetime import datetime
 
+
 def scan_port(target, port):
     """
     Intenta conectarse a un puerto específico en el objetivo.
@@ -18,6 +19,7 @@ def scan_port(target, port):
         return result == 0
     except Exception:
         return False
+
 
 def run_scanner(target, start_port, end_port):
     print("-" * 50)
@@ -37,21 +39,23 @@ def run_scanner(target, start_port, end_port):
     except socket.gaierror:
         print("\nNo se pudo resolver el nombre del host.")
         sys.exit()
-    except socket.error:
+    except OSError:
         print("\nNo se pudo conectar al servidor.")
         sys.exit()
 
     print("-" * 50)
-    print(f"Escaneo finalizado.")
+    print("Escaneo finalizado.")
     print(f"Puertos abiertos encontrados: {open_ports}")
     print("-" * 50)
+
 
 if __name__ == "__main__":
     # Configuración por defecto o mediante argumentos
     if len(sys.argv) >= 2:
         target = sys.argv[1]
     else:
-        target = input("Introduce la IP o dominio a escanear (ej: 127.0.0.1): ")
+        target = input(
+            "Introduce la IP o dominio a escanear (ej: 127.0.0.1): ")
 
     try:
         start_p = int(input("Puerto inicial (ej: 1): ") or 1)

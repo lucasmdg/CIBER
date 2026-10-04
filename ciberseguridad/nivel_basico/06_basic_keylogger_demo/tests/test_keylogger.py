@@ -1,11 +1,13 @@
-import unittest
-from unittest.mock import patch, mock_open
 import os
 import sys
+import unittest
+from unittest.mock import mock_open, patch
+
+from src.keylogger import on_press
 
 # Añadimos el directorio src al path para poder importar
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
-from src.keylogger import on_press
+
 
 class TestKeylogger(unittest.TestCase):
 
@@ -27,6 +29,7 @@ class TestKeylogger(unittest.TestCase):
         # Simulamos la presión de Enter
         on_press("Key.enter")
         mock_file().write.assert_called_with("\n")
+
 
 if __name__ == "__main__":
     unittest.main()

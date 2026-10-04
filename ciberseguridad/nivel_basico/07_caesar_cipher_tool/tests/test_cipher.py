@@ -1,5 +1,7 @@
 import unittest
+
 from src.cipher import caesar_cipher
+
 
 class TestCaesarCipher(unittest.TestCase):
 
@@ -27,6 +29,7 @@ class TestCaesarCipher(unittest.TestCase):
         encrypted = caesar_cipher(original, 7)
         decrypted = caesar_cipher(encrypted, 7, decrypt=True)
         self.assertEqual(original, decrypted)
+
 
 if __name__ == "__main__":
     unittest.main()

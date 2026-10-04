@@ -1,11 +1,11 @@
 """
 Tests para el sistema de monitorizacion de logs.
 """
-import unittest
-import tempfile
 import os
+import tempfile
+import unittest
 
-from src.log_monitor import LogMonitor, DetectionRule, AlertLevel, analyze_log_file
+from src.log_monitor import AlertLevel, DetectionRule, LogMonitor, analyze_log_file
 
 
 class TestDetectionRule(unittest.TestCase):
@@ -16,7 +16,8 @@ class TestDetectionRule(unittest.TestCase):
             name="Test", pattern=r"failed password",
             alert_level=AlertLevel.WARNING, threshold=1
         )
-        resultado = regla.check("May 10 10:00:00 server sshd: Failed password for root")
+        resultado = regla.check(
+            "May 10 10:00:00 server sshd: Failed password for root")
         self.assertTrue(resultado)
 
     def test_regla_no_detecta_patron(self):
@@ -25,7 +26,8 @@ class TestDetectionRule(unittest.TestCase):
             name="Test", pattern=r"failed password",
             alert_level=AlertLevel.WARNING, threshold=1
         )
-        resultado = regla.check("May 10 10:00:00 server: User logged in successfully")
+        resultado = regla.check(
+            "May 10 10:00:00 server: User logged in successfully")
         self.assertFalse(resultado)
 
     def test_regla_con_threshold(self):
@@ -46,11 +48,13 @@ class TestLogMonitor(unittest.TestCase):
         monitor = LogMonitor()
         monitor.load_default_rules()
 
-        alertas = monitor.process_line("Failed password for root from 10.0.0.1")
+        alertas = monitor.process_line(
+            "Failed password for root from 10.0.0.1")
         # Deberia haber al menos alguna alerta (puede no llegar al threshold)
         # Pero la regla de login fallido con threshold=5 no salta a la primera
         # Probemos con inyeccion SQL que tiene threshold=1
-        alertas = monitor.process_line("SELECT * FROM users WHERE id=1 UNION SELECT * FROM passwords")
+        alertas = monitor.process_line(
+            "SELECT * FROM users WHERE id=1 UNION SELECT * FROM passwords")
         self.assertTrue(len(alertas) > 0)
 
     def test_resumen(self):
@@ -69,7 +73,7 @@ class TestLogMonitor(unittest.TestCase):
         """Debe poder analizar un archivo de log de principio a fin."""
         # Creamos un log falso con actividad sospechosa
         with tempfile.NamedTemporaryFile(mode='w', suffix='.log',
-                                          delete=False, encoding='utf-8') as f:
+                                         delete=False, encoding='utf-8') as f:
             f.write("2024-01-01 Normal startup\n")
             f.write("2024-01-01 User login successful\n")
             f.write("2024-01-01 SELECT * FROM users UNION SELECT * FROM admin\n")

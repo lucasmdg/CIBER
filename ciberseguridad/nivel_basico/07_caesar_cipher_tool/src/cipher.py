@@ -1,3 +1,6 @@
+import sys
+
+
 def caesar_cipher(text, shift, decrypt=False):
     """
     Cifra o descifra un texto usando el algoritmo César.
@@ -6,7 +9,7 @@ def caesar_cipher(text, shift, decrypt=False):
     # Si es descifrado, invertimos el desplazamiento
     if decrypt:
         shift = -shift
-    
+
     for char in text:
         # Procesar mayúsculas
         if char.isupper():
@@ -19,25 +22,27 @@ def caesar_cipher(text, shift, decrypt=False):
         # Mantener caracteres no alfabéticos
         else:
             result += char
-            
+
     return result
+
 
 if __name__ == "__main__":
     print("-" * 50)
     print("CAESAR CIPHER TOOL")
     print("-" * 50)
-    
+
     mode = input("¿Cifrar o Descifrar? (c/d): ").lower().strip()
     message = input("Introduce el mensaje: ")
     try:
         s_value = int(input("Introduce el desplazamiento (ej: 3): "))
     except ValueError:
         print("Error: El desplazamiento debe ser un número entero.")
-        exit()
+        sys.exit()
 
     if mode == 'c':
         print(f"\nMensaje cifrado: {caesar_cipher(message, s_value)}")
     elif mode == 'd':
-        print(f"\nMensaje descifrado: {caesar_cipher(message, s_value, decrypt=True)}")
+        print(
+            f"\nMensaje descifrado: {caesar_cipher(message, s_value, decrypt=True)}")
     else:
         print("Opción no válida.")

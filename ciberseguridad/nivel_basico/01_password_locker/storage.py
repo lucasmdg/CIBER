@@ -3,6 +3,7 @@ import os
 
 VAULT_FILE = "vault.json"
 
+
 def load_vault():
     """Loads the vault from the JSON file"""
     if not os.path.exists(VAULT_FILE):
@@ -12,6 +13,7 @@ def load_vault():
             return json.load(f)
     except (json.JSONDecodeError, FileNotFoundError):
         return {}
+
 
 def save_vault(data):
     """Saves the vault data to the JSON file"""

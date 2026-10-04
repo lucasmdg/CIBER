@@ -20,12 +20,11 @@ Explicacion humana:
     de cifrado, propagacion y los puntos debiles del ransomware.
 """
 
-import os
-import json
 import base64
-import tempfile
+import os
 import shutil
-from datetime import datetime
+import tempfile
+
 from cryptography.hazmat.primitives.ciphers.aead import AESGCM
 
 

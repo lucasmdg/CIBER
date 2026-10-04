@@ -1,5 +1,5 @@
 import base64
-import sys
+
 
 def encode_b64(text):
     """
@@ -11,6 +11,7 @@ def encode_b64(text):
     b64_bytes = base64.b64encode(text_bytes)
     # Convertimos de nuevo a string para mostrarlo
     return b64_bytes.decode('utf-8')
+
 
 def decode_b64(b64_text):
     """
@@ -25,6 +26,7 @@ def decode_b64(b64_text):
         return decoded_bytes.decode('utf-8')
     except Exception as e:
         return f"Error al decodificar: {e}"
+
 
 if __name__ == "__main__":
     print("-" * 50)

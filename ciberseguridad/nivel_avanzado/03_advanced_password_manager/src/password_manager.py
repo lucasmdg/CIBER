@@ -11,17 +11,16 @@ Explicacion humana:
     busqueda, exportacion cifrada y auditoria de fortaleza.
 """
 
+import base64
 import json
 import os
 import secrets
 import string
-import hashlib
-import base64
 from datetime import datetime
 
+from cryptography.hazmat.primitives import hashes
 from cryptography.hazmat.primitives.ciphers.aead import AESGCM
 from cryptography.hazmat.primitives.kdf.pbkdf2 import PBKDF2HMAC
-from cryptography.hazmat.primitives import hashes
 
 
 class PasswordGenerator:
@@ -232,7 +231,8 @@ if __name__ == "__main__":
 
     # Generar y guardar contrasena
     pwd = PasswordGenerator.generate(24)
-    pm.add_entry("GitHub", "dev_user", pwd, "Desarrollo", master_password=master)
+    pm.add_entry("GitHub", "dev_user", pwd,
+                 "Desarrollo", master_password=master)
     print(f"[+] Entrada guardada con contrasena generada: {pwd}")
 
     # Auditar

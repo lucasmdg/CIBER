@@ -1,5 +1,5 @@
 import time
-import sys
+
 
 class ExploitModule:
     def __init__(self, name, description, default_port):
@@ -22,22 +22,24 @@ class ExploitModule:
         print("[*] Inyectando shellcode y payload en memoria remota...")
         time.sleep(1)
         print("[+] ¡Exploit completado con éxito!")
-        print(f"[+] Sesión de shell reversa abierta con {self.options['RHOST']}:4444")
+        print(
+            f"[+] Sesión de shell reversa abierta con {self.options['RHOST']}:4444")
         print(" nexus_shell> whoami")
         print(" system")
         print(" nexus_shell> exit")
+
 
 class NexusFramework:
     def __init__(self):
         self.exploits = {
             "exploit/windows/smb/ms17_010_eternalblue": ExploitModule(
-                "MS17-010 EternalBlue SMB", 
-                "Aprovecha vulnerabilidad SMBv1 en Windows para ejecución de código.", 
+                "MS17-010 EternalBlue SMB",
+                "Aprovecha vulnerabilidad SMBv1 en Windows para ejecución de código.",
                 "445"
             ),
             "exploit/linux/http/apache_activemq_rce": ExploitModule(
-                "Apache ActiveMQ RCE Exploit", 
-                "Aprovecha la vulnerabilidad RCE en el protocolo OpenWire de ActiveMQ.", 
+                "Apache ActiveMQ RCE Exploit",
+                "Aprovecha la vulnerabilidad RCE en el protocolo OpenWire de ActiveMQ.",
                 "8161"
             )
         }
@@ -69,7 +71,8 @@ class NexusFramework:
                 print("\nComandos disponibles:")
                 print("  show exploits  - Muestra la lista de exploits disponibles")
                 print("  use <exploit>  - Selecciona un exploit para su configuración")
-                print("  set <var> <val>- Configura variables de exploit (RHOST, RPORT, PAYLOAD)")
+                print(
+                    "  set <var> <val>- Configura variables de exploit (RHOST, RPORT, PAYLOAD)")
                 print("  options        - Muestra las opciones y variables actuales")
                 print("  run            - Lanza el exploit actual")
                 print("  back           - Quita el exploit seleccionado")
@@ -88,7 +91,8 @@ class NexusFramework:
                     print(f"[-] Error: El módulo '{module_name}' no existe.")
             elif cmd == "set" and len(parts) > 2:
                 if not self.active_module:
-                    print("[-] Error: No se ha seleccionado ningún exploit. Usa 'use <exploit>'.")
+                    print(
+                        "[-] Error: No se ha seleccionado ningún exploit. Usa 'use <exploit>'.")
                     continue
                 var_name = parts[1].upper()
                 var_val = parts[2]
@@ -116,6 +120,7 @@ class NexusFramework:
                 self.active_module = None
             else:
                 print(f"[-] Comando no reconocido: '{cmd}'. Escribe 'help'.")
+
 
 if __name__ == "__main__":
     NexusFramework().cli()

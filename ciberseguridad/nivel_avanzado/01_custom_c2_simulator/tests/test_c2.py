@@ -1,5 +1,6 @@
 import unittest
-from src.c2_simulator import C2Server, C2Agent
+
+from src.c2_simulator import C2Agent, C2Server
 
 
 class TestC2Server(unittest.TestCase):
