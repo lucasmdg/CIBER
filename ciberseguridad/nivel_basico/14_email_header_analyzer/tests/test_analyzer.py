@@ -1,5 +1,7 @@
 import unittest
+
 from src.analyzer import analyze_email_headers
+
 
 class TestEmailHeaderAnalyzer(unittest.TestCase):
 
@@ -30,7 +32,8 @@ Please log in.
         self.assertEqual(report["from"], "admin@mybank.com")
         self.assertEqual(report["return_path"], "scammer@phishinghub.net")
         self.assertTrue(report["threat_score"] >= 3)
-        self.assertTrue(any("Discrepancia de dominio" in a for a in report["anomalies"]))
+        self.assertTrue(
+            any("Discrepancia de dominio" in a for a in report["anomalies"]))
 
     def test_analyze_auth_fail(self):
         eml_content = """From: Services <info@netflix.com>
@@ -44,7 +47,9 @@ Please update billing.
         report = analyze_email_headers(eml_content)
         self.assertTrue(report["suspicious"])
         self.assertTrue(report["threat_score"] >= 5)
-        self.assertTrue(any("Fallo crítico en autenticación" in a for a in report["anomalies"]))
+        self.assertTrue(
+            any("Fallo crítico en autenticación" in a for a in report["anomalies"]))
+
 
 if __name__ == '__main__':
     unittest.main()

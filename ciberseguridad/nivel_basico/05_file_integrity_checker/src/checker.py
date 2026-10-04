@@ -1,7 +1,7 @@
 import hashlib
 import json
 import os
-import sys
+
 
 def calculate_hash(file_path):
     """
@@ -18,6 +18,7 @@ def calculate_hash(file_path):
         print(f"Error al calcular hash de {file_path}: {e}")
         return None
 
+
 def create_baseline(directory, baseline_file):
     """
     Escanea el directorio y guarda los hashes en el baseline.
@@ -31,10 +32,11 @@ def create_baseline(directory, baseline_file):
                 # Usamos rutas relativas para portabilidad
                 rel_path = os.path.relpath(file_path, directory)
                 baseline[rel_path] = file_hash
-    
+
     with open(baseline_file, 'w', encoding='utf-8') as f:
         json.dump(baseline, f, indent=4)
     print(f"[+] Baseline creado exitosamente en {baseline_file}")
+
 
 def verify_integrity(directory, baseline_file):
     """
@@ -77,12 +79,13 @@ def verify_integrity(directory, baseline_file):
 
     print("-" * 50)
 
+
 if __name__ == "__main__":
     print("FILE INTEGRITY CHECKER")
     print("1. Crear Baseline")
     print("2. Verificar Integridad")
     choice = input("Selecciona una opción: ")
-    
+
     target_dir = input("Introduce el directorio a monitorear: ").strip()
     b_file = "baseline.json"
 

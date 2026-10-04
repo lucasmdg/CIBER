@@ -1,5 +1,8 @@
-import unittest, os, tempfile
-from src.password_manager import PasswordManager, PasswordGenerator, SecureVault
+import os
+import tempfile
+import unittest
+
+from src.password_manager import PasswordGenerator, PasswordManager, SecureVault
 
 
 class TestPasswordGenerator(unittest.TestCase):
@@ -50,7 +53,8 @@ class TestPasswordManager(unittest.TestCase):
 
     def test_agregar_y_buscar(self):
         self.pm.initialize(self.master)
-        self.pm.add_entry("GitHub", "user", "pass123", master_password=self.master)
+        self.pm.add_entry("GitHub", "user", "pass123",
+                          master_password=self.master)
         results = self.pm.search("github")
         self.assertEqual(len(results), 1)
 

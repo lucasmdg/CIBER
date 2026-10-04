@@ -1,5 +1,6 @@
 import unittest
-from src.threat_hunter import ThreatHunter, LogEvent
+
+from src.threat_hunter import LogEvent, ThreatHunter
 
 
 class TestThreatHunter(unittest.TestCase):

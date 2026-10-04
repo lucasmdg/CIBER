@@ -1,7 +1,9 @@
-import unittest
-from unittest.mock import patch, MagicMock
 import stat
+import unittest
+from unittest.mock import MagicMock, patch
+
 from src.auditor import audit_file_permissions
+
 
 class TestPermissionsAuditor(unittest.TestCase):
 
@@ -12,7 +14,7 @@ class TestPermissionsAuditor(unittest.TestCase):
         # stat.S_ISUID (0o4000) | stat.S_ISGID (0o2000)
         mock_result.st_mode = stat.S_ISUID | stat.S_ISGID
         mock_stat.return_value = mock_result
-        
+
         issues = audit_file_permissions("dummy_file")
         self.assertTrue(any("SUID" in issue for issue in issues))
         self.assertTrue(any("SGID" in issue for issue in issues))
@@ -24,7 +26,7 @@ class TestPermissionsAuditor(unittest.TestCase):
         # stat.S_IFDIR (directorio) | stat.S_IWOTH (world-writable)
         mock_result.st_mode = stat.S_IFDIR | stat.S_IWOTH
         mock_stat.return_value = mock_result
-        
+
         issues = audit_file_permissions("dummy_dir")
         self.assertTrue(any("sticky bit" in issue for issue in issues))
 
@@ -35,9 +37,11 @@ class TestPermissionsAuditor(unittest.TestCase):
         # stat.S_IROTH (world-readable)
         mock_result.st_mode = stat.S_IROTH
         mock_stat.return_value = mock_result
-        
+
         issues = audit_file_permissions("path/to/.env")
-        self.assertTrue(any("legible por cualquiera" in issue for issue in issues))
+        self.assertTrue(
+            any("legible por cualquiera" in issue for issue in issues))
+
 
 if __name__ == '__main__':
     unittest.main()

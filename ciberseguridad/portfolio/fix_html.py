@@ -7,11 +7,14 @@ with open('index.html', 'r', encoding='utf-8') as f:
 html = re.sub(r'<!-- NAVBAR -->.*?</nav>', '', html, flags=re.DOTALL)
 
 # 2. Add particles-canvas before hero
-html = html.replace('<section class="hero" id="hero">', '<canvas id="particles-canvas" style="position:absolute; top:0; left:0; width:100%; height:100vh; z-index:0; pointer-events:none;"></canvas>\n    <section class="hero" id="hero">')
+html = html.replace('<section class="hero" id="hero">',
+                    '<canvas id="particles-canvas" style="position:absolute; top:0; left:0; width:100%; height:100vh; z-index:0; pointer-events:none;"></canvas>\n    <section class="hero" id="hero">')
 
 # 3. Update Hero
-html = html.replace('<span>CYBERSECURITY ENGINEER</span>', '<span>MIS PROYECTOS</span>')
-html = re.sub(r'<p class="hero-subtitle">.*?</p>', '<p class="hero-subtitle">1º de Telecomunicaciones Ciclo Superior</p>', html, flags=re.DOTALL)
+html = html.replace('<span>CYBERSECURITY ENGINEER</span>',
+                    '<span>MIS PROYECTOS</span>')
+html = re.sub(r'<p class="hero-subtitle">.*?</p>',
+              '<p class="hero-subtitle">1º de Telecomunicaciones Ciclo Superior</p>', html, flags=re.DOTALL)
 
 # 4. Fix Links and add LinkedIn
 old_links = r'<div class="project-links">\s*<a href="#" class="btn-elegant">Demo</a>\s*<a href="#" class="btn-elegant btn-github">GitHub</a>\s*</div>'

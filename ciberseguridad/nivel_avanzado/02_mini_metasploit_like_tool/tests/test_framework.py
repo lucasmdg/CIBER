@@ -1,5 +1,6 @@
 import unittest
-from src.exploit_framework import ExploitFramework, FTPAnonExploit, Exploit
+
+from src.exploit_framework import ExploitFramework, FTPAnonExploit
 
 
 class TestExploitFramework(unittest.TestCase):
@@ -33,7 +34,8 @@ class TestExploitFramework(unittest.TestCase):
         self.assertEqual(len(history), 1)
 
     def test_http_exploit_requiere_puerto(self):
-        result = self.fw.run_exploit("http/header_disclosure", {"RHOST": "10.0.0.1"})
+        result = self.fw.run_exploit(
+            "http/header_disclosure", {"RHOST": "10.0.0.1"})
         self.assertFalse(result["success"])  # Falta RPORT
 
 

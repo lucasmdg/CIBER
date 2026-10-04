@@ -1,5 +1,7 @@
 import unittest
-from src.base64_tool import encode_b64, decode_b64
+
+from src.base64_tool import decode_b64, encode_b64
+
 
 class TestBase64Tool(unittest.TestCase):
 
@@ -21,6 +23,7 @@ class TestBase64Tool(unittest.TestCase):
         # Un input que no es base64 válido
         result = decode_b64("!!!EstoNoEsBase64!!!")
         self.assertTrue(result.startswith("Error"))
+
 
 if __name__ == "__main__":
     unittest.main()

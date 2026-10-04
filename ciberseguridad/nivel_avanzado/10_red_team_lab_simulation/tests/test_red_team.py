@@ -1,5 +1,6 @@
 import unittest
-from src.red_team_sim import RedTeamExercise, Target, Phase
+
+from src.red_team_sim import RedTeamExercise
 
 
 class TestRedTeamExercise(unittest.TestCase):

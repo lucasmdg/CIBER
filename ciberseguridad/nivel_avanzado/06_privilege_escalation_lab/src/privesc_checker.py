@@ -15,7 +15,6 @@ Explicacion humana:
 """
 
 import os
-import json
 from datetime import datetime
 
 
@@ -131,7 +130,8 @@ class PrivEscChecker:
     def check_env_path(self, path_dirs=None):
         """Comprueba si el PATH contiene directorios inseguros."""
         if path_dirs is None:
-            path_dirs = ["/usr/bin", "/usr/local/bin", "/tmp", ".", "/home/user/bin"]
+            path_dirs = ["/usr/bin", "/usr/local/bin",
+                         "/tmp", ".", "/home/user/bin"]
 
         dangerous = {".", "/tmp", "/var/tmp"}
         issues = []
@@ -150,11 +150,11 @@ class PrivEscChecker:
         """Ejecuta todas las comprobaciones y genera un reporte."""
         self.findings = []
 
-        suid = self.check_suid_binaries()
-        writable = self.check_writable_files()
-        cron = self.check_cron_jobs()
-        kernel = self.check_kernel_version()
-        path = self.check_env_path()
+        self.check_suid_binaries()
+        self.check_writable_files()
+        self.check_cron_jobs()
+        self.check_kernel_version()
+        self.check_env_path()
 
         report = {
             "timestamp": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),

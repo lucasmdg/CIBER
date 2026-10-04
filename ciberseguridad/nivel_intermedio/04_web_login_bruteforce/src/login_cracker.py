@@ -1,6 +1,7 @@
-import requests
-import sys
 import os
+
+import requests
+
 
 def brute_force_login(url, username, wordlist_path, user_field='username', pass_field='password', success_indicator='Welcome'):
     """
@@ -43,19 +44,26 @@ def brute_force_login(url, username, wordlist_path, user_field='username', pass_
         print(f"\nError de conexión: {e}")
         return None
 
+
 if __name__ == "__main__":
     print("-" * 50)
     print("WEB LOGIN BRUTEFORCER")
     print("-" * 50)
 
-    target_url = input("URL del Login (ej: http://localhost:5000/login): ").strip()
+    target_url = input(
+        "URL del Login (ej: http://localhost:5000/login): ").strip()
     target_user = input("Nombre de usuario: ").strip()
     w_path = input("Ruta a la wordlist: ").strip()
-    
-    # Parámetros avanzados (opcionales)
-    u_field = input("Nombre del campo usuario [defecto 'username']: ") or 'username'
-    p_field = input("Nombre del campo password [defecto 'password']: ") or 'password'
-    indicator = input("Texto de éxito (ej: Welcome, Dashboard, Logout): ") or 'Welcome'
 
-    print(f"\nIniciando ataque sobre {target_url} para el usuario '{target_user}'...")
-    brute_force_login(target_url, target_user, w_path, u_field, p_field, indicator)
+    # Parámetros avanzados (opcionales)
+    u_field = input(
+        "Nombre del campo usuario [defecto 'username']: ") or 'username'
+    p_field = input(
+        "Nombre del campo password [defecto 'password']: ") or 'password'
+    indicator = input(
+        "Texto de éxito (ej: Welcome, Dashboard, Logout): ") or 'Welcome'
+
+    print(
+        f"\nIniciando ataque sobre {target_url} para el usuario '{target_user}'...")
+    brute_force_login(target_url, target_user, w_path,
+                      u_field, p_field, indicator)

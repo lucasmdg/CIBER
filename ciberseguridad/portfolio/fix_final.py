@@ -1,5 +1,5 @@
 import re
-import os
+import sys
 
 with open('index.html', 'r', encoding='utf-8') as f:
     html = f.read()
@@ -45,6 +45,7 @@ advanced_mapping = {
     "Red Team Lab Simulation": "10_red_team_simulation"
 }
 
+
 def get_github_link(title, level):
     base = "https://github.com/lucasmdg/CIBER/tree/main/ciberseguridad/"
     if level == "basico":
@@ -58,61 +59,72 @@ def get_github_link(title, level):
         return base + "nivel_avanzado/" + folder if folder else "https://github.com/lucasmdg/CIBER"
     return "https://github.com/lucasmdg/CIBER"
 
+
 def get_cover_image(level):
-    if level == "basico": return "img/hero_bg.png"
-    if level == "intermedio": return "img/section_bg.png"
-    if level == "avanzado": return "img/statue.png"
+    if level == "basico":
+        return "img/hero_bg.png"
+    if level == "intermedio":
+        return "img/section_bg.png"
+    if level == "avanzado":
+        return "img/statue.png"
     return "img/statues_bg.png"
+
 
 # We will reconstruct the whole projects-grid to be sure it's perfect
 # Find the start and end of projects-grid
-grid_match = re.search(r'<div class="projects-grid" id="projects-grid">.*?</div>\s*</section>', html, flags=re.DOTALL)
+grid_match = re.search(
+    r'<div class="projects-grid" id="projects-grid">.*?</div>\s*</section>', html, flags=re.DOTALL)
 if not grid_match:
     print("Could not find projects-grid")
-    exit()
+    sys.exit()
 
 # Extract all project cards
-cards = re.findall(r'<div class="project-card level-(.*?) fade-in" data-level=".*?">.*?</div>\s*</div>', html, flags=re.DOTALL)
+cards = re.findall(
+    r'<div class="project-card level-(.*?) fade-in" data-level=".*?">.*?</div>\s*</div>', html, flags=re.DOTALL)
 # Wait, the findall is a bit complex due to nested divs. Let's use a more robust split/regex.
 
 # Alternative: split by project-card
-parts = re.split(r'(<div class="project-card level-.*? fade-in" data-level=".*?">)', html)
+parts = re.split(
+    r'(<div class="project-card level-.*? fade-in" data-level=".*?">)', html)
 new_html_parts = []
 new_html_parts.append(parts[0])
 
 for i in range(1, len(parts), 2):
     header = parts[i]
     content = parts[i+1]
-    
+
     # Extract level and title
     level_match = re.search(r'data-level="(.*?)"', header)
     level = level_match.group(1) if level_match else "basico"
-    
+
     title_match = re.search(r'<h3 class="project-title">(.*?)</h3>', content)
     title = title_match.group(1) if title_match else ""
-    
+
     # Clean old cover and links
-    content = re.sub(r'<div class="project-cover-container">.*?</div>', '', content, flags=re.DOTALL)
-    content = re.sub(r'<div class="project-links">.*?</div>', '', content, flags=re.DOTALL)
-    
+    content = re.sub(
+        r'<div class="project-cover-container">.*?</div>', '', content, flags=re.DOTALL)
+    content = re.sub(r'<div class="project-links">.*?</div>',
+                     '', content, flags=re.DOTALL)
+
     # Construct new parts
     github_link = get_github_link(title, level)
     cover_img = get_cover_image(level)
-    
+
     cover_html = f'\n                <div class="project-cover-container"><img src="{cover_img}" class="project-cover" alt="Project Cover"></div>'
     links_html = f'''
                 <div class="project-links">
                     <a href="{github_link}" target="_blank" class="btn-elegant btn-github">GitHub</a>
                     <a href="https://linkedin.com/in/lucasmdg" target="_blank" class="btn-elegant btn-linkedin">LinkedIn</a>
                 </div>'''
-    
+
     # Find the closing tag of the project-card
     # We assume the content ends with </div> which is the card's end.
     # But wait, content might have multiple </div>. We need the LAST one in the card block.
     # This is tricky without a real parser. Let's try to match the tags part and insert after.
-    
-    content = re.sub(r'(<div class="project-tags">.*?</div>)', r'\g<1>' + links_html, content, flags=re.DOTALL)
-    
+
+    content = re.sub(r'(<div class="project-tags">.*?</div>)',
+                     r'\g<1>' + links_html, content, flags=re.DOTALL)
+
     new_card_content = header + cover_html + content
     new_html_parts.append(new_card_content)
 

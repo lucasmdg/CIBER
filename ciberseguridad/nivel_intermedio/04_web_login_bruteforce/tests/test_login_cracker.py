@@ -1,7 +1,9 @@
-import unittest
-from unittest.mock import patch, MagicMock
 import os
+import unittest
+from unittest.mock import MagicMock, patch
+
 from src.login_cracker import brute_force_login
+
 
 class TestLoginCracker(unittest.TestCase):
 
@@ -40,6 +42,7 @@ class TestLoginCracker(unittest.TestCase):
 
         result = brute_force_login("http://test.com", "admin", self.wordlist)
         self.assertIsNone(result)
+
 
 if __name__ == "__main__":
     unittest.main()

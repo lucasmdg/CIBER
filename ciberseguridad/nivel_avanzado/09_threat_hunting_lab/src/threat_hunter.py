@@ -14,14 +14,14 @@ Explicacion humana:
     - Generar timelines de incidentes
 """
 
-import re
 import json
-from collections import defaultdict, Counter
+from collections import defaultdict
 from datetime import datetime
 
 
 class LogEvent:
     """Representa un evento individual de un log."""
+
     def __init__(self, timestamp, source, event_type, data, severity="INFO"):
         self.timestamp = timestamp
         self.source = source

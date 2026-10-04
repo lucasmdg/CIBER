@@ -3,7 +3,7 @@ Tests para el sistema basico de deteccion de intrusiones (IDS).
 Usamos mocks para simular paquetes de red.
 """
 import unittest
-from unittest.mock import MagicMock, patch
+from unittest.mock import MagicMock
 
 from src.ids import BasicIDS
 

@@ -12,9 +12,8 @@ Explicacion humana:
     reconocimiento facial y alarmas automaticas.
 """
 
-import time
 import json
-from collections import defaultdict
+import time
 from datetime import datetime
 
 

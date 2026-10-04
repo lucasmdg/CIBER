@@ -1,5 +1,5 @@
-import os
 from PIL import Image
+
 
 def strip_image_metadata(image_path: str, output_path: str) -> bool:
     """
@@ -9,23 +9,24 @@ def strip_image_metadata(image_path: str, output_path: str) -> bool:
     """
     try:
         img = Image.open(image_path)
-        
+
         # Guardar el formato original
         img_format = img.format if img.format else "JPEG"
-        
+
         # Crear una copia de los datos de píxeles puros
         data = list(img.getdata())
-        
+
         # Crear una nueva imagen limpia con el mismo modo y tamaño
         clean_img = Image.new(img.mode, img.size)
         clean_img.putdata(data)
-        
+
         # Guardar sin metadatos
         clean_img.save(output_path, format=img_format)
         return True
     except Exception as e:
         print(f"Error al limpiar metadatos de la imagen: {e}")
         return False
+
 
 def get_metadata_summary(image_path: str) -> dict:
     """

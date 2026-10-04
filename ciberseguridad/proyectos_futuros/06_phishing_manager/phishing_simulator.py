@@ -1,5 +1,5 @@
-import time
 import random
+import time
 
 templates = {
     "1": {
@@ -40,6 +40,7 @@ templates = {
     }
 }
 
+
 def simulate_campaign(target_emails, template_id):
     if template_id not in templates:
         print("[-] ID de plantilla inválido.")
@@ -51,7 +52,7 @@ def simulate_campaign(target_emails, template_id):
     print("=" * 60)
     print(f"[*] Asunto: {temp['subject']}")
     print(f"[*] Enviando a {len(target_emails)} objetivos...")
-    
+
     sent = 0
     opened = 0
     clicked = 0
@@ -66,19 +67,20 @@ def simulate_campaign(target_emails, template_id):
         time.sleep(0.5)
         # 75% abre el correo
         if random.random() < 0.75:
-            print(f"    - [OK] El usuario abrió el correo.")
+            print("    - [OK] El usuario abrió el correo.")
             opened += 1
-            
+
             # 50% hace clic en el enlace
             if random.random() < 0.50:
                 print(f"    - [!] Clic en enlace detectado para {email}")
                 clicked += 1
-                
+
                 # 30% entrega credenciales
                 if random.random() < 0.30:
                     captured += 1
                     sim_pass = f"Pass{random.randint(100, 999)}!"
-                    print(f"    - [☠️ CAPTURA] ¡Credenciales capturadas! User: {email} | Pass: '{sim_pass}'")
+                    print(
+                        f"    - [☠️ CAPTURA] ¡Credenciales capturadas! User: {email} | Pass: '{sim_pass}'")
 
     print("\n" + "=" * 50)
     print("  RESULTADOS DE LA CAMPAÑA DE AUDITORÍA")
@@ -86,12 +88,15 @@ def simulate_campaign(target_emails, template_id):
     print(f"  Correos Enviados:  {sent}")
     print(f"  Correos Abiertos:  {opened} ({round(opened/sent*100, 1)}%)")
     print(f"  Clics en Enlace:   {clicked} ({round(clicked/sent*100, 1)}%)")
-    print(f"  Datos Comprometidos: {captured} ({round(captured/sent*100, 1)}%)")
+    print(
+        f"  Datos Comprometidos: {captured} ({round(captured/sent*100, 1)}%)")
     print("=" * 50)
     print("[INFO] Resultados guardados en auditoria_phishing.json (Simulado)")
 
+
 if __name__ == "__main__":
-    targets = ["gerente@empresa.com", "finanzas@empresa.com", "recursos_humanos@empresa.com", "auxiliar@empresa.com"]
+    targets = ["gerente@empresa.com", "finanzas@empresa.com",
+               "recursos_humanos@empresa.com", "auxiliar@empresa.com"]
     print("Seleccione una plantilla:")
     print("  1 - Office365 Password Reset")
     print("  2 - Google Security Alert")

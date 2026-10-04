@@ -3,12 +3,12 @@ Tests para la herramienta de fuerza bruta SSH.
 
 Usamos mocks para no necesitar un servidor SSH real.
 """
-import unittest
-from unittest.mock import patch, MagicMock
-import tempfile
 import os
+import tempfile
+import unittest
+from unittest.mock import MagicMock, patch
 
-from src.ssh_brute import ssh_connect, run_ssh_bruteforce
+from src.ssh_brute import run_ssh_bruteforce, ssh_connect
 
 
 class TestSSHBrute(unittest.TestCase):
@@ -25,7 +25,8 @@ class TestSSHBrute(unittest.TestCase):
             with patch('src.ssh_brute.paramiko') as mock_paramiko:
                 import paramiko as real_paramiko
                 mock_client = MagicMock()
-                mock_client.connect.side_effect = real_paramiko.AuthenticationException("Auth failed")
+                mock_client.connect.side_effect = real_paramiko.AuthenticationException(
+                    "Auth failed")
                 mock_paramiko.SSHClient.return_value = mock_client
                 mock_paramiko.AutoAddPolicy.return_value = MagicMock()
                 mock_paramiko.AuthenticationException = real_paramiko.AuthenticationException
@@ -44,7 +45,7 @@ class TestSSHBrute(unittest.TestCase):
         """Prueba con un diccionario temporal (sin servidor real)."""
         # Creamos un archivo temporal con contrasenas
         with tempfile.NamedTemporaryFile(mode='w', suffix='.txt',
-                                          delete=False, encoding='utf-8') as f:
+                                         delete=False, encoding='utf-8') as f:
             f.write("123456\nadmin\nroot\npassword\n")
             temp_path = f.name
 

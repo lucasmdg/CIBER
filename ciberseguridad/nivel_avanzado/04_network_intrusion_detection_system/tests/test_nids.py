@@ -1,5 +1,6 @@
 import unittest
-from src.nids import NIDS, ThreatIntelligence, NetworkFlow
+
+from src.nids import NIDS, NetworkFlow, ThreatIntelligence
 
 
 class TestNIDS(unittest.TestCase):

@@ -1,7 +1,8 @@
 import socket
 import sys
-import urllib.request
 import urllib.error
+import urllib.request
+
 
 def scan_ports(ip, ports):
     """Escanea puertos críticos de forma básica"""
@@ -15,9 +16,11 @@ def scan_ports(ip, ports):
         s.close()
     return open_ports
 
+
 def audit_http_headers(url):
     """Comprueba la presencia de cabeceras de seguridad HTTP"""
-    headers_to_check = ["Content-Security-Policy", "X-Frame-Options", "X-Content-Type-Options", "Strict-Transport-Security"]
+    headers_to_check = ["Content-Security-Policy", "X-Frame-Options",
+                        "X-Content-Type-Options", "Strict-Transport-Security"]
     missing_headers = []
     try:
         req = urllib.request.Request(url, method='HEAD')
@@ -30,12 +33,13 @@ def audit_http_headers(url):
         return [f"Error al conectar con HTTP: {e}"]
     return missing_headers
 
+
 def map_surface(domain):
     print("=" * 60)
-    print(f"  THREATMAP - RECONNAISSANCE ENGINE")
+    print("  THREATMAP - RECONNAISSANCE ENGINE")
     print("=" * 60)
     print(f"[*] Escaneando superficie de ataque externa de: {domain}")
-    
+
     # 1. Resolución DNS
     try:
         ip = socket.gethostbyname(domain)
@@ -48,7 +52,7 @@ def map_surface(domain):
     critical_ports = [21, 22, 25, 53, 80, 443, 8080]
     print(f"[*] Escaneando puertos críticos: {critical_ports}...")
     open_ports = scan_ports(ip, critical_ports)
-    
+
     if open_ports:
         print(f"[!] Puertos abiertos detectados: {open_ports}")
     else:
@@ -58,19 +62,20 @@ def map_surface(domain):
     url = f"http://{domain}"
     if 443 in open_ports:
         url = f"https://{domain}"
-        
+
     if 80 in open_ports or 443 in open_ports:
         print(f"[*] Analizando cabeceras de seguridad web en {url}...")
         missing = audit_http_headers(url)
         if missing:
             print(f"[!] Cabeceras de seguridad HTTP ausentes: {missing}")
         else:
-            print("[+] El servidor web tiene todas las cabeceras de seguridad configuradas.")
-    
+            print(
+                "[+] El servidor web tiene todas las cabeceras de seguridad configuradas.")
+
     # 4. Evaluación de Riesgo Heurística
     risk = "BAJO"
     risk_reasons = []
-    
+
     if 22 in open_ports:
         risk_reasons.append("Puerto SSH expuesto públicamente.")
         risk = "MEDIO"
@@ -78,7 +83,8 @@ def map_surface(domain):
         risk_reasons.append("Puerto FTP expuesto (riesgo de texto claro).")
         risk = "MEDIO"
     if 8080 in open_ports:
-        risk_reasons.append("Puerto alternativo HTTP 8080 abierto (posible panel dev).")
+        risk_reasons.append(
+            "Puerto alternativo HTTP 8080 abierto (posible panel dev).")
         risk = "ALTO"
     if len(open_ports) > 4:
         risk_reasons.append("Superficie de puertos demasiado amplia abierta.")
@@ -96,6 +102,7 @@ def map_surface(domain):
     else:
         print("    - No se encontraron factores de riesgo críticos.")
     print("=" * 50)
+
 
 if __name__ == "__main__":
     if len(sys.argv) < 2:

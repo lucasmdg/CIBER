@@ -1,11 +1,13 @@
-import os
-import json
 import base64
-from cryptography.hazmat.primitives.kdf.pbkdf2 import PBKDF2HMAC
+import json
+import os
+from datetime import datetime
+from getpass import getpass
+
 from cryptography.hazmat.primitives import hashes
 from cryptography.hazmat.primitives.ciphers.aead import AESGCM
-from getpass import getpass
-from datetime import datetime
+from cryptography.hazmat.primitives.kdf.pbkdf2 import PBKDF2HMAC
+
 
 class SecureVault:
     def __init__(self, filename="vault.json"):
@@ -47,7 +49,7 @@ class SecureVault:
         key = self._derive_key(master_password, salt)
         aesgcm = AESGCM(key)
         nonce = os.urandom(self.nonce_size)
-        
+
         # Ciframos el JSON
         plaintext = json.dumps(data).encode()
         ciphertext = aesgcm.encrypt(nonce, plaintext, None)
@@ -86,17 +88,18 @@ class SecureVault:
             print("[!] Error: Contraseña maestra incorrecta o datos corruptos.")
             return None
 
+
 def main_menu():
     vault = SecureVault()
-    
+
     if not os.path.exists(vault.filename):
         print("--- INICIALIZACIÓN ---")
         pwd = getpass("Crea una contraseña maestra: ")
         vault.initialize(pwd)
-    
+
     pwd = getpass("\nIntroduce tu contraseña maestra: ")
     data = vault.load(pwd)
-    
+
     if data is None:
         return
 
@@ -111,13 +114,14 @@ def main_menu():
             if not data['entries']:
                 print("El almacén está vacío.")
             for entry in data['entries']:
-                print(f"[{entry['category']}] {entry['service']}: {entry['password']} (Creado: {entry['date']})")
-        
+                print(
+                    f"[{entry['category']}] {entry['service']}: {entry['password']} (Creado: {entry['date']})")
+
         elif choice == "2":
             service = input("Servicio/Web: ")
             password = input("Contraseña: ")
             category = input("Categoría (Opcional): ") or "General"
-            
+
             data['entries'].append({
                 "service": service,
                 "password": password,
@@ -126,9 +130,10 @@ def main_menu():
             })
             vault.save(pwd, data)
             print("[+] Guardado.")
-            
+
         elif choice == "3":
             break
+
 
 if __name__ == "__main__":
     main_menu()

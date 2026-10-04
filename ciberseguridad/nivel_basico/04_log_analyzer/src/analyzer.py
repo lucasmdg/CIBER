@@ -1,6 +1,7 @@
+import os
 import re
 from collections import Counter
-import os
+
 
 def analyze_logs(file_path):
     """
@@ -26,10 +27,10 @@ def analyze_logs(file_path):
                     data = match.groupdict()
                     ip = data['ip']
                     status = data['status']
-                    
+
                     ip_counts[ip] += 1
                     status_counts[status] += 1
-                    
+
                     # Identificar comportamiento sospechoso (ej: muchos 404)
                     if status == '404' and ip_counts[ip] > 10:
                         suspicious_ips.add(ip)
@@ -42,6 +43,7 @@ def analyze_logs(file_path):
     except Exception as e:
         print(f"Error al procesar el archivo: {e}")
         return None
+
 
 def print_report(results):
     if not results:
@@ -66,6 +68,7 @@ def print_report(results):
     else:
         print("\n[+] No se detectaron IPs sospechosas.")
     print("-" * 50)
+
 
 if __name__ == "__main__":
     path = input("Introduce la ruta del archivo de log: ").strip()

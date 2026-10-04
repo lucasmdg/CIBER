@@ -15,10 +15,8 @@ Aviso legal:
     Solo para uso en laboratorios propios o con autorizacion explicita.
 """
 
-import socket
 import threading
 import time
-import sys
 from queue import Queue
 
 # Intentamos importar paramiko (la libreria de SSH para Python)
@@ -67,7 +65,7 @@ def ssh_connect(host, port, username, password, timeout=5):
     except paramiko.AuthenticationException:
         # Contrasena incorrecta, seguimos probando
         return False
-    except (paramiko.SSHException, socket.error, socket.timeout):
+    except (TimeoutError, OSError, paramiko.SSHException):
         # Error de conexion (servidor caido, timeout, etc.)
         return False
     except Exception:
